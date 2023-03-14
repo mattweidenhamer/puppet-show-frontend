@@ -1,5 +1,7 @@
 from django.core.files.storage import FileSystemStorage
 from django.db import models
+from random import randint
+from hashlib import md5
 
 
 #################################################################
@@ -13,6 +15,10 @@ def user_pfp_path(instance, filename):
 
 def user_actor_path(instance, filename):
     return f"profiles/{instance.actor_base_user.user_username}/{filename}"
+
+
+def generate_user_hash():
+    pass
 
 
 #################################################################
@@ -53,7 +59,9 @@ class Scene(models.Model):
 class Actor(models.Model):
     # TODO set up so that it deletes images that are currently being unused
     # A unique hash of the person's ID, the emotion name,
-    actor_hash = models.CharField(max_length=200)
+    actor_hash = models.CharField(
+        max_length=200, unique=True, default=randint(-99999, 99999)
+    )
 
     # The ID of the user actually being drawn
     actor_base_user = models.ForeignKey(DiscordData, on_delete=models.CASCADE)
@@ -77,6 +85,17 @@ class Actor(models.Model):
 
     def __str__(self) -> str:
         return f"{self.actor_base_user} {self.scene.scene_name}"
+
+    # Overwrite the default save function
+    def save(self, *args, **kwargs):
+        prehash_string = (
+            str(self.actor_base_user.user_snowflake)
+            + str(self.scene.scene_name)
+            + str(self.pk)
+        )
+        hasher = md5(prehash_string, usedforsecurity=False)
+        self.actor_hash = hasher.hexdigest()
+        super().save(*args, **kwargs)
 
 
 # An "emotion" is an extra configuration of states.
