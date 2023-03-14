@@ -51,6 +51,7 @@ class Scene(models.Model):
 # An "Actor" is a visualization of the user in a scene.
 # It is the main representation of the screen that a user gets.
 class Actor(models.Model):
+    # TODO set up so that it deletes images that are currently being unused
     # A unique hash of the person's ID, the emotion name,
     actor_hash = models.CharField(max_length=200)
 
