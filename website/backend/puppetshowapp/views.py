@@ -1,14 +1,10 @@
 from django.http import HttpResponse
-from rest_framework import generics
+from django.contrib.auth.decorators import login_required
 from .models import Actor, Scene
 from .serializers import ActorSerializer, SceneSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
-
-
-def index(request):
-    return HttpResponse("Hello, World.")
 
 
 # class ActorApi(generics.ListCreateAPIView):
@@ -21,8 +17,10 @@ def index(request):
 #################################################
 
 
+@login_required
 @api_view(["GET", "PUT", "DELETE"])
 def interactWithActor(request, userid):
+    # Add permissions test
     if request.method == "GET":
         data = Actor.objects.get(actor_hash=userid)
         serializer = ActorSerializer(data, context={"request": request})
@@ -45,8 +43,10 @@ def interactWithActor(request, userid):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@login_required
 @api_view(["POST"])
 def createActor(request):
+    # Add permissions test
     serializer = ActorSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -59,6 +59,7 @@ def createActor(request):
 #################################################
 
 
+@login_required
 @api_view(["GET", "PUT", "DELETE"])
 def interactWithScene(request, pk):
     if request.method == "GET":
@@ -83,6 +84,7 @@ def interactWithScene(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@login_required
 @api_view(["POST"])
 def createScene(request):
     serializer = SceneSerializer(data=request.data)

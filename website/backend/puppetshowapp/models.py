@@ -1,6 +1,8 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from random import randint
 from hashlib import md5
+
 
 # TODO consider using uuid instead of md5
 
@@ -131,3 +133,22 @@ class Emotion(models.Model):
 
     class Meta:
         db_table = "character_emotions"
+
+
+#################################################################
+# User Model
+#################################################################
+
+
+class User(AbstractUser):
+    discord_data = models.OneToOneField(DiscordData, on_delete=models.DO_NOTHING)
+    discord_username = models.CharField(max_length=100)
+    actors = models
+    scenes = models
+
+    def has_perm(self, perm, obj=None):
+        if isinstance(obj, Actor):
+            pass
+        elif isinstance(obj, Scene):
+            pass
+        return super().has_perm(perm, obj)
