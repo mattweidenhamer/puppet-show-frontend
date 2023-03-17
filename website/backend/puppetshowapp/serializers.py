@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from .models import Actor
+from .models import Actor, Scene
 
 
 class ActorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actor
-        fields = {
+        fields = (
             "actor_hash",
             "actor_base_user",
             "scene",
@@ -15,4 +15,13 @@ class ActorSerializer(serializers.ModelSerializer):
             # "sleeping_animation",
             # "connection_animation",
             # "disconnect_animation",
-        }
+        )
+
+
+class SceneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Scene
+        fields = (
+            "scene_author",
+            "scene_name",
+        )

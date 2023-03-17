@@ -1,7 +1,8 @@
-from django.core.files.storage import FileSystemStorage
 from django.db import models
 from random import randint
 from hashlib import md5
+
+# TODO consider using uuid instead of md5
 
 
 #################################################################
