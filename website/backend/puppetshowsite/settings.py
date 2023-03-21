@@ -132,4 +132,4 @@ MEDIA_URL = "/media/"
 # TODO CHANGE BEFORE LIVE PUBLISH
 CORS_ORIGIN_ALLOW_ALL = True
 
-AUTH_USER_MODEL = "puppetshowapp.User"
+AUTH_USER_MODEL = "puppetshowapp.DiscordPointingUser"

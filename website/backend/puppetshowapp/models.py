@@ -1,7 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-from random import randint
-from hashlib import md5
+from django.utils import timezone
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+import uuid
 
 
 # TODO consider using uuid instead of md5
@@ -18,10 +18,6 @@ def user_pfp_path(instance, filename):
 
 def user_actor_path(instance, filename):
     return f"profiles/{instance.actor_base_user.user_username}/{filename}"
-
-
-def generate_user_hash():
-    pass
 
 
 #################################################################
@@ -62,9 +58,7 @@ class Scene(models.Model):
 class Actor(models.Model):
     # TODO set up so that it deletes images that are currently being unused
     # A unique hash of the person's ID, the emotion name,
-    actor_hash = models.CharField(
-        max_length=200, unique=True, default=randint(-99999, 99999)
-    )
+    actor_hash = models.UUIDField(default=uuid.uuid4)
 
     # The ID of the user actually being drawn
     actor_base_user = models.ForeignKey(DiscordData, on_delete=models.CASCADE)
@@ -89,16 +83,17 @@ class Actor(models.Model):
     def __str__(self) -> str:
         return f"{self.actor_base_user} {self.scene.scene_name}"
 
-    # Overwrite the default save function
-    def save(self, *args, **kwargs):
-        prehash_string = (
-            str(self.actor_base_user.user_snowflake)
-            + str(self.scene.scene_name)
-            + str(self.pk)
-        )
-        hasher = md5(prehash_string, usedforsecurity=False)
-        self.actor_hash = hasher.hexdigest()
-        super().save(*args, **kwargs)
+    # # Overwrite the default save function
+    # Not used, but saved for posterity
+    # def save(self, *args, **kwargs):
+    #     prehash_string = (
+    #         str(self.actor_base_user.user_snowflake)
+    #         + str(self.scene.scene_name)
+    #         + str(self.pk)
+    #     )
+    #     hasher = md5(prehash_string, usedforsecurity=False)
+    #     self.actor_hash = hasher.hexdigest()
+    #     super().save(*args, **kwargs)
 
 
 # An "emotion" is an extra configuration of states.
@@ -135,20 +130,64 @@ class Emotion(models.Model):
         db_table = "character_emotions"
 
 
-#################################################################
+################################################################
 # User Model
-#################################################################
+################################################################
 
 
-class User(AbstractUser):
+class DiscordPointingUserManager(BaseUserManager):
+    def create_user(self, email, password, discord_snowflake):
+        if not email or not discord_snowflake:
+            raise ValueError("Email and discord snowflake all must be valid.")
+        discord, created = DiscordData.objects.get_or_create(
+            user_snowflake=discord_snowflake
+        )
+        if created:
+            print("Created an empty discord user for account")
+            # TODO will need to also grab and sync discord information
+        user = self.model(email=email, discord_data=discord)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, email, password):
+        if not email or not password:
+            raise ValueError(
+                "Username, password, and discord snowflake all must be valid."
+            )
+        user = self.create_user(email, password, discord_snowflake="-1")
+        user.is_admin = True
+        user.save(using=self.db)
+        return user
+
+
+class DiscordPointingUser(AbstractBaseUser):
+    email = models.EmailField(("email_address"), unique=True)
     discord_data = models.OneToOneField(DiscordData, on_delete=models.DO_NOTHING)
-    discord_username = models.CharField(max_length=100)
-    actors = models
-    scenes = models
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+    date_joined = models.DateTimeField(default=timezone.now())
+
+    objects = DiscordPointingUserManager()
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["discord_data"]
+
+    def __str__(self) -> str:
+        if self.discord_data.user_username is None:
+            return self.email
+        return self.discord_data.user_username
 
     def has_perm(self, perm, obj=None):
-        if isinstance(obj, Actor):
-            pass
+        if self.is_staff:
+            return True
+        elif isinstance(obj, Actor):
+            if obj.actor_base_user.pk == self.discord_data.pk:
+                return True
+            return False
         elif isinstance(obj, Scene):
-            pass
-        return super().has_perm(perm, obj)
+            if obj.scene_author.pk == self.discord_data.pk:
+                return True
+            return False
+        return False
+        # TODO finish perms, is this all that we need?
+        # return super().has_perm(perm, obj)

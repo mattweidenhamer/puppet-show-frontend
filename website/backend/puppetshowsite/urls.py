@@ -21,7 +21,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("puppetshow/", include("puppetshowapp.urls")),
     path("actors/", views.createActor),
-    path("actors/<str:userid>/", views.interactWithActor),
+    path("actors/<uuid:userid>/", views.interactWithActor),
     path("scenes/", views.createScene),
     path("createscene/<int:pk>/", views.interactWithScene),
 ]
