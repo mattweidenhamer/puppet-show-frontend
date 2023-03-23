@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Actor, Scene
+from .models import Actor, Scene, DiscordPointingUser
 
 
 class ActorSerializer(serializers.ModelSerializer):

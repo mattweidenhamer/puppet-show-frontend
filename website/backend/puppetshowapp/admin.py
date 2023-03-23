@@ -1,4 +1,7 @@
 from django import forms
+from django.urls import reverse
+from django.utils.http import urlencode
+from django.utils.html import format_html
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -36,13 +39,13 @@ class CustomUserAdmin(BaseUserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = DiscordPointingUser
-    list_display = ("email", "discord_snowflake", "is_staff", "is_active")
-    list_filter = ("email", "discord_snowflake", "is_staff", "is_active")
+    list_display = ("email", "discord_data", "is_staff", "is_active")
+    list_filter = ("email", "discord_data", "is_staff", "is_active")
     fieldsets = (
-        (None, {"fields": ("email", "password", "discord_snowflake")}),
+        (None, {"fields": ("email", "password", "discord_data")}),
         (
             "Permissions",
-            {"fields": ("is_staff", "is_active", "groups", "user_permissions")},
+            {"fields": ("is_staff", "is_active")},
         ),
     )
 
@@ -59,10 +62,22 @@ class DiscordDataAdmin(admin.ModelAdmin):
 
 @admin.register(Scene)
 class SceneAdmin(admin.ModelAdmin):
-    list_display = {"scene_name", "scene_author", "view_actors"}
+    list_display = (
+        "scene_name",
+        "scene_author",
+        # "view_actors_link"
+    )
 
-    def view_actors(self, obj):
-        count = obj.actor_set.count()
+    # def view_actors_link(self, obj):
+    #     count = obj.actor_set.count()
+    #     url = (
+    #         reverse("admin:puppetshowapp_actor_changelist")
+    #         + "?"
+    #         + urlencode({"scene__id": f"{obj.id}"})
+    #     )
+    #     return format_html('<a href="{}">{} Actors</a>', url, count)
+    #
+    # view_actors_link.short_description = "Actors"
 
     fieldsets = [
         (

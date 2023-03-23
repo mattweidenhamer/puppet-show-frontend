@@ -133,3 +133,4 @@ MEDIA_URL = "/media/"
 CORS_ORIGIN_ALLOW_ALL = True
 
 AUTH_USER_MODEL = "puppetshowapp.DiscordPointingUser"
+AUTH_USER_MODEL_MANAGER = "puppetshowapp.DiscordPointingUserManager"

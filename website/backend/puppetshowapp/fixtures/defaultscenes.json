@@ -1,7 +1,7 @@
 [
     {
         "model": "puppetshowapp.DiscordData",
-        "pk": -1,
+        "pk": 1,
         "fields": {
             "user_snowflake": "-1",
             "user_username": "TEST USER"
@@ -9,18 +9,18 @@
     },
     {
         "model": "puppetshowapp.Scene",
-        "pk": -1,
+        "pk": 1,
         "fields": {
-            "scene_author": -1,
+            "scene_author": 1,
             "scene_name": "TEST SCENE"
         }
     },
     {
         "model": "puppetshowapp.Actor",
-        "pk": -1,
+        "pk": 1,
         "fields": {
-            "actor_base_user": -1,
-            "scene": -1
+            "actor_base_user": 1,
+            "scene": 1
         }
     }
 ]

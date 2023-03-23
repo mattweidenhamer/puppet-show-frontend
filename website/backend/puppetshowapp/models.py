@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 import uuid
 
 
@@ -138,7 +138,7 @@ class Emotion(models.Model):
 class DiscordPointingUserManager(BaseUserManager):
     def create_user(self, email, password, discord_snowflake):
         if not email or not discord_snowflake:
-            raise ValueError("Email and discord snowflake all must be valid.")
+            raise ValueError("Email and discord snowflake must be passed.")
         discord, created = DiscordData.objects.get_or_create(
             user_snowflake=discord_snowflake
         )
@@ -150,23 +150,17 @@ class DiscordPointingUserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, email, password):
-        if not email or not password:
-            raise ValueError(
-                "Username, password, and discord snowflake all must be valid."
-            )
-        user = self.create_user(email, password, discord_snowflake="-1")
-        user.is_admin = True
-        user.save(using=self.db)
+    def create_superuser(self, email, password, discord_snowflake):
+        user = self.create_user(email, password, discord_snowflake)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
         return user
 
 
-class DiscordPointingUser(AbstractBaseUser):
+class DiscordPointingUser(AbstractUser):
     email = models.EmailField(("email_address"), unique=True)
     discord_data = models.OneToOneField(DiscordData, on_delete=models.DO_NOTHING)
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
-    date_joined = models.DateTimeField(default=timezone.now())
 
     objects = DiscordPointingUserManager()
     USERNAME_FIELD = "email"
@@ -178,7 +172,7 @@ class DiscordPointingUser(AbstractBaseUser):
         return self.discord_data.user_username
 
     def has_perm(self, perm, obj=None):
-        if self.is_staff:
+        if self.is_superuser:
             return True
         elif isinstance(obj, Actor):
             if obj.actor_base_user.pk == self.discord_data.pk:
@@ -188,6 +182,5 @@ class DiscordPointingUser(AbstractBaseUser):
             if obj.scene_author.pk == self.discord_data.pk:
                 return True
             return False
-        return False
+        return super.has_perm(perm, obj=obj)
         # TODO finish perms, is this all that we need?
-        # return super().has_perm(perm, obj)
