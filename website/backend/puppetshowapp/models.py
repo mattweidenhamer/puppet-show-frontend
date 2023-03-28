@@ -1,10 +1,6 @@
 from django.db import models
-from django.utils import timezone
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 import uuid
-
-
-# TODO consider using uuid instead of md5
 
 
 #################################################################
@@ -21,7 +17,7 @@ def user_actor_path(instance, filename):
 
 
 #################################################################
-# Models
+# User Data Models
 #################################################################
 
 
@@ -38,10 +34,81 @@ class DiscordData(models.Model):
         db_table = "discord_user_data"
 
 
+class DiscordPointingUserManager(BaseUserManager):
+    def create_user_from_snowflake(self, email, password, discord_snowflake):
+        if not email or not discord_snowflake:
+            raise ValueError("Email and discord snowflake must be passed.")
+        discord, created = DiscordData.objects.get_or_create(
+            user_snowflake=discord_snowflake
+        )
+        if created:
+            print("Created an empty discord user for account")
+            # TODO will need to also grab and sync discord information
+        user = self.model(email=email, discord_data=discord)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser_from_snowflake(self, email, password, discord_snowflake):
+        user = self.create_user_from_snowflake(email, password, discord_snowflake)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        return user
+
+    def create_user(self, email, password, discord_data):
+        if not email or not discord_data:
+            raise ValueError("Email and discord data must be passed.")
+        user = self.model(email=email, discord_data=discord_data)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, email, password, discord_data):
+        user = self.create_user(email, password, discord_data)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        return user
+
+
+class DiscordPointingUser(AbstractBaseUser):
+    email = models.EmailField(("email_address"), unique=True)
+    discord_data = models.OneToOneField(DiscordData, on_delete=models.DO_NOTHING)
+    is_superuser = models.BooleanField(default=False)
+
+    objects = DiscordPointingUserManager()
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["discord_data"]
+
+    def __str__(self) -> str:
+        if self.discord_data.user_username is None:
+            return self.email
+        return self.discord_data.user_username
+
+    def has_perm(self, perm, obj=None):
+        if self.is_superuser:
+            return True
+        elif isinstance(obj, Actor):
+            if obj.scene.scene_author.pk == self.pk:
+                return True
+            return False
+        elif isinstance(obj, Scene):
+            if obj.scene_author.pk == self.pk:
+                return True
+            return False
+        return False
+
+
+################################################################
+# Object Models
+################################################################
+
+
 # A "scene" is a configuration of a certain set of actors.
 # Each has their own
 class Scene(models.Model):
-    scene_author = models.ForeignKey(DiscordData, on_delete=models.CASCADE)
+    scene_author = models.ForeignKey(DiscordPointingUser, on_delete=models.CASCADE)
     scene_name = models.CharField(max_length=30)
 
     def __str__(self) -> str:
@@ -63,6 +130,8 @@ class Actor(models.Model):
     # The ID of the user actually being drawn
     actor_base_user = models.ForeignKey(DiscordData, on_delete=models.CASCADE)
 
+    actor_name = models.CharField(max_length=30)
+
     # What Scene they belong to
     scene = models.ForeignKey(Scene, on_delete=models.CASCADE)
 
@@ -82,6 +151,11 @@ class Actor(models.Model):
 
     def __str__(self) -> str:
         return f"{self.actor_base_user} {self.scene.scene_name}"
+
+    def save(self, *args, **kwargs):
+        if self.actor_name is None or self.actor_name == "":
+            self.actor_name = self.actor_base_user.user_username
+        super().save(*args, **kwargs)
 
     # # Overwrite the default save function
     # Not used, but saved for posterity
@@ -128,59 +202,3 @@ class Emotion(models.Model):
 
     class Meta:
         db_table = "character_emotions"
-
-
-################################################################
-# User Model
-################################################################
-
-
-class DiscordPointingUserManager(BaseUserManager):
-    def create_user(self, email, password, discord_snowflake):
-        if not email or not discord_snowflake:
-            raise ValueError("Email and discord snowflake must be passed.")
-        discord, created = DiscordData.objects.get_or_create(
-            user_snowflake=discord_snowflake
-        )
-        if created:
-            print("Created an empty discord user for account")
-            # TODO will need to also grab and sync discord information
-        user = self.model(email=email, discord_data=discord)
-        user.set_password(password)
-        user.save()
-        return user
-
-    def create_superuser(self, email, password, discord_snowflake):
-        user = self.create_user(email, password, discord_snowflake)
-        user.is_superuser = True
-        user.is_staff = True
-        user.save()
-        return user
-
-
-class DiscordPointingUser(AbstractUser):
-    email = models.EmailField(("email_address"), unique=True)
-    discord_data = models.OneToOneField(DiscordData, on_delete=models.DO_NOTHING)
-
-    objects = DiscordPointingUserManager()
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["discord_data"]
-
-    def __str__(self) -> str:
-        if self.discord_data.user_username is None:
-            return self.email
-        return self.discord_data.user_username
-
-    def has_perm(self, perm, obj=None):
-        if self.is_superuser:
-            return True
-        elif isinstance(obj, Actor):
-            if obj.actor_base_user.pk == self.discord_data.pk:
-                return True
-            return False
-        elif isinstance(obj, Scene):
-            if obj.scene_author.pk == self.discord_data.pk:
-                return True
-            return False
-        return super.has_perm(perm, obj=obj)
-        # TODO finish perms, is this all that we need?

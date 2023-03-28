@@ -23,7 +23,7 @@ class Command(BaseCommand):
                 break
             self.stdout.write(self.style.ERROR("Passwords don't match."))
 
-        user = DiscordPointingUser.objects.create_superuser(
+        user = DiscordPointingUser.objects.create_superuser_from_snowflake(
             email=email, password=password1, discord_snowflake=discord_id
         )
         self.stdout.write(self.style.SUCCESS("Superuser created."))

@@ -1,7 +1,12 @@
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import Actor, Scene
-from .serializers import ActorSerializer, SceneSerializer
+from .serializers import (
+    ActorSerializer,
+    SceneSerializer,
+    DiscordDataSerializer,
+    UserSerializer,
+)
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -88,6 +93,25 @@ def interactWithScene(request, pk):
 @api_view(["POST"])
 def createScene(request):
     serializer = SceneSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@login_required
+@api_view(["POST"])
+def registerDiscordData(request):
+    serialzer = DiscordDataSerializer(data=request.data)
+    if serialzer.is_valid():
+        serialzer.save()
+        return Response(status=status.HTTP_201_CREATED)
+    return Response(serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+def createUser(request):
+    serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
         return Response(status=status.HTTP_201_CREATED)

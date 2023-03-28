@@ -10,7 +10,6 @@ from django.core.exceptions import ValidationError
 from .models import DiscordData, Scene, Actor, DiscordPointingUser
 from .forms import *
 
-
 # class UserCreationForm(forms.ModelForm):
 #     password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
 #     password2 = forms.CharField(label="Password Confirmation")
@@ -39,14 +38,19 @@ class CustomUserAdmin(BaseUserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = DiscordPointingUser
-    list_display = ("email", "discord_data", "is_staff", "is_active")
-    list_filter = ("email", "discord_data", "is_staff", "is_active")
+    list_display = ("email", "discord_data")
+    list_filter = ("email", "discord_data")
+    ordering = ("email",)
+    filter_horizontal = ()
     fieldsets = (
         (None, {"fields": ("email", "password", "discord_data")}),
         (
             "Permissions",
-            {"fields": ("is_staff", "is_active")},
+            {"fields": ("is_superuser",)},
         ),
+    )
+    add_fieldsets = (
+        (None, {"fields": ("email", "discord_data", "password1", "password2")}),
     )
 
 

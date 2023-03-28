@@ -24,4 +24,6 @@ urlpatterns = [
     path("actors/<uuid:userid>/", views.interactWithActor),
     path("scenes/", views.createScene),
     path("createscene/<int:pk>/", views.interactWithScene),
+    # path("auth/", views.auth),
+    # path("auth/register/", views.register),
 ]
