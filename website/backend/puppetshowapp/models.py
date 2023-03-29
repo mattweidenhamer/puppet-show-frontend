@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 import uuid
+import os
+from enum import Enum
 
 
 #################################################################
@@ -17,6 +19,15 @@ def user_actor_path(instance, filename):
 
 
 #################################################################
+# Data models
+#################################################################
+
+
+# class Image(models.Model):
+#     image = models.ImageField(upload_to=user_pfp_path)
+
+
+#################################################################
 # User Data Models
 #################################################################
 
@@ -25,6 +36,7 @@ def user_actor_path(instance, filename):
 class DiscordData(models.Model):
     user_snowflake = models.CharField(max_length=20, unique=True)
     user_username = models.CharField(max_length=100)
+    # profile_picture = models.ForeignKey(Image, on_delete=models.DO_NOTHING)
     profile_picture = models.ImageField(upload_to=user_pfp_path)
 
     def __str__(self) -> str:
@@ -123,7 +135,13 @@ class Scene(models.Model):
 # An "Actor" is a visualization of the user in a scene.
 # It is the main representation of the screen that a user gets.
 class Actor(models.Model):
-    # TODO set up so that it deletes images that are currently being unused
+    class Attributes(Enum):
+        SPEAKING = "speaking"
+        NOT_SPEAKING = "not_speaking"
+        SLEEPING = "sleeping"
+        CONNECTION = "connection"
+        DISCONNECT = "disconnect"
+
     # A unique hash of the person's ID, the emotion name,
     actor_hash = models.UUIDField(default=uuid.uuid4)
 
@@ -157,6 +175,33 @@ class Actor(models.Model):
             self.actor_name = self.actor_base_user.user_username
         super().save(*args, **kwargs)
 
+    def setImage(self, attribute, image):
+        def _deleteImage(image):
+            try:
+                if os.path.isfile(image.path):
+                    os.remove(image.path)
+            except ValueError:
+                pass
+
+        # TODO there's got to be a better way to code this
+        if attribute == self.Attributes.SPEAKING:
+            _deleteImage(self.speaking_animation)
+            self.speaking_animation = image
+        elif attribute == self.Attributes.NOT_SPEAKING:
+            _deleteImage(self.not_speaking_animation)
+            self.not_speaking_animation = image
+        elif attribute == self.Attributes.SLEEPING:
+            _deleteImage(self.sleeping_animation)
+            self.sleeping_animation = image
+        elif attribute == self.Attributes.CONNECTION:
+            _deleteImage(self.connection_animation)
+            self.connection_animation = image
+        elif attribute == self.Attributes.DISCONNECT:
+            _deleteImage(self.disconnect_animation)
+            self.disconnect_animation = image
+        else:
+            raise AttributeError("Invalid attribute")
+
     # # Overwrite the default save function
     # Not used, but saved for posterity
     # def save(self, *args, **kwargs):
@@ -182,23 +227,21 @@ class Emotion(models.Model):
     emotion_hash = models.CharField(max_length=200)
 
     # The emotion "name," default to "Neutral"
-    emotion_name = models.CharField(
-        max_length=15, default="Neutral", null=True, blank=True
-    )
+    emotion_name = models.CharField(max_length=15, default="Neutral")
 
     # What actor they belong to
     actor = models.ForeignKey(Actor, on_delete=models.CASCADE)
 
     # Default animations
-    speaking_animation = models.ImageField(upload_to=user_pfp_path)
-    not_speaking_animation = models.ImageField(upload_to=user_pfp_path)
+    speaking_animation = models.ImageField(upload_to=user_actor_path)
+    not_speaking_animation = models.ImageField(upload_to=user_actor_path)
 
     # When not speaking for a while, NYI
-    sleeping_animation = models.ImageField(null=True, blank=True)
+    sleeping_animation = models.ImageField(upload_to=user_actor_path)
 
     # NYI
-    connection_animation = models.ImageField(null=True, blank=True)
-    disconnect_animation = models.ImageField(null=True, blank=True)
+    connection_animation = models.ImageField(upload_to=user_actor_path)
+    disconnect_animation = models.ImageField(upload_to=user_actor_path)
 
     class Meta:
         db_table = "character_emotions"

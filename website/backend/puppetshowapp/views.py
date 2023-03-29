@@ -59,6 +59,12 @@ def createActor(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@login_required
+@api_view(["POST"])
+def assign_image_to_actor(request):
+    pass
+
+
 #################################################
 # Scene API functions
 #################################################
