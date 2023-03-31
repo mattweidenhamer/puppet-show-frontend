@@ -8,6 +8,15 @@
         }
     },
     {
+        "model": "puppetshowapp.DiscordPointingUser",
+        "pk": 1,
+        "fields": {
+            "email": "test_user@gmail.com",
+            "discord_data": 1,
+            "is_superuser": true
+        }
+    },
+    {
         "model": "puppetshowapp.Scene",
         "pk": 1,
         "fields": {

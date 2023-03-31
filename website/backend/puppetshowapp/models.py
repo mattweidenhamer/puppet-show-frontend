@@ -111,6 +111,9 @@ class DiscordPointingUser(AbstractBaseUser):
             return False
         return False
 
+    def get_owner(self):
+        return self
+
 
 ################################################################
 # Object Models
@@ -131,6 +134,9 @@ class Scene(models.Model):
     class Meta:
         db_table = "scenes"
 
+    def get_owner(self):
+        return self.scene_author
+
 
 # An "Actor" is a visualization of the user in a scene.
 # It is the main representation of the screen that a user gets.
@@ -148,6 +154,7 @@ class Actor(models.Model):
     # The ID of the user actually being drawn
     actor_base_user = models.ForeignKey(DiscordData, on_delete=models.CASCADE)
 
+    # A display name for the actor
     actor_name = models.CharField(max_length=30)
 
     # What Scene they belong to
@@ -166,6 +173,9 @@ class Actor(models.Model):
 
     class Meta:
         db_table = "charactor_actors"
+
+    def get_owner(self):
+        return self.scene.scene_author
 
     def __str__(self) -> str:
         return f"{self.actor_base_user} {self.scene.scene_name}"

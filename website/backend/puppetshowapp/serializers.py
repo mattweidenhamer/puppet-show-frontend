@@ -16,6 +16,7 @@ class ActorSerializer(serializers.ModelSerializer):
             # "connection_animation",
             # "disconnect_animation",
         )
+        read_only_field = ["actor_hash", "actor_base_user", "scene"]
 
 
 class SceneSerializer(serializers.ModelSerializer):
@@ -25,14 +26,20 @@ class SceneSerializer(serializers.ModelSerializer):
             "scene_author",
             "scene_name",
         )
+        read_only_field = ["scene_author"]
 
 
 class DiscordDataSerializer(serializers.ModelSerializer):
-    model = DiscordData
-    fields = ["user_snowflake", "user_username", "profile_picture"]
+    class Meta:
+        model = DiscordData
+        fields = ["user_snowflake", "user_username", "profile_picture"]
+        read_only_field = ["user_snowflake"]
 
 
 class UserSerializer(serializers.ModelSerializer):
-    model = DiscordPointingUser
-    fields = ["id", "email", "created", "updated"]
-    read_only_field = ["created", "updated"]
+    scenes = serializers.PrimaryKeyRelatedField(many=True, queryset=Scene.objects.all())
+
+    class Meta:
+        model = DiscordPointingUser
+        fields = ["id", "email", "created", "updated", "scenes", "discord_data"]
+        read_only_field = ["created", "updated"]

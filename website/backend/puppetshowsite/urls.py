@@ -21,11 +21,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("puppetshow/", include("puppetshowapp.urls")),
-    path("actors/", views.createActor),
-    path("actors/<uuid:userid>/", views.interactWithActor),
-    path("scenes/", views.createScene),
-    path("createscene/<int:pk>/", views.interactWithScene),
+    path("ps/", include("puppetshowapp.urls")),
     # path("auth/", views.auth),
     # path("auth/register/", views.register),
 ]
