@@ -4,7 +4,13 @@ const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 const { DISCORD_BOT_TOKEN } = require("./config.json");
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMembers,
+  ],
+});
 
 const eventsPath = path.join(__dirname, "events");
 const eventFiles = fs
@@ -46,36 +52,49 @@ for (const folder of commandFolders) {
   }
 }
 
-// // When the client is ready, run this code (only once)
-// // We use 'c' for the event parameter to keep it separate from the already defined 'client'
-// client.once(Events.ClientReady, c => {
-// 	console.log(`Ready! Logged in as ${c.user.tag}`);
-// });
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
 
-// client.on(Events.InteractionCreate, async interaction => {
-// 	if(!interaction.isChatInputCommand()) return;
-// 	console.log(interaction);
+  const command = client.commands.get(interaction.commandName);
 
-// 	const command = interaction.client.commands.get(interaction.commandName);
+  if (!command) return;
 
-// 	if(!command) {
-// 		console.error(`The command ${interaction.commandName} does not exist.`);
-// 		return;
-// 	}
+  const { cooldowns } = client;
 
-// 	try {
-// 		await command.execute(interaction);
-// 	} catch (error) {
-// 		console.error(error);
-// 		if (interaction.replied || interaction.deferred) {
-// 			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-// 		} else {
-// 			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-// 		}
+  if (!cooldowns.has(command.name)) {
+    cooldowns.set(command.name, new Collection());
+  }
 
-// 	}
+  const now = Date.now();
+  const timestamps = cooldowns.get(command.name);
+  const defaultCooldownDuration = 3;
+  const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1000;
 
-// });
+  if (timestamps.has(interaction.user.id)) {
+    const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;
+
+    if (now < expirationTime) {
+      const expiredTimestamp = Math.round(expirationTime / 1000);
+      return interaction.reply({
+        content: `Please wait <t:${expiredTimestamp}:R> more second(s) before reusing the \`${command.name}\` command.`,
+        ephemeral: true,
+      });
+    }
+  }
+
+  timestamps.set(interaction.user.id, now);
+  setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
+
+  try {
+    await command.execute(interaction);
+  } catch (error) {
+    console.error(error);
+    await interaction.reply({
+      content: "There was an error while executing this command!",
+      ephemeral: true,
+    });
+  }
+});
 
 // Log in to Discord with your client's token
 client.login(DISCORD_BOT_TOKEN);
