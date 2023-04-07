@@ -28,7 +28,6 @@ class DiscordAuthBackend(BaseBackend):
             )
             token_exchange_response.raise_for_status()
         except Exception as e:
-            raise e
             return None
         token_data = token_exchange_response.json()
         access_token = token_data["access_token"]
