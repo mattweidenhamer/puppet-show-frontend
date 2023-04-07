@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import *
+from .views import authentication_views, model_views
 
 # router = routers.DefaultRouter()
 # router.register(r"actors", views.ActorViewSet)
@@ -12,14 +12,9 @@ from .views import *
 
 
 urlpatterns = [
-    path("", api_root),
-    path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
-    path("scenes/", SceneList.as_view(), name="scene-list"),
-    path("scenes/<int:pk>/", SceneDetail.as_view(), name="scene-detail"),
-    path("users/", UserList.as_view(), name="user-list"),
-    path("users/create/", UserCreate.as_view(), name="user-create"),
-    path("users/<int:pk>/", UserDetail.as_view(), name="user-detail"),
-    path("actors/create/", ActorCreate.as_view(), name="actor-create"),
+    path("scenes/", model_views.SceneView.as_view()),
+    path(
+        "scenes/<int:pk>/", model_views.SceneViewIndividual.as_view()
+    ),  # Return scene and all actors
+    # path("actors/<uuid:uuid>/", model_views.ActorView.as_view())
 ]
-
-urlpatterns = format_suffix_patterns(urlpatterns)

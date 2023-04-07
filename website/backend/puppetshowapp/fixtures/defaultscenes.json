@@ -6,30 +6,5 @@
             "user_snowflake": "-1",
             "user_username": "TEST USER"
         }
-    },
-    {
-        "model": "puppetshowapp.DiscordPointingUser",
-        "pk": 1,
-        "fields": {
-            "email": "test_user@gmail.com",
-            "discord_data": 1,
-            "is_superuser": true
-        }
-    },
-    {
-        "model": "puppetshowapp.Scene",
-        "pk": 1,
-        "fields": {
-            "scene_author": 1,
-            "scene_name": "TEST SCENE"
-        }
-    },
-    {
-        "model": "puppetshowapp.Actor",
-        "pk": 1,
-        "fields": {
-            "actor_base_user": 1,
-            "scene": 1
-        }
     }
 ]

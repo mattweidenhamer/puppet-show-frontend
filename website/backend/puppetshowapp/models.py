@@ -36,7 +36,8 @@ def user_actor_path(instance, filename):
 class DiscordData(models.Model):
     user_snowflake = models.CharField(max_length=20, unique=True)
     user_username = models.CharField(max_length=100)
-    # profile_picture = models.ForeignKey(Image, on_delete=models.DO_NOTHING)
+    user_discriminator = models.CharField(max_length=4)
+    # TODO if we every start capturing profile pictures
     profile_picture = models.ImageField(upload_to=user_pfp_path)
 
     def __str__(self) -> str:
@@ -64,7 +65,6 @@ class DiscordPointingUserManager(BaseUserManager):
     def create_superuser_from_snowflake(self, email, password, discord_snowflake):
         user = self.create_user_from_snowflake(email, password, discord_snowflake)
         user.is_superuser = True
-        user.is_staff = True
         user.save()
         return user
 
@@ -79,23 +79,23 @@ class DiscordPointingUserManager(BaseUserManager):
     def create_superuser(self, email, password, discord_data):
         user = self.create_user(email, password, discord_data)
         user.is_superuser = True
-        user.is_staff = True
         user.save()
         return user
 
 
 class DiscordPointingUser(AbstractBaseUser):
-    email = models.EmailField(("email_address"), unique=True)
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     discord_data = models.OneToOneField(DiscordData, on_delete=models.DO_NOTHING)
     is_superuser = models.BooleanField(default=False)
+    auth_token = models.CharField(max_length=100)
 
     objects = DiscordPointingUserManager()
-    USERNAME_FIELD = "email"
+    USERNAME_FIELD = "uuid"
     REQUIRED_FIELDS = ["discord_data"]
 
     def __str__(self) -> str:
         if self.discord_data.user_username is None:
-            return self.email
+            return self.user_id
         return self.discord_data.user_username
 
     def has_perm(self, perm, obj=None):
@@ -113,6 +113,13 @@ class DiscordPointingUser(AbstractBaseUser):
 
     def get_owner(self):
         return self
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
+
+    @property
+    def is_staff(self):
+        return self.is_superuser
 
 
 ################################################################
@@ -149,6 +156,7 @@ class Actor(models.Model):
         DISCONNECT = "disconnect"
 
     # A unique hash of the person's ID, the emotion name,
+    # TODO consider using slugs
     actor_hash = models.UUIDField(default=uuid.uuid4)
 
     # The ID of the user actually being drawn

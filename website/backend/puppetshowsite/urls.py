@@ -15,13 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from puppetshowapp import views
+from puppetshowapp.views import authentication_views
+from puppetshowapp.views.model_views import UserView
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("ps/", include("puppetshowapp.urls")),
+    path("login/", authentication_views.login_redirect_discord),
+    path("callback/", authentication_views.discord_user_callback),
+    path("logout/", authentication_views.discord_user_logout),
+    path("user/", UserView.as_view())
+    # path("accounts/", include("allauth.urls")),
+    # path("auth", include("social_django.urls", namespace="social"))
     # path("auth/", views.auth),
     # path("auth/register/", views.register),
 ]

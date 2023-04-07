@@ -1,7 +1,7 @@
 from django.test import TestCase
-from ..views import SceneCreate
+from ..views import SceneList
 from ..models import Actor, Scene, DiscordPointingUser, DiscordData
-from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework.test import APIRequestFactory, force_authenticate, APIClient
 
 # Test the API endpoints
 
@@ -40,10 +40,20 @@ class SceneEndpointTestCase(TestCase):
         request = factory.post(
             "/ps/actors/", {"scene_author": user_1.pk, "scene_name": "test_scene_2"}
         )
+        client = APIClient()
         force_authenticate(request, user=user_1)
-        view = SceneCreate.as_view()
+        view = SceneList.as_view()
         response = view(request)
         self.assertEqual(response.status_code, 201)
+
+    # Make sure that a user can't create a scene for another user
+    def test_create_scene_for_other_user(self):
+        factory = APIRequestFactory()
+        user_1 = DiscordPointingUser.objects.get(email="test_email_1@gmail.com")
+
+    # Make sure that a user can't access another user's scene
+    def test_get_scene_for_other_user(self):
+        pass
 
 
 class ActorEndpointTestCase(TestCase):

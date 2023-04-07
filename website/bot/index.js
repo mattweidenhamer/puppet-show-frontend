@@ -96,5 +96,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
+//Each connection to a react frontend is stored here
+//When a voice state changes, if the statechanged user is in one of these collections, send a websocket update to the associated frontend connection
+client.connections = new Collection();
+
 // Log in to Discord with your client's token
 client.login(DISCORD_BOT_TOKEN);
