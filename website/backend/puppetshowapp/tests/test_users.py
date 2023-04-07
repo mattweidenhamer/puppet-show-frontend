@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from ..models import Actor, Scene, DiscordPointingUser, DiscordData
-import os
 
 
 class UserTestCase(TestCase):
@@ -17,19 +16,16 @@ class UserTestCase(TestCase):
         )
 
         normal_user_1 = DiscordPointingUser.objects.create(
-            email="test_email@gmail.com",
             discord_data=user_data_1,
             password="test",
         )
         normal_user_2 = DiscordPointingUser.objects.create(
-            email="test_email_2@gmail.com",
             discord_data=user_data_2,
             password="test_2",
         )
         superuser = DiscordPointingUser.objects.create_superuser(
-            email="test_email_super@gmail.com",
-            discord_data=superuser_data,
             password="test_super",
+            discord_data=superuser_data,
         )
 
         # Test Scene 1 has only actor 1 in it
@@ -52,17 +48,25 @@ class UserTestCase(TestCase):
         )
 
     def test_user_properties(self):
-        normal = DiscordPointingUser.objects.get(email="test_email@gmail.com")
+        normal = DiscordPointingUser.objects.get(discord_data__user_username="testuser")
         self.assertEqual(normal.is_superuser, False)
 
-        superuser = DiscordPointingUser.objects.get(email="test_email_super@gmail.com")
+        superuser = DiscordPointingUser.objects.get(
+            discord_data__user_username="testuser_super"
+        )
         self.assertEqual(superuser.is_superuser, True)
 
     def test_user_permissions(self):
-        normal_1 = DiscordPointingUser.objects.get(email="test_email@gmail.com")
-        normal_2 = DiscordPointingUser.objects.get(email="test_email_2@gmail.com")
+        normal_1 = DiscordPointingUser.objects.get(
+            discord_data__user_username="testuser"
+        )
+        normal_2 = DiscordPointingUser.objects.get(
+            discord_data__user_username="testuser_2"
+        )
 
-        superuser = DiscordPointingUser.objects.get(email="test_email_super@gmail.com")
+        superuser = DiscordPointingUser.objects.get(
+            discord_data__user_username="testuser_super"
+        )
 
         test_scene_1 = Scene.objects.get(scene_name="test_scene")
         test_scene_2 = Scene.objects.get(scene_name="test_scene_2")

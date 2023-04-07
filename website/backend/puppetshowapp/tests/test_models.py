@@ -6,8 +6,6 @@ import os
 TEST_FOLDER_LOCATION = os.path.join(os.path.dirname(__file__), "static_test_files")
 
 
-
-
 class DataTestCase(TestCase):
     # Create DiscordData objects and make sure they are correctly saved
     def setUp(self):
@@ -37,7 +35,7 @@ class ActorTestCase(TestCase):
         )
 
         normal_user_1 = DiscordPointingUser.objects.create(
-            email="testemail@gmail.com", discord_data=user_data_1, password="test"
+            discord_data=user_data_1, password="test"
         )
 
         scene_1 = Scene.objects.create(

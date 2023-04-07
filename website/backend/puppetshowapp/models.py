@@ -37,6 +37,7 @@ class DiscordData(models.Model):
     user_snowflake = models.CharField(max_length=20, unique=True)
     user_username = models.CharField(max_length=100)
     user_discriminator = models.CharField(max_length=4)
+
     # TODO if we every start capturing profile pictures
     profile_picture = models.ImageField(upload_to=user_pfp_path)
 
@@ -57,40 +58,42 @@ class DiscordPointingUserManager(BaseUserManager):
         if created:
             print("Created an empty discord user for account")
             # TODO will need to also grab and sync discord information
-        user = self.model(email=email, discord_data=discord)
+        user = self.model(discord_data=discord)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser_from_snowflake(self, email, password, discord_snowflake):
-        user = self.create_user_from_snowflake(email, password, discord_snowflake)
+    def create_superuser_from_snowflake(self, password, discord_snowflake):
+        user = self.create_user_from_snowflake(password, discord_snowflake)
         user.is_superuser = True
         user.save()
         return user
 
-    def create_user(self, email, password, discord_data):
-        if not email or not discord_data:
-            raise ValueError("Email and discord data must be passed.")
-        user = self.model(email=email, discord_data=discord_data)
+    def create_user(self, password, discord_data):
+        if not discord_data:
+            raise ValueError("Discord dataiscord data must be passed.")
+        user = self.model(discord_data=discord_data)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, email, password, discord_data):
-        user = self.create_user(email, password, discord_data)
+    def create_superuser(self, password, discord_data):
+        user = self.create_user(password, discord_data)
         user.is_superuser = True
         user.save()
         return user
 
 
 class DiscordPointingUser(AbstractBaseUser):
-    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    login_username = models.CharField(max_length=25, unique=True)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     discord_data = models.OneToOneField(DiscordData, on_delete=models.DO_NOTHING)
     is_superuser = models.BooleanField(default=False)
     auth_token = models.CharField(max_length=100)
+    created_date = models.DateTimeField(auto_now_add=True)
 
     objects = DiscordPointingUserManager()
-    USERNAME_FIELD = "uuid"
+    USERNAME_FIELD = "login_username"
     REQUIRED_FIELDS = ["discord_data"]
 
     def __str__(self) -> str:
@@ -120,6 +123,11 @@ class DiscordPointingUser(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.is_superuser
+
+    def save(self, *args, **kwargs):
+        if not self.login_username:
+            self.login_username = self.discord_data.user_snowflake
+        super().save(*args, **kwargs)
 
 
 ################################################################
