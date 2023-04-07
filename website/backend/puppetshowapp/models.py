@@ -49,8 +49,8 @@ class DiscordData(models.Model):
 
 
 class DiscordPointingUserManager(BaseUserManager):
-    def create_user_from_snowflake(self, email, password, discord_snowflake):
-        if not email or not discord_snowflake:
+    def create_user_from_snowflake(self, password, discord_snowflake):
+        if not discord_snowflake:
             raise ValueError("Email and discord snowflake must be passed.")
         discord, created = DiscordData.objects.get_or_create(
             user_snowflake=discord_snowflake
@@ -126,7 +126,7 @@ class DiscordPointingUser(AbstractBaseUser):
 
     def save(self, *args, **kwargs):
         if not self.login_username:
-            self.login_username = self.discord_data.user_snowflake
+            self.login_username = f"{self.discord_data.user_snowflake}#{self.discord_data.user_discriminator}"
         super().save(*args, **kwargs)
 
 

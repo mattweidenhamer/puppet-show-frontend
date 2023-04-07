@@ -14,9 +14,18 @@ class CustomUserAdmin(BaseUserAdmin):
     list_filter = ("uuid", "discord_data")
 
     ordering = ("created_date",)
+    readonly_fields = ["uuid", "created_date"]
     filter_horizontal = ()
     fieldsets = (
-        (None, {"fields": ("discord_data",)}),
+        (
+            "Information",
+            {
+                "fields": (
+                    "uuid",
+                    "discord_data",
+                )
+            },
+        ),
         (
             "Permissions",
             {"fields": ("is_superuser",)},

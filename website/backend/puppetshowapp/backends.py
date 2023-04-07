@@ -12,7 +12,6 @@ import requests
 
 class DiscordAuthBackend(BaseBackend):
     def authenticate(self, request):
-        # TODO: start here, throwing bad request error
         code = request.GET.get("code")
         data = {
             "client_id": DISCORD_CLIENT_ID,
@@ -48,19 +47,14 @@ class DiscordAuthBackend(BaseBackend):
             )
         except DiscordPointingUser.DoesNotExist:
             try:
-                user_data = DiscordData.objects.get(user_snowflake=discord_id)
+                discord_data_obj = DiscordData.objects.get(user_snowflake=discord_id)
             except DiscordData.DoesNotExist:
-                user_data = DiscordData.objects.create(
+                discord_data_obj = DiscordData.objects.create(
                     user_snowflake=discord_id,
                     user_username=user_data["username"],
                     user_discriminator=user_data["discriminator"],
                 )
-            finally:
-                user = DiscordPointingUser.objects.create(
-                    # TODO find a better way to identify users
-                    email=user_data["email"],
-                    discord_data=user_data,
-                )
+            user = DiscordPointingUser.objects.create(discord_data=discord_data_obj)
         return user
 
     def get_user(self, user_id):
