@@ -8,6 +8,16 @@ from rest_framework import (
 )  # If nothing else, keep rest framework for the statuses.
 
 
+# views needed:
+# Create Scene (POST)
+# View Scene information (GET)
+# Change Scene (PUT)
+# Create actor (POST)
+# View Actor information (GET   )
+# Change Actor (PUT)
+# Get scene and all associated actors (GET)
+
+
 # General scene view
 class SceneView(View, LoginRequiredMixin):
     model = Scene
