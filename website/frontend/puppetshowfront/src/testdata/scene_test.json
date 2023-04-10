@@ -2,6 +2,7 @@
   {
     "sceneName": "Test scene 1",
     "identifier": "testscene1",
+    "descrition": "Normal scene",
     "actors": [
       {
         "name": "Klara",
@@ -13,6 +14,7 @@
   {
     "sceneName": "Test scene 2",
     "identifier": "testscene2",
+    "description": "Winter scene with two actors",
     "actors": [
       {
         "name": "Warden",
@@ -29,6 +31,7 @@
   {
     "sceneName": "Test scene 3",
     "identifier": "testscene3",
+    "description": "Scene with three actors",
     "actors": [
       {
         "name": "Vix",
@@ -50,6 +53,7 @@
   {
     "sceneName": "Test scene 4",
     "identifier": "testscene4",
+    "description": "This scene should be implemented",
     "actors": []
   }
 ]

@@ -6,7 +6,7 @@ import ScenePage from "./pages/ScenePage";
 function App() {
   return (
     <div className="App">
-      <LandingPage />
+      <ScenePage />
     </div>
   );
 }
