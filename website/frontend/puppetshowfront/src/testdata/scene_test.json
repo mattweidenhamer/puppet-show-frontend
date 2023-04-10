@@ -1,0 +1,55 @@
+[
+  {
+    "sceneName": "Test scene 1",
+    "identifier": "testscene1",
+    "actors": [
+      {
+        "name": "Klara",
+        "speakingAnimation": "https://media.discordapp.net/attachments/807108520595554304/1073750431446085683/0001s_0007_Klara.png",
+        "muteAnimation": "https://media.discordapp.net/attachments/807108520595554304/1073750431446085683/0001s_0007_Klara.png"
+      }
+    ]
+  },
+  {
+    "sceneName": "Test scene 2",
+    "identifier": "testscene2",
+    "actors": [
+      {
+        "name": "Warden",
+        "speakingAnimation": "https://media.discordapp.net/attachments/807108520595554304/1022846404441427988/Warden_Speak.gif",
+        "muteAnimation": "https://media.discordapp.net/attachments/807108520595554304/1022846405074759711/Warden_Mute.gif"
+      },
+      {
+        "name": "Purple",
+        "speakingAnimation": "https://media.discordapp.net/attachments/807108520595554304/1022846174014742608/Purple_Speak.gif",
+        "muteAnimation": "https://media.discordapp.net/attachments/807108520595554304/1022846174383845407/Purple_Mute.gif"
+      }
+    ]
+  },
+  {
+    "sceneName": "Test scene 3",
+    "identifier": "testscene3",
+    "actors": [
+      {
+        "name": "Vix",
+        "speakingAnimation": "https://media.discordapp.net/attachments/807108520595554304/1022846369188302868/Vix_Speak.gif",
+        "muteAnimation": "https://media.discordapp.net/attachments/807108520595554304/1022846369624506428/Vix_Mute.gif"
+      },
+      {
+        "name": "Soul",
+        "speakingAnimation": "https://media.discordapp.net/attachments/807108520595554304/1022846253450657853/Soul_Speak.gif",
+        "muteAnimation": "https://media.discordapp.net/attachments/807108520595554304/1022846253823971338/Soul_Mute.gif"
+      },
+      {
+        "name": "Rex",
+        "speakingAnimation": "https://media.discordapp.net/attachments/807108520595554304/1022846207841800314/Rex_Speak.gif",
+        "muteAnimation": "https://media.discordapp.net/attachments/807108520595554304/1022846208298983444/Rex_Mute.gif"
+      }
+    ]
+  },
+  {
+    "sceneName": "Test scene 4",
+    "identifier": "testscene4",
+    "actors": []
+  }
+]

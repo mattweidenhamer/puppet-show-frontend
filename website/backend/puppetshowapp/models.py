@@ -85,6 +85,7 @@ class DiscordPointingUserManager(BaseUserManager):
 
 
 class DiscordPointingUser(AbstractBaseUser):
+    # TODO add components and function neccesary for token refreshing
     login_username = models.CharField(max_length=25, unique=True)
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     discord_data = models.OneToOneField(DiscordData, on_delete=models.DO_NOTHING)
