@@ -1,0 +1,218 @@
+import React from "react";
+import {
+  CardContent,
+  Grid,
+  Card,
+  Typography,
+  IconButton,
+  CardActions,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+
+import scenes from "../testdata/scene_test.json";
+
+import AddObjectCard from "../components/Manipulation/AddObjectCard";
+import DeleteIcon from "@mui/icons-material/Delete";
+import MainLayout from "../components/Layout/MainLayout";
+import NavigationBar from "../components/NavBar/NavigationBar";
+import SceneOptionsView from "../components/SpecificViews/SceneOptionsView";
+import AddActorView from "../components/SpecificViews/AddActorView";
+import DeleteActorView from "../components/SpecificViews/DeleteActorView";
+import getDefaultAnimationToDisplay from "../functions/getDefaultAnimationToDisplay";
+
+const styles = {
+  paper: {
+    padding: 2,
+    margin: "auto",
+    maxWidth: 600,
+    alignItems: "center",
+  },
+  cardGrid: {
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  card: {
+    height: 327,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 2,
+  },
+  bigCard: {
+    height: 2000,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 2,
+  },
+  previewImageContainer: {
+    width: "150px",
+    height: "150px",
+    //borderRadius: "50%", //Uncomment for rounded circle
+    border: `2px solid red`,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    margin: 1,
+  },
+  previewImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "scale-down",
+  },
+  bigTextWithSpacing: {
+    marginTop: 2,
+  },
+  buttonPadding: {
+    marginBottom: 2,
+  },
+  topText: {
+    marginTop: 2,
+  },
+  // GOD I LOATHE CSS
+};
+
+const SpecificScenePage = (props) => {
+  // This page consists of two items: A navigation bar and a main content area.
+  // The navigation bar is an imported element. The back button on it should bring it back to the previous page.
+  // The main content area should be a grid of two cards.
+  // The first one on the left should be a single large card. On it, information and configuration information should be displayed.
+  // The second one on the right should be a grid of smaller cards. The first card should be a button that says "Add Actor".
+  // All other cards should display actors in the scene, including their username, discord ID, and their speaking avatar.
+  // They should also include a button at the bottom of them that navigattes to the actor's invidiual configuration page, and a delete button.
+
+  //Left box state should be one of three values, "Add" for adding new actors, "View" for viewing scene settings, and "Delete" for confirming delete of an actor.
+  const [leftBoxState, setLeftBoxState] = React.useState("View");
+  //TODO in production, this should be passed to the newly rendered page.
+  const [scene, setScene] = React.useState(scenes[1]);
+  const [selectedActor, selectActor] = React.useState(null);
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+  const [severity, setSeverity] = React.useState("success");
+
+  const closeSnackbar = (event, reason) => {
+    setOpenSnackbar(false);
+  };
+
+  const editActorHandler = (event) => {
+    //TODO  navigate to actor's individual edit page
+    console.log(`Edit actor `);
+  };
+  const toggleDeleteActorHandler = (snowflake) => {
+    selectActor(
+      scene.actors.find((actor) => actor.user_snowflake === snowflake)
+    );
+    setLeftBoxState("Delete");
+  };
+  const createActorHandler = () => {
+    setLeftBoxState("Add");
+  };
+  const handleDeleteActor = (actor) => {
+    console.log(`Delete actor ${actor.actor_name}`);
+    //TODO delete actor from scene
+    setSnackbarMessage(
+      `Deleted actor ${actor.actor_name} from scene ${scene.scene_name}`
+    );
+    setSeverity("info");
+    setOpenSnackbar(true);
+    setLeftBoxState("View");
+  };
+
+  //TODO move to its own file
+  const actorCards = scene.actors.map((actor) => (
+    <Card key={actor.actor_name} sx={styles.card}>
+      <CardContent>
+        <Typography
+          variant="h5"
+          component="div"
+          gutterBottom
+          sx={styles.topText}
+        >
+          {actor.actor_name}
+        </Typography>
+      </CardContent>
+      <div style={styles.previewImageContainer}>
+        <img
+          style={styles.previewImage}
+          src={getDefaultAnimationToDisplay(actor)}
+          alt={actor.name}
+        />
+      </div>
+      <CardActions sx={styles.buttonPadding}>
+        <IconButton onClick={editActorHandler} id={actor.actor_hash}>
+          <EditIcon />
+        </IconButton>
+        <IconButton
+          onClick={() => toggleDeleteActorHandler(actor.user_snowflake)}
+          id={actor.name + " delete button"}
+          actor={actor}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </CardActions>
+    </Card>
+  ));
+
+  let leftBox = <SceneOptionsView scene={scene} />;
+  if (leftBoxState === "Add") {
+    leftBox = <AddActorView scene={scene} />;
+  } else if (leftBoxState === "Delete") {
+    leftBox = (
+      <DeleteActorView
+        actor={selectedActor}
+        scene={scene}
+        onDeleteConfirm={handleDeleteActor}
+      />
+    );
+  }
+
+  return (
+    <MainLayout padding={2}>
+      <NavigationBar backArrow />
+      <div>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6}>
+            {leftBox}
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <div sx={styles.cardGrid}>
+              <Grid container spacing={4}>
+                <Grid item xs={12} sm={6} md={4}>
+                  <AddObjectCard
+                    objName="Actor"
+                    onClickHandler={createActorHandler}
+                  />
+                </Grid>
+                {actorCards.map((card) => (
+                  <Grid item key={card.key} xs={12} sm={6} md={4}>
+                    {card}
+                  </Grid>
+                ))}
+              </Grid>
+            </div>
+          </Grid>
+        </Grid>
+      </div>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={closeSnackbar}
+      >
+        <Alert
+          onClose={closeSnackbar}
+          severity={severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </MainLayout>
+  );
+};
+
+export default SpecificScenePage;

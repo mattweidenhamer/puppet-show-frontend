@@ -9,19 +9,21 @@ import {
   IconButton,
   CardActions,
 } from "@mui/material";
+import AddSceneView from "../components/SpecificViews/AddSceneView";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import EditIcon from "@mui/icons-material/Edit";
-import AddIcon from "@mui/icons-material/Add";
 import ActiveSceneView from "../components/SpecificViews/ActiveSceneView";
 import scenes from "../testdata/scene_test.json";
-import "./ScenePage.css";
+import AddObjectCard from "../components/Manipulation/AddObjectCard";
+import getDefaultAnimationToDisplay from "../functions/getDefaultAnimationToDisplay";
 
 const styles = {
   paper: {
     padding: 2,
     margin: "auto",
     maxWidth: 600,
+    alignItems: "center",
   },
   cardGrid: {
     paddingTop: 8,
@@ -71,7 +73,7 @@ const styles = {
   // GOD I LOATHE CSS
 };
 
-const ScenePage = (props) => {
+const ListScenePage = (props) => {
   // This page consists of two items: A navigation bar and a main content area.
   // The navigation bar is very simple: It just needs a back arrow, a "Home" button, and an avatar in the upper right corner that redirects to the user's page.
   // The main content area should be a grid of two cards.
@@ -80,34 +82,21 @@ const ScenePage = (props) => {
   // All other cards should be different scenes, which display the scene name, one of the scene's actor images, and below that, two buttons: one that says "create scene" and one that says "edit scene."
 
   const [activeScene, setActiveScene] = React.useState(null);
+  const [addSceneOn, setAddSceneOn] = React.useState(false);
 
   const editSceneHandler = (event) => {
     //TODO  navigate to scene's individual edit page
     console.log(`Edit scene ${event.target.id}`);
   };
-  const createSceneHandler = (event) => {
-    //TODO navigate to a create scene page
-    console.log("Create scene");
+  const createSceneHandler = () => {
+    setAddSceneOn(true);
   };
   const selectSceneHandler = (sceneIdentifier) => {
+    setAddSceneOn(false);
     setActiveScene(
       scenes.find((scene) => scene.identifier === sceneIdentifier)
     );
   };
-  // //TODO move to its own file
-  // Add scene card
-  const addSceneCard = (
-    <Card sx={styles.card}>
-      <CardContent>
-        <Typography variant="h5">Add scene</Typography>
-      </CardContent>
-      <CardActions>
-        <IconButton onClick={createSceneHandler}>
-          <AddIcon />
-        </IconButton>
-      </CardActions>
-    </Card>
-  );
 
   //TODO move to its own file
   const sceneCards = scenes.map((scene) => (
@@ -127,7 +116,7 @@ const ScenePage = (props) => {
           style={styles.previewImage}
           src={
             scene.actors.length > 0
-              ? scene.actors[0].speakingAnimation
+              ? getDefaultAnimationToDisplay(scene.actors[0])
               : "https://www.pngfind.com/pngs/m/6-62867_x-mark-multiply-times-symbol-red-incorrect-wrong.png"
           }
           alt={scene.identifier}
@@ -153,14 +142,21 @@ const ScenePage = (props) => {
       <NavigationBar backArrow />
       <div>
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
-            <ActiveSceneView scene={activeScene} sx={styles.b} />
+          <Grid item xs={12} sm={6} md={4}>
+            {addSceneOn ? (
+              <AddSceneView />
+            ) : (
+              <ActiveSceneView scene={activeScene} sx={styles.bigCard} />
+            )}
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={6} md={8}>
             <div sx={styles.cardGrid}>
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={6} md={4}>
-                  {addSceneCard}
+                  <AddObjectCard
+                    objName="Scene"
+                    onClickHandler={createSceneHandler}
+                  />
                 </Grid>
                 {sceneCards.map((card) => (
                   <Grid item key={card.key} xs={12} sm={6} md={4}>
@@ -176,4 +172,4 @@ const ScenePage = (props) => {
   );
 };
 
-export default ScenePage;
+export default ListScenePage;

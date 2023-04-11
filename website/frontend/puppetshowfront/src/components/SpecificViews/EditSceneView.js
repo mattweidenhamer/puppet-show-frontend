@@ -27,7 +27,7 @@ const styles = {
   },
 };
 
-const ActiveSceneView = (props) => {
+const EditSceneView = (props) => {
   const redirectToEditScene = (event) => {
     props.history.push(`/scenes/${props.scene.id}/edit`);
   };
@@ -78,10 +78,8 @@ const ActiveSceneView = (props) => {
   return (
     <BigLeftCard>
       <Placard>
-        <Typography variant="h2">Active scene:</Typography>
-
-        <Typography variant="h2" sx={styles.bigTextWithSpacing}>
-          {props.scene.scene_name}
+        <Typography variant="h2">
+          Editing Scene {props.scene.scene_name}
         </Typography>
       </Placard>
       <div style={styles.imageContainer}>
@@ -94,7 +92,17 @@ const ActiveSceneView = (props) => {
           style={styles.image}
           alt={`Preview for scene "${props.scene.scene_name}"`}
         />
+        {/* <img
+        justify="center"
+        src={
+          props.scene.actors.length > 0
+            ? props.scene.actors[0].speakingAnimation
+            : ""
+        }
+        alt={`No scene currently selected!`}
+      /> */}
       </div>
+      {/* FIXME currently the length of this is affecting the spacing of the block above it. */}
       <Paper sx={styles.placard}>
         <Typography variant="h6">{actorsPreview}</Typography>
       </Paper>
@@ -103,4 +111,4 @@ const ActiveSceneView = (props) => {
   );
 };
 
-export default ActiveSceneView;
+export default EditSceneView;

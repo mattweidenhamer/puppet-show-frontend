@@ -5,6 +5,13 @@ import os
 from enum import Enum
 
 
+# TODO layout needs to be restructured.
+# Currently, the layout has individual actors with individual hashes for every single scene.
+# Instead, what needs to happen is that each main user makes a list of Discord IDs linked
+# Exclusively to their configuration, and then the active scene will configure how each of
+# Those listed users are displayed. This way, the user can have a single actor that changes
+# Depending on the scene, rather than a large number of actors.
+
 #################################################################
 # Helper Functions
 #################################################################
@@ -86,12 +93,14 @@ class DiscordPointingUserManager(BaseUserManager):
 
 class DiscordPointingUser(AbstractBaseUser):
     # TODO add components and function neccesary for token refreshing
+    # TODO seperate models into seperate files
     login_username = models.CharField(max_length=25, unique=True)
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     discord_data = models.OneToOneField(DiscordData, on_delete=models.DO_NOTHING)
     is_superuser = models.BooleanField(default=False)
     auth_token = models.CharField(max_length=100)
     created_date = models.DateTimeField(auto_now_add=True)
+    active_scene = models.ForeignKey(Scene, on_delete=models.DO_NOTHING)
 
     objects = DiscordPointingUserManager()
     USERNAME_FIELD = "login_username"

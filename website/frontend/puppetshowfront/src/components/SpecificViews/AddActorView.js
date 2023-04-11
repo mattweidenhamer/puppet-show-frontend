@@ -18,7 +18,7 @@ const styles = {
   },
 };
 
-const AddSceneView = (props) => {
+const AddActorView = (props) => {
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState("");
 
@@ -37,19 +37,26 @@ const AddSceneView = (props) => {
     </IconButton>
   );
 
-  const createSceneHandler = (event) => {
+  const createActorHandler = (event) => {
     //Check to see if there is any text in the input box.
     //If there is none, toast an error message.
-    const input = document.getElementById("sceneNameInput");
+    const actorNameInput = document.getElementById("actorNameInput");
+    const actorDiscordIdInput = document.getElementById("actorDiscordIdInput");
 
-    if (input.value.trim() === "") {
-      setMessage("Please enter a scene name before continuing!");
+    if (actorNameInput.value.trim() === "") {
+      setMessage("Please enter an actor name before continuing!");
+      setOpen(true);
+    } else if (actorDiscordIdInput.value.trim() === "") {
+      setMessage("Please enter the actor's Discord ID before continuing!");
+      setOpen(true);
+    } else if (isNaN(actorDiscordIdInput.value.trim())) {
+      setMessage("Discord ID must be a number!");
       setOpen(true);
     }
     // If there is, send the call to create a new scene, then navigate to that scene's page.
     else {
-      console.log("Pretend I am creating the scene!");
-      console.log("Pretend I am redirecting to the scene's page!");
+      console.log("Pretend I am creating an actor!");
+      console.log("Pretend I am redirecting to the actor's modification page!");
     }
 
     // Create the scene, then redirect to that scene's independant view page.
@@ -57,25 +64,34 @@ const AddSceneView = (props) => {
   return (
     <BigLeftCard>
       <Placard>
-        <Typography variant="h4">Add Scene</Typography>
+        <Typography variant="h4">Add New Actor to Scene</Typography>
       </Placard>
-      <Placard sx={{ maxWidth: 550 }}>
+      <Placard sx={{ maxWidth: 650 }}>
         <Typography variant="h6">
-          A scene is a collection of actor configuration information, reading
-          presented for you to edit.
+          An actor is an animating icon mapped to a specific Discord user id.
+          Whenever they're in a voice call with the Puppetmaster bot, any
+          animations associated with them will animate when they speak!
         </Typography>
         <TextField
-          placeholder="Scene Name"
-          id="sceneNameInput"
+          label="Actor Name"
+          //VANITY: Have the placeholder text pull randomly from a preconfigured list.
+          placeholder="e.g. Nill Winter Dress"
+          id="actorNameInput"
+          sx={styles.inputField}
+        />
+        <TextField
+          label="Actor Discord ID"
+          placeholder="e.g. 1234567890"
+          id="actorDiscordIdInput"
           sx={styles.inputField}
         />
         <div />
         <Button
           variant="contained"
-          onClick={createSceneHandler}
+          onClick={createActorHandler}
           sx={styles.submitButton}
         >
-          Create my scene!
+          Create new Actor
         </Button>
       </Placard>
       <Snackbar
@@ -89,5 +105,4 @@ const AddSceneView = (props) => {
     </BigLeftCard>
   );
 };
-
-export default AddSceneView;
+export default AddActorView;
