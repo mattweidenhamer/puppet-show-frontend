@@ -88,7 +88,7 @@ const SpecificScenePage = (props) => {
 
   //Left box state should be one of three values, "Add" for adding new actors, "View" for viewing scene settings, and "Delete" for confirming delete of an actor.
   const [leftBoxState, setLeftBoxState] = React.useState("View");
-  //TODO in production, this should be passed to the newly rendered page.
+  //TODO in production, this should be gathered from the redirection.
   const [scene, setScene] = React.useState(scenes[1]);
   const [selectedActor, selectActor] = React.useState(null);
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -97,6 +97,13 @@ const SpecificScenePage = (props) => {
 
   const closeSnackbar = (event, reason) => {
     setOpenSnackbar(false);
+  };
+
+  const saveChanges = (scene, settings) => {
+    //TODO save changes to scene and then put scene.
+    setSnackbarMessage(`Saved changes to scene ${scene.scene_name}`);
+    setSeverity("success");
+    setOpenSnackbar(true);
   };
 
   const editActorHandler = (event) => {
@@ -158,7 +165,7 @@ const SpecificScenePage = (props) => {
     </Card>
   ));
 
-  let leftBox = <SceneOptionsView scene={scene} />;
+  let leftBox = <SceneOptionsView scene={scene} saveChanges={saveChanges} />;
   if (leftBoxState === "Add") {
     leftBox = <AddActorView scene={scene} />;
   } else if (leftBoxState === "Delete") {

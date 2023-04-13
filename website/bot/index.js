@@ -1,7 +1,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const http = require("http");
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 const { DISCORD_BOT_TOKEN } = require("./config.json");
+const { createWebSocketServer } = require("./websocket/createWebSocket");
 
 // Create a new client instance
 const client = new Client({
@@ -17,11 +19,15 @@ const eventFiles = fs
   .readdirSync(eventsPath)
   .filter((file) => file.endsWith(".js"));
 client.commands = new Collection();
+
 // Get all folders in the commands directory
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
 
 client.cooldowns = new Collection();
+// Dictionary: Add the tracked user ID as the key and the websocket as the value
+client.actorWebSockets = new Collection();
+client.waitingWebSockets = new Collection();
 
 for (const file of eventFiles) {
   const filePath = path.join(eventsPath, file);
@@ -51,6 +57,23 @@ for (const folder of commandFolders) {
     }
   }
 }
+
+client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+  if (client.actorWebSockets.has(newState.id)) {
+    if (oldState.channelId !== newState.channelId) {
+      const webSocket = client.actorWebSockets.get(newState.id);
+      if (newState.channelId) {
+        webSocket.send(
+          JSON.stringify({ type: "ACTOR_STATE", data: "CONNECTION" })
+        );
+      } else {
+        webSocket.send(
+          JSON.stringify({ type: "ACTOR_STATE", data: "DISCONNECTION" })
+        );
+      }
+    }
+  }
+});
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
@@ -96,9 +119,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
-//Each connection to a react frontend is stored here
-//When a voice state changes, if the statechanged user is in one of these collections, send a websocket update to the associated frontend connection
-client.connections = new Collection();
+//Set up websocket
+const websocket = createWebSocketServer("8080", client);
+console.log("Websocket created.");
 
 // Log in to Discord with your client's token
 client.login(DISCORD_BOT_TOKEN);

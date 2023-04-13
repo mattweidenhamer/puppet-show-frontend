@@ -21,16 +21,8 @@ const styles = {
   form: {},
 };
 
-const collectOptions = (scene) => {
-  //TODO collect all options from the scene and return them as an array.
-  // The function in the parent function will then map over the array and return the options.
-  return {
-    example_value_1: document.getElementById("example-switch-1").checked,
-  };
-};
-
-const SceneOptionsView = (props) => {
-  const [scene, setScene] = React.useState(props.scene);
+const ActorOptionsView = (props) => {
+  const [actor, setActor] = React.useState(props.actor);
 
   const changeAffected = (event) => {
     //TODO change some part of the scene based on the toggle.
@@ -76,27 +68,19 @@ const SceneOptionsView = (props) => {
   return (
     <BigLeftCard>
       <Placard>
-        <Typography variant="h2"> Edit {scene.scene_name} </Typography>
+        <Typography variant="h2"> Edit {actor.actor_name} </Typography>
       </Placard>
       <Placard sx={styles.optionsPlacard}>
         <Typography variant="h5">
-          View or add new actors by using the cards to the right.
+          View, modify, or upload new animations by clicking them on the right.
         </Typography>
         <FormGroup sx={styles.form}>
           {switchExample}
           {radioExample}
           {checkboxExample}
         </FormGroup>
-        <Button
-          onClick={() => {
-            props.saveChanges(scene, collectOptions());
-          }}
-          variant="contained"
-        >
-          Save changes
-        </Button>
       </Placard>
     </BigLeftCard>
   );
 };
-export default SceneOptionsView;
+export default ActorOptionsView;

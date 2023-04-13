@@ -2,10 +2,7 @@ const { SlashCommandBuilder, channelMention } = require("discord.js");
 const {
   entersState,
   joinVoiceChannel,
-  VoiceConnection,
   VoiceConnectionStatus,
-  AudioPlayerStatus,
-  getVoiceConnection,
 } = require("@discordjs/voice");
 
 module.exports = {
@@ -46,16 +43,22 @@ module.exports = {
         `Successfully loaded voice state in channel ${interaction.member.voice.channel.name}`
       );
     });
-    connection.on("stateChange", (oldState, newState) => {
-      console.log(
-        `Voice connection transitioned from ${oldState.status} to ${newState.status}`
-      );
-    });
     connection.receiver.speaking.on("end", (userId) => {
-      console.log(`User ${userId} stopped speaking`);
+      //TODO this may be beyond the scope of the function by the time it's all done.
+      if (interaction.client.actorWebSockets.has(userId)) {
+        interaction.client.actorWebSockets
+          .get(userId)
+          .send(JSON.stringify({ type: "ACTOR_STATE", data: "STOP_SPEAKING" }));
+      }
     });
     connection.receiver.speaking.on("start", (userId) => {
-      console.log(`User ${userId} started speaking`);
+      if (interaction.client.actorWebSockets.has(userId)) {
+        interaction.client.actorWebSockets
+          .get(userId)
+          .send(
+            JSON.stringify({ type: "ACTOR_STATE", data: "START_SPEAKING" })
+          );
+      }
     });
     connection.on(
       VoiceConnectionStatus.Disconnected,
@@ -70,6 +73,7 @@ module.exports = {
           ]);
         } catch (error) {
           connection.destroy();
+          // TODO this may leave some unknown websockets in the collection.
           console.error(
             `Failed to reconnect to voice channel after 5 seconds, destroying connection.`
           );
