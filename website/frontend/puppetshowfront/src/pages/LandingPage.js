@@ -1,6 +1,7 @@
 import React from "react";
 import MainLayout from "../components/Layout/MainLayout";
 import { Typography, Paper, Button } from "@mui/material";
+import NavigationBar from "../components/NavBar/NavigationBar";
 
 const styles = {
   sceneDisplayPaper: {
@@ -12,6 +13,7 @@ const styles = {
 const LandingPage = (props) => {
   return (
     <MainLayout padding={2}>
+      <NavigationBar />
       <Paper sx={styles.sceneDisplayPaper}>
         <Typography variant="h2">Puppet Show</Typography>
         <Typography variant="h3">By Matthew Weidenhamer</Typography>

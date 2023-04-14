@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
-import actor_test from "../testdata/actor_test.json";
+import { useRouteLoaderData } from "react-router-dom";
+import actorStates from "../constants/actorStates";
+import getActorImage from "../functions/misc/getActorImage";
 
 const styles = {
   stageContainer: {
@@ -17,59 +19,15 @@ const styles = {
     height: "100%",
   },
 };
-const actorStates = {
-  START_SPEAKING: "START_SPEAKING",
-  STOP_SPEAKING: "STOP_SPEAKING",
-  SLEEPING: "SLEEPING",
-  CONNECTION: "CONNECTION",
-  DISCONNECTION: "DISCONNECTION",
-  GONE: "GONE", //Set if user is no longer in the voice channel and the animation is done playing.
-};
-
-const getActorImage = (actor, actorState) => {
-  const animations = actor.animations;
-  if (actorState === null || actorState === undefined) {
-    console.log("Received bad Actor State.");
-    return null;
-  } else if (actorState === actorStates.START_SPEAKING) {
-    return animations.speaking_animation;
-  } else if (actorState === actorStates.STOP_SPEAKING) {
-    return animations.not_speaking_animation;
-  } else if (actorState === actorStates.SLEEPING) {
-    if (animations.sleeping_animation === null) {
-      return animations.not_speaking_animation;
-    }
-    return animations.sleeping_animation;
-  } else if (actorState === actorStates.CONNECTION) {
-    if (animations.connection_animation === null) {
-      return animations.not_speaking_animation;
-    }
-    return animations.connnection_animation;
-  } else if (actorState === actorStates.DISCONNECTION) {
-    return animations.disconnect_animation;
-  } else if (actorState === actorStates.GONE) {
-    return;
-  }
-  console.log("Received weird actor state that I couldn't define.");
-  return null;
-};
 
 const socketURL = "ws://localhost:8080";
-
-const getActorData = (actorId) => {
-  //In the future, this should connect to the django server and get all the actor's data.
-  //For now, return test data.
-  return actor_test;
-};
 
 const ActorStagePage = () => {
   // Load the actor hash based on the URL
   // Connect a websocket to the bot
   // Listen for updates from the bot
 
-  const [actor, setActor] = React.useState(
-    getActorData(window.location.pathname.split("/").pop())
-  );
+  const [actor, setActor] = React.useState(useRouteLoaderData("actor"));
   const [actorState, setActorState] = React.useState(actorStates.GONE);
 
   const { sendJsonMessage, lastMessage, readyState } = useWebSocket(socketURL, {

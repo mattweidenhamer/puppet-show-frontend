@@ -13,9 +13,9 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddObjectCard from "../components/Manipulation/AddObjectCard";
-import scenes from "../testdata/scene_test.json";
+import scenes from "../constants/scene_test.json";
 import ActorOptionsView from "../components/SpecificViews/ActorOptionsView";
-import getDefaultAnimationToDisplay from "../functions/getDefaultAnimationToDisplay";
+import getDefaultAnimationToDisplay from "../functions/misc/getDefaultAnimationToDisplay";
 
 const styles = {
   paper: {

@@ -1,8 +1,8 @@
-[
-  {
+{
+  "qs9a13": {
     "scene_name": "Test scene 1",
-    "identifier": "testscene1",
     "descrition": "Normal scene",
+    "identifier": "qs9a13",
     "actors": [
       {
         "actor_name": "Klara",
@@ -17,10 +17,10 @@
       }
     ]
   },
-  {
+  "l1s2a33": {
     "scene_name": "Test scene 2",
-    "identifier": "testscene2",
     "description": "Winter scene with two actors",
+    "identifier": "l1s2a33",
     "actors": [
       {
         "actor_name": "Warden",
@@ -46,10 +46,10 @@
       }
     ]
   },
-  {
+  "j4k2a1": {
     "scene_name": "Test scene 3",
-    "identifier": "testscene3",
     "description": "Scene with three actors",
+    "identifier": "j4k2a1",
     "actors": [
       {
         "actor_name": "Vix",
@@ -86,10 +86,10 @@
       }
     ]
   },
-  {
+  "12a3sll98": {
     "scene_name": "Test scene 4",
-    "identifier": "testscene4",
     "description": "This scene should be implemented",
+    "identifier": "12a3sll98",
     "actors": []
   }
-]
+}

@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Checkbox, FormControlLabel, Typography } from "@mui/material";
 import BigLeftCard from "../Layout/BigLeftCard";
-import getDefaultAnimationToDisplay from "../../functions/getDefaultAnimationToDisplay";
+import getDefaultAnimationToDisplay from "../../functions/misc/getDefaultAnimationToDisplay";
 import Placard from "../Display/Placard";
 
 const styles = {

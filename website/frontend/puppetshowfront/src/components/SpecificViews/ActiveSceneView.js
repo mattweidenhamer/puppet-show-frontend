@@ -3,6 +3,8 @@ import React from "react";
 import { Typography, Paper, Button } from "@mui/material";
 import BigLeftCard from "../Layout/BigLeftCard";
 import Placard from "../Display/Placard";
+import getDefaultAnimationToDisplay from "../../functions/misc/getDefaultAnimationToDisplay";
+import { useNavigate, useRouteLoaderData } from "react-router-dom";
 
 const styles = {
   imageContainer: {
@@ -28,8 +30,9 @@ const styles = {
 };
 
 const ActiveSceneView = (props) => {
+  const navigate = useNavigate();
   const redirectToEditScene = (event) => {
-    props.history.push(`/scenes/${props.scene.id}/edit`);
+    navigate(`/scenes/${props.scene.identifier}`);
   };
 
   if (props.scene == null) {
@@ -65,12 +68,12 @@ const ActiveSceneView = (props) => {
 
   if (props.scene.actors != null) {
     if (props.scene.actors.length === 1) {
-      actorsPreview = `Includes actor ${props.scene.actors[0].name}`;
+      actorsPreview = `Includes actor ${props.scene.actors[0].actor_name}`;
     } else if (props.scene.actors.length === 2) {
-      actorsPreview = `Includes actors ${props.scene.actors[0].name} and ${props.scene.actors[1].name}!`;
+      actorsPreview = `Includes actors ${props.scene.actors[0].actor_name} and ${props.scene.actors[1].actor_name}!`;
     } else if (props.scene.actors.length > 2) {
-      actorsPreview = `Includes actors ${props.scene.actors[0].name}, ${
-        props.scene.actors[1].name
+      actorsPreview = `Includes actors ${props.scene.actors[0].actor_name}, ${
+        props.scene.actors[1].actor_name
       }, and ${props.scene.actors.length - 2} others!`;
     }
   }
@@ -88,7 +91,7 @@ const ActiveSceneView = (props) => {
         <img
           src={
             props.scene.actors.length > 0
-              ? props.scene.actors[0].speakingAnimation
+              ? getDefaultAnimationToDisplay(props.scene.actors[0])
               : "https://www.pngfind.com/pngs/m/6-62867_x-mark-multiply-times-symbol-red-incorrect-wrong.png"
           }
           style={styles.image}
@@ -98,7 +101,13 @@ const ActiveSceneView = (props) => {
       <Paper sx={styles.placard}>
         <Typography variant="h6">{actorsPreview}</Typography>
       </Paper>
-      <Button onClick={redirectToEditScene}>Edit details</Button>
+      <Button
+        onClick={redirectToEditScene}
+        variant="contaioned"
+        color="primary"
+      >
+        Edit details
+      </Button>
     </BigLeftCard>
   );
 };

@@ -7,20 +7,20 @@ import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HomeIcon from "@mui/icons-material/Home";
+import { useNavigate } from "react-router-dom";
 
 const NavigationBar = (props) => {
   // This component should be a simple navigation bar that has a back arrow, a "Home" button, and an avatar in the upper right corner that redirects to the user's page.
   // The back arrow should be a button that redirects to the previous page, as dictated by a prop.
   // The "Home" button should be a button that redirects to the home page.
   // The icon for the avatar should be the icon of the currently logged in user.
-
-  const handleBackButton = () => {
-    // TODO may need to be changed once routing is implemented
-    props.history.goBack();
+  const navigate = useNavigate();
+  const handleBackButton = (redirect) => {
+    navigate(redirect);
   };
   const handleHomeButton = () => {
     // TODO may need to be changed once routing is implemented.
-    props.history.push("/");
+    navigate("/");
   };
   const handleGoToUserPage = () => {
     // TODO may need to be changed once routing is implemented.
@@ -34,7 +34,9 @@ const NavigationBar = (props) => {
         color="inherit"
         aria-label="menu"
         edge="start"
-        onClick={handleBackButton}
+        onClick={() => {
+          handleBackButton(props.backArrow);
+        }}
       >
         <ArrowBackIcon />
       </IconButton>

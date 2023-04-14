@@ -11,8 +11,6 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 
-import scenes from "../testdata/scene_test.json";
-
 import AddObjectCard from "../components/Manipulation/AddObjectCard";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MainLayout from "../components/Layout/MainLayout";
@@ -20,7 +18,8 @@ import NavigationBar from "../components/NavBar/NavigationBar";
 import SceneOptionsView from "../components/SpecificViews/SceneOptionsView";
 import AddActorView from "../components/SpecificViews/AddActorView";
 import DeleteActorView from "../components/SpecificViews/DeleteActorView";
-import getDefaultAnimationToDisplay from "../functions/getDefaultAnimationToDisplay";
+import getDefaultAnimationToDisplay from "../functions/misc/getDefaultAnimationToDisplay";
+import { useNavigate, useRouteLoaderData } from "react-router-dom";
 
 const styles = {
   paper: {
@@ -89,11 +88,13 @@ const SpecificScenePage = (props) => {
   //Left box state should be one of three values, "Add" for adding new actors, "View" for viewing scene settings, and "Delete" for confirming delete of an actor.
   const [leftBoxState, setLeftBoxState] = React.useState("View");
   //TODO in production, this should be gathered from the redirection.
-  const [scene, setScene] = React.useState(scenes[1]);
+  const [scene, setScene] = React.useState(useRouteLoaderData("specificScene"));
   const [selectedActor, selectActor] = React.useState(null);
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState("");
   const [severity, setSeverity] = React.useState("success");
+
+  const navigate = useNavigate();
 
   const closeSnackbar = (event, reason) => {
     setOpenSnackbar(false);
@@ -180,7 +181,7 @@ const SpecificScenePage = (props) => {
 
   return (
     <MainLayout padding={2}>
-      <NavigationBar backArrow />
+      <NavigationBar backArrow={"/scenes"} />
       <div>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>

@@ -14,9 +14,9 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import EditIcon from "@mui/icons-material/Edit";
 import ActiveSceneView from "../components/SpecificViews/ActiveSceneView";
-import scenes from "../testdata/scene_test.json";
 import AddObjectCard from "../components/Manipulation/AddObjectCard";
-import getDefaultAnimationToDisplay from "../functions/getDefaultAnimationToDisplay";
+import getDefaultAnimationToDisplay from "../functions/misc/getDefaultAnimationToDisplay";
+import { useNavigate, useRouteLoaderData } from "react-router-dom";
 
 const styles = {
   paper: {
@@ -30,7 +30,7 @@ const styles = {
     paddingBottom: 8,
   },
   card: {
-    height: 327,
+    height: 320,
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -83,24 +83,25 @@ const ListScenePage = (props) => {
 
   const [activeScene, setActiveScene] = React.useState(null);
   const [addSceneOn, setAddSceneOn] = React.useState(false);
-
-  const editSceneHandler = (event) => {
-    //TODO  navigate to scene's individual edit page
-    console.log(`Edit scene ${event.target.id}`);
+  const [scenes, setScenes] = React.useState(useRouteLoaderData("allScenes"));
+  const navigate = useNavigate();
+  const editSceneHandler = (identifier) => {
+    navigate(`${identifier}`);
   };
   const createSceneHandler = () => {
     setAddSceneOn(true);
   };
   const selectSceneHandler = (sceneIdentifier) => {
     setAddSceneOn(false);
-    setActiveScene(
-      scenes.find((scene) => scene.identifier === sceneIdentifier)
-    );
+    setActiveScene(scenes[sceneIdentifier]);
   };
-
   //TODO move to its own file
-  const sceneCards = scenes.map((scene) => (
-    <Card key={scene.sceneName} sx={styles.card}>
+  let scenesList = [];
+  for (let sceneId in scenes) {
+    scenesList.push(scenes[sceneId]);
+  }
+  const sceneCards = scenesList.map((scene) => (
+    <Card key={scene.scene_name} sx={styles.card}>
       <CardContent>
         <Typography
           variant="h5"
@@ -108,7 +109,7 @@ const ListScenePage = (props) => {
           gutterBottom
           sx={styles.topText}
         >
-          {scene.sceneName}
+          {scene.scene_name}
         </Typography>
       </CardContent>
       <div style={styles.previewImageContainer}>
@@ -123,7 +124,12 @@ const ListScenePage = (props) => {
         />
       </div>
       <CardActions sx={styles.buttonPadding}>
-        <IconButton onClick={editSceneHandler} id={scene.identifier}>
+        <IconButton
+          onClick={() => {
+            editSceneHandler(scene.identifier);
+          }}
+          id={scene.identifier}
+        >
           <EditIcon />
         </IconButton>
         <IconButton onClick={() => selectSceneHandler(scene.identifier)}>
@@ -156,6 +162,8 @@ const ListScenePage = (props) => {
                   <AddObjectCard
                     objName="Scene"
                     onClickHandler={createSceneHandler}
+                    key="addScene"
+                    sx={styles.card}
                   />
                 </Grid>
                 {sceneCards.map((card) => (
