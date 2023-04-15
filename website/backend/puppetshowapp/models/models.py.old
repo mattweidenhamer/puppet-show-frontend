@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 import uuid
 import os
 from enum import Enum
+import deprecated
 
 
 # TODO layout needs to be restructured.
@@ -40,6 +41,7 @@ def user_actor_path(instance, filename):
 
 
 # The user's snowflake, Discord Name, and any other neccesary parts
+@deprecated
 class DiscordData(models.Model):
     user_snowflake = models.CharField(max_length=20, unique=True)
     user_username = models.CharField(max_length=100)
@@ -55,6 +57,7 @@ class DiscordData(models.Model):
         db_table = "discord_user_data"
 
 
+@deprecated
 class DiscordPointingUserManager(BaseUserManager):
     def create_user_from_snowflake(self, password, discord_snowflake):
         if not discord_snowflake:
@@ -91,6 +94,7 @@ class DiscordPointingUserManager(BaseUserManager):
         return user
 
 
+@deprecated
 class DiscordPointingUser(AbstractBaseUser):
     # TODO add components and function neccesary for token refreshing
     # TODO seperate models into seperate files
@@ -147,6 +151,7 @@ class DiscordPointingUser(AbstractBaseUser):
 
 # A "scene" is a configuration of a certain set of actors.
 # Each has their own
+@deprecated
 class Scene(models.Model):
     scene_author = models.ForeignKey(DiscordPointingUser, on_delete=models.CASCADE)
     scene_name = models.CharField(max_length=30)
@@ -165,6 +170,7 @@ class Scene(models.Model):
 
 # An "Actor" is a visualization of the user in a scene.
 # It is the main representation of the screen that a user gets.
+@deprecated
 class Actor(models.Model):
     class Attributes(Enum):
         SPEAKING = "speaking"
@@ -258,6 +264,7 @@ class Actor(models.Model):
 # NYI
 
 
+@deprecated
 class Emotion(models.Model):
     # A unique hash of the person's ID, the emotion name,
     emotion_hash = models.CharField(max_length=200)

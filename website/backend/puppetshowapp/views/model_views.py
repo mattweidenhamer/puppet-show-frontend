@@ -1,11 +1,12 @@
-from ..models import Scene, Actor, DiscordData, DiscordPointingUser
+from ..models.authentication_models import DiscordPointingUser
+from ..models.data_models import DiscordData
+from ..models.configuration_models import Actor, Scene
+from ..serializers import *
 
 from django.http import JsonResponse, HttpResponse
-from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
-from rest_framework import (
-    status,
-)  # If nothing else, keep rest framework for the statuses.
+from rest_framework import viewsets, status, mixins, generics
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 
 # views needed:
@@ -18,28 +19,50 @@ from rest_framework import (
 # Get scene and all associated actors (GET)
 
 
-# General scene view
-class SceneView(View, LoginRequiredMixin):
-    model = Scene
+class SceneList(generics.ListCreateAPIView):
+    # Query all the scenes that the user has created.
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = SceneSerializer
 
-    def get(self, request, *args, **kwargs):
-        user = request.user
-        scenes = Scene.objects.filter(user=user)
-
-
-# Specific scene view
-class SceneViewIndividual(View, LoginRequiredMixin):
-    model = Scene
-
-    def get(self, request, *args, **kwargs):
-        user = request.user
+    def get_queryset(self):
+        user = self.request.user
+        return Scene.objects.filter(scene_author=user)
 
 
-class UserView(View, LoginRequiredMixin):
-    model = DiscordPointingUser
+class SceneDetail(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = SceneSerializer
 
-    def get(self, request, *args, **kwargs):
-        return HttpResponse(status=status.HTTP_200_OK)
-        user = request.user
-        user_data = DiscordPointingUser.objects.filter(user=user)
-        return JsonResponse(user_data, status=status.HTTP_200_OK)
+    def get_queryset(self):
+        user = self.request.user
+        return Scene.objects.filter(scene_author=user)
+
+
+class ActorList(generics.ListCreateAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = ActorSerializer
+    # Query all the actors in the provided scene.
+
+    def get_queryset(self):
+        return Actor.objects.filter(scene=self.kwargs["scene_pk"])
+
+
+class ActorDetailModifiable(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    queryset = Actor.objects.all()
+    serializer_class = ActorSerializer
+
+    def get_queryset(self):
+        return Actor.objects.filter(scene=self.kwargs["scene_pk"])
+
+
+class ActorDetailReadOnly(generics.RetrieveAPIView):
+    queryset = Actor.objects.all()
+    serializer_class = ActorSerializerStage
+
+    def get_queryset(self):
+        return Actor.objects.filter(identifier=self.kwargs["actorID"])
