@@ -1,14 +1,15 @@
 from ..models.authentication_models import DiscordPointingUser
-from ..serializers import *
+from ..serializers import UserSerializer
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from rest_framework import generics
 
 
-class UserList(generics.ListAPIView):
-    queryset = DiscordPointingUser.objects.all()
+class UserInfo(generics.RetrieveUpdateAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
-
-class UserDetail(generics.RetrieveAPIView):
-    queryset = DiscordPointingUser.objects.all()
-    serializer_class = UserSerializer
+    def get_object(self):
+        return self.request.user
