@@ -1,4 +1,4 @@
-def DEFAULT_USER_SETTINGS():
+def DEFAULT_ACTOR_SETTINGS():
     return {
         "show_pronouns": False,
         "pronouns": "they/them",

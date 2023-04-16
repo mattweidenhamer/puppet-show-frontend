@@ -1,18 +1,19 @@
 from django.db import models
 from .data_models import Animation, DiscordData
 from .authentication_models import DiscordPointingUser
+from .new_models import Performer
 from enum import Enum
 from uuid import uuid4
 import os
-from ..constants import DEFAULT_USER_SETTINGS, DEFAULT_SCENE_SETTINGS
+from ..constants import DEFAULT_ACTOR_SETTINGS, DEFAULT_SCENE_SETTINGS
 
 
-def user_actor_path(instance, filename):
-    return f"profiles/{instance.actor_base_user.user_username}/{filename}"
+def user_outfit_path(instance, filename):
+    return f"profiles/{instance.user_snowflake}/{filename}"
 
 
-# A "scene" is a configuration of a certain set of actors.
-# Each has their own
+# A "scene" is a configuration of the specific information of displayed users.
+# The active scene dictates how loaded users will be displayed.
 class Scene(models.Model):
     scene_name = models.CharField(max_length=30)
     scene_author = models.ForeignKey(DiscordPointingUser, on_delete=models.CASCADE)
@@ -26,66 +27,45 @@ class Scene(models.Model):
         db_table = "scenes"
 
     @property
-    def actors(self):
-        return Actor.objects.filter(scene=self)
+    def outfits(self):
+        return Outfit.objects.filter(scene=self)
 
+    @property
     def get_owner(self):
         return self.scene_author
 
 
-# An "Actor" is a visualization of the user in a scene.
-# It is the main representation of the screen that a user gets.
-class Actor(models.Model):
-    class Attributes(Enum):
-        START_SPEAKING = "START_SPEAKING"
-        NOT_SPEAKING = "STOP_SPEAKING"
-        SLEEPING = "SLEEPING"
-        CONNECTION = "CONNECTION"
-        DISCONNECT = "DISCONNECTION"
-
-    # The actor unique identifier, which is called from the URL
-    identifier = models.UUIDField(default=uuid4)
-
+# An "Outfit" is a configuration of a performer's appearance.
+# It is bound to a scene and a performer.
+class Outfit(models.Model):
     # The user actually being drawn
-    actor_base_user = models.ForeignKey(DiscordData, on_delete=models.CASCADE)
+    performer = models.ForeignKey(Performer, on_delete=models.CASCADE)
 
-    # The scene the actor is in
+    # The scene the outfit is in
     scene = models.ForeignKey(Scene, on_delete=models.CASCADE)
 
-    # A display name for the actor
-    actor_name = models.CharField(max_length=30)
+    # A display name for the outfit
+    outfit_name = models.CharField(max_length=30)
 
     # All of their animations
     animations = models.ManyToManyField(Animation, blank=True)
 
     # Any additional settings
-    settings = models.JSONField(default=DEFAULT_USER_SETTINGS)
+    settings = models.JSONField(default=DEFAULT_ACTOR_SETTINGS)
 
     class Meta:
         db_table = "charactor_actors"
 
+    @property
     def get_owner(self):
         return self.scene.scene_author
 
-    def has_perm(self, perm, obj=None):
-        if self.is_superuser:
-            return True
-        elif isinstance(obj, Actor):
-            if obj.scene.scene_author.pk == self.pk:
-                return True
-            return False
-        elif isinstance(obj, Scene):
-            if obj.scene_author.pk == self.pk:
-                return True
-            return False
-        return False
-
     def __str__(self) -> str:
-        return f"{self.actor_base_user} {self.scene.scene_name}"
+        return f"{self.performer} {self.scene.scene_name}"
 
     def save(self, *args, **kwargs):
-        if self.actor_name is None or self.actor_name == "":
-            self.actor_name = self.actor_base_user.user_username
+        if self.outfit_name is None or self.outfit_name == "":
+            self.outfit_name = self.performer.discord_username
         super().save(*args, **kwargs)
 
     def setImage(self, attribute, image):
@@ -106,6 +86,14 @@ class Actor(models.Model):
 
         # Otherwise, create a new one and add it.
         self.animations.create(animation_type=attribute, animation_image=image)
+        self.save()
+
+    # FIXME currently always returns none
+    def getImage(self, attribute):
+        for animation in self.animations.all():
+            if animation.animation_type == attribute.label:
+                return animation.animation_image
+        return None
 
 
 # An "emotion" is an extra configuration of states.

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import DiscordData, Scene, Actor, DiscordPointingUser
+from .models import DiscordData, Scene, Outfit, DiscordPointingUser
 from .forms import *
 
 
@@ -10,8 +10,8 @@ class CustomUserAdmin(BaseUserAdmin):
     # form = CustomUserChangeForm
     model = DiscordPointingUser
     date_hierarchy = "created_date"
-    list_display = ("uuid", "discord_data")
-    list_filter = ("uuid", "discord_data")
+    list_display = ("uuid", "discord_snowflake")
+    list_filter = ("uuid", "discord_snowflake")
 
     ordering = ("created_date",)
     readonly_fields = ["uuid", "created_date"]
@@ -22,7 +22,7 @@ class CustomUserAdmin(BaseUserAdmin):
             {
                 "fields": (
                     "uuid",
-                    "discord_data",
+                    "discord_snowflake",
                 )
             },
         ),
@@ -31,7 +31,7 @@ class CustomUserAdmin(BaseUserAdmin):
             {"fields": ("is_superuser",)},
         ),
     )
-    add_fieldsets = ((None, {"fields": ("discord_data",)}),)
+    add_fieldsets = ((None, {"fields": ("discord_snowflake",)}),)
 
 
 @admin.register(DiscordData)
@@ -71,7 +71,7 @@ class SceneAdmin(admin.ModelAdmin):
     ]
 
 
-@admin.register(Actor)
+@admin.register(Outfit)
 class ActorAdmin(admin.ModelAdmin):
     fieldsets = [
         ("Actor Information", {"fields": ["actor_base_user", "actor_hash", "scene"]}),

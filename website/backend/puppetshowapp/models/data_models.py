@@ -6,13 +6,14 @@ def user_pfp_path(instance, filename):
     return f"profiles/{instance.user_username}/{filename}"
 
 
-def user_actor_path(instance, filename):
+def user_outfit_path(instance, filename):
     return f"actors/{filename}"
 
 
 # The user's snowflake, Discord Name, and any other neccesary parts
+# REBUILD: unsure of the future of this model.
 class DiscordData(models.Model):
-    user_snowflake = models.CharField(max_length=20, unique=True)
+    user_snowflake = models.CharField(max_length=20)
     user_username = models.CharField(max_length=100)
     user_discriminator = models.CharField(max_length=4)
 
@@ -27,26 +28,26 @@ class DiscordData(models.Model):
         db_table = "discord_user_data"
 
 
-# An actor's animation
+# An outfit's animation
 class Animation(models.Model):
-    class Attributes(Enum):
+    class Attributes(models.TextChoices):
         START_SPEAKING = "START_SPEAKING"
         NOT_SPEAKING = "STOP_SPEAKING"
         SLEEPING = "SLEEPING"
         CONNECTION = "CONNECTION"
         DISCONNECT = "DISCONNECTION"
 
-    animation_type = models.CharField(max_length=30)
-    animation_image = models.ImageField(upload_to=user_actor_path)
+    animation_type = models.CharField(max_length=30, choices=Attributes.choices)
+    animation_image = models.ImageField(upload_to=user_outfit_path)
 
     @property
-    def actor(self):
-        from .configuration_models import Actor
+    def outfit(self):
+        from .configuration_models import Outfit
 
-        return Actor.objects.filter(animations__in=[self]).first()
+        return Outfit.objects.filter(animations__in=[self]).first()
 
     def __str__(self) -> str:
-        return str(f"{self.actor}" + f"{self.animation_type}")
+        return str(f"{self.outfit}" + f"{self.animation_type}")
 
     class Meta:
         db_table = "animations"

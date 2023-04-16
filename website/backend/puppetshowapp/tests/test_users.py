@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from ..models.authentication_models import DiscordPointingUser, DiscordData
-from ..models.configuration_models import Scene, Actor
+from ..models.configuration_models import Scene, Outfit
 
 
 class UserTestCase(TestCase):
@@ -38,13 +38,13 @@ class UserTestCase(TestCase):
             scene_author=normal_user_2, scene_name="test_scene_2"
         )
 
-        Actor.objects.create(
+        Outfit.objects.create(
             actor_base_user=user_data_1, actor_name="test_actor", scene=test_scene_1
         )
-        Actor.objects.create(
+        Outfit.objects.create(
             actor_base_user=user_data_2, actor_name="test_actor_2", scene=test_scene_2
         )
-        Actor.objects.create(
+        Outfit.objects.create(
             actor_base_user=user_data_1, actor_name="test_actor_3", scene=test_scene_2
         )
 

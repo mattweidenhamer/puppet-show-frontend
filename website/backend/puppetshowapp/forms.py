@@ -9,14 +9,12 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = DiscordPointingUser
-        fields = ("discord_id", "password1", "password2")
+        fields = ("discord_snowflake", "password1", "password2")
 
     def save(self, commit=True):
-        discord_id = self.cleaned_data.get("discord_id")
+        discord_id = self.cleaned_data.get("discord_snowflake")
         password = self.cleaned_data.get("password1")
-        user = DiscordPointingUser.objects.create_user_from_snowflake(
-            password, discord_id
-        )
+        user = DiscordPointingUser.objects.create_user(discord_snowflake=discord_id)
         user.set_password(self.cleaned_data.get("password"))
         if commit:
             user.save()
@@ -28,7 +26,7 @@ class CustomUserCreationForm(UserCreationForm):
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = DiscordPointingUser
-        fields = ["discord_data"]
+        fields = ["discord_snowflake"]
 
 
 # class SceneForm(forms.Form):

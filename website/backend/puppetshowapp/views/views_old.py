@@ -1,13 +1,13 @@
 from django.http import HttpResponse, JsonResponse, Http404
 from django.contrib.auth.decorators import login_required
-from ..models import Actor, Scene, DiscordPointingUser, DiscordData
+from ..models import Outfit, Scene, DiscordPointingUser, DiscordData
 from ..serializers import (
     ActorSerializer,
     SceneSerializer,
     DiscordDataSerializer,
     UserSerializer,
 )
-from ..permissions import ObjectIsOwnerOrDeny, UserIsUser
+from ..permissions import IsObjectOwner, UserIsUser
 from rest_framework import viewsets, permissions, status, generics, mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -122,7 +122,7 @@ class UserDetail(generics.RetrieveAPIView):
 
 
 class SceneList(generics.ListCreateAPIView):
-    permission_classes = [ObjectIsOwnerOrDeny]
+    permission_classes = [IsObjectOwner]
     queryset = Scene.objects.all()
     serializer_class = SceneSerializer
 
@@ -131,7 +131,7 @@ class SceneList(generics.ListCreateAPIView):
 
 
 class SceneDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [ObjectIsOwnerOrDeny]
+    permission_classes = [IsObjectOwner]
     queryset = Scene.objects.all()
     serializer_class = SceneSerializer
 
@@ -142,14 +142,14 @@ class SceneDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ActorCreate(generics.CreateAPIView):
-    permission_classes = [ObjectIsOwnerOrDeny]
+    permission_classes = [IsObjectOwner]
     queryset = Scene.objects.all()
     serializer_class = ActorSerializer
 
 
 class ActorDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [ObjectIsOwnerOrDeny]
-    queryset = Actor.objects.all()
+    permission_classes = [IsObjectOwner]
+    queryset = Outfit.objects.all()
     serializer_class = ActorSerializer
 
 
