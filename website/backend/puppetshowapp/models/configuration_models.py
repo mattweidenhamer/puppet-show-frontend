@@ -5,7 +5,7 @@ from .new_models import Performer
 from enum import Enum
 from uuid import uuid4
 import os
-from ..constants import DEFAULT_ACTOR_SETTINGS, DEFAULT_SCENE_SETTINGS
+from ..constants import DEFAULT_OUTFIT_SETTINGS, DEFAULT_SCENE_SETTINGS
 
 
 def user_outfit_path(instance, filename):
@@ -34,6 +34,13 @@ class Scene(models.Model):
     def get_owner(self):
         return self.scene_author
 
+    def set_active(self):
+        for scene in Scene.objects.filter(scene_author=self.scene_author):
+            scene.is_active = False
+            scene.save()
+        self.is_active = True
+        self.save()
+
 
 # An "Outfit" is a configuration of a performer's appearance.
 # It is bound to a scene and a performer.
@@ -51,7 +58,7 @@ class Outfit(models.Model):
     animations = models.ManyToManyField(Animation, blank=True)
 
     # Any additional settings
-    settings = models.JSONField(default=DEFAULT_ACTOR_SETTINGS)
+    settings = models.JSONField(default=DEFAULT_OUTFIT_SETTINGS)
 
     class Meta:
         db_table = "charactor_actors"

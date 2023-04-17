@@ -16,23 +16,34 @@ urlpatterns = [
     path("scenes/", model_views.SceneList.as_view(), name="scene-list"),
     path("scenes/<int:pk>/", model_views.SceneDetail.as_view(), name="scene-detail"),
     path(
-        "scenes/<int:scene_pk>/actors/",
-        model_views.ActorList.as_view(),
-        name="actor-list",
+        "scenes/<int:scene_pk>/outfits/",
+        model_views.OutfitList.as_view(),
+        name="outfit-list",
     ),
     path(
-        "scenes/<int:scene_pk>/actors/<int:pk>/",
-        model_views.ActorDetail.as_view(),
-        name="actor-detail",
+        "scenes/<int:scene_pk>/outfits/<int:pk>/",
+        model_views.OutfitDetail.as_view(),
+        name="outfit-detail",
     ),
     path(
-        "createPerformer/",
-        model_views.CreatePerformer.as_view(),
-        name="create-performer",
+        "performers/",
+        model_views.PerformerList.as_view(),
+        name="performer-list",
     ),
     path(
-        "perform/<uuid:identifier>/",
+        "performers/<uuid:identifier>/",
+        model_views.PerformerDetail.as_view(),
+        name="performer-detail",
+    ),
+    # TODO not restful
+    path(
+        "scenes/<int:pk>/setActive",
+        model_views.SetActiveScene.as_view(),
+        name="set-active-scene",
+    ),
+    path(
+        "stage/<uuid:identifier>/",
         model_views.PerformanceView.as_view(),
-        name="performance",
+        name="stage-performance",
     ),
 ]

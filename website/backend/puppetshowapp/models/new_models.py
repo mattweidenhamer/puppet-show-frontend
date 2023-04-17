@@ -19,3 +19,7 @@ class Performer(models.Model):
         if self.parent_user.active_scene is None:
             return None
         return self.parent_user.active_scene.outfits.filter(performer=self).first()
+
+    @property
+    def get_owner(self):
+        return self.parent_user

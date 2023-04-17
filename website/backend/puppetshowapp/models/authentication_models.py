@@ -56,6 +56,9 @@ class DiscordPointingUser(AbstractBaseUser):
     login_username = models.CharField(max_length=25, unique=True)
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     discord_snowflake = models.CharField(max_length=25, unique=True)
+    discord_username = models.CharField(max_length=30)
+    # TODO change if we start storing avatars locally.
+    discord_avatar = models.URLField(max_length=200, null=True, blank=True)
 
     # discord_data = models.OneToOneField(
     #     DiscordData, on_delete=models.DO_NOTHING, related_name="user_discord_data"
@@ -76,7 +79,7 @@ class DiscordPointingUser(AbstractBaseUser):
 
     objects = DiscordPointingUserManager()
     USERNAME_FIELD = "login_username"
-    REQUIRED_FIELDS = ["personal_discord_data"]
+    REQUIRED_FIELDS = ["discord_snowflake"]
 
     # def __str__(self) -> str:
     #     if self.discord_data.user_username is None:
@@ -118,7 +121,10 @@ class DiscordPointingUser(AbstractBaseUser):
     def active_scene(self):
         from .configuration_models import Scene
 
-        return Scene.objects.filter(scene_author=self, is_active=True).first()
+        sceneToReturn = Scene.objects.filter(scene_author=self, is_active=True).first()
+        if sceneToReturn is None:
+            return Scene.objects.filter(scene_author=self).first()
+        return sceneToReturn
 
     @property
     def added_performers(self):

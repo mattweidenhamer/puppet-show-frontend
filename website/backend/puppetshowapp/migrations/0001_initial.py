@@ -179,7 +179,7 @@ class Migration(migrations.Migration):
                 (
                     "settings",
                     models.JSONField(
-                        default=puppetshowapp.constants.DEFAULT_ACTOR_SETTINGS
+                        default=puppetshowapp.constants.DEFAULT_OUTFIT_SETTINGS
                     ),
                 ),
                 (

@@ -27,7 +27,7 @@ TEST_FOLDER_LOCATION = os.path.join(os.path.dirname(__file__), "static_test_file
 #         self.assertEqual(data_2.user_username, "testuser_2")
 
 
-class ActorTestCase(TestCase):
+class OutfitTestCase(TestCase):
     # Create Actor objects and their scenes, make sure they are correctly saved
     def setUp(self):
         normal_user_1 = DiscordPointingUser.objects.create(
@@ -235,3 +235,4 @@ class PerformerTestCase(TestCase):
         scene_2.save()
         self.assertEqual(performer_2.get_outfit, outfit_3)
         self.assertEqual(performer_1.get_outfit, None)
+        # TODO change so that if a performer has no outfit, it will return their avatar.

@@ -2,7 +2,7 @@ from django.http import HttpResponse, JsonResponse, Http404
 from django.contrib.auth.decorators import login_required
 from ..models import Outfit, Scene, DiscordPointingUser, DiscordData
 from ..serializers import (
-    ActorSerializer,
+    OutfitSerializer,
     SceneSerializer,
     DiscordDataSerializer,
     UserSerializer,
@@ -144,13 +144,13 @@ class SceneDetail(generics.RetrieveUpdateDestroyAPIView):
 class ActorCreate(generics.CreateAPIView):
     permission_classes = [IsObjectOwner]
     queryset = Scene.objects.all()
-    serializer_class = ActorSerializer
+    serializer_class = OutfitSerializer
 
 
 class ActorDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsObjectOwner]
     queryset = Outfit.objects.all()
-    serializer_class = ActorSerializer
+    serializer_class = OutfitSerializer
 
 
 #################################################

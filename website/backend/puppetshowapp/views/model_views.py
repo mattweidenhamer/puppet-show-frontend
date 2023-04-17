@@ -8,6 +8,7 @@ from django.http import JsonResponse, HttpResponse
 from rest_framework import viewsets, status, mixins, generics
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 
 class SceneList(generics.ListCreateAPIView):
@@ -31,10 +32,10 @@ class SceneDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Scene.objects.all()
 
 
-class ActorList(generics.ListCreateAPIView):
+class OutfitList(generics.ListCreateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    serializer_class = ActorSerializer
+    serializer_class = OutfitSerializer
     # Query all the actors in the provided scene.
 
     def get_queryset(self):
@@ -47,14 +48,19 @@ class ActorList(generics.ListCreateAPIView):
                 data={"message": f"Invalid data: {serializer.errors}"},
             )
         scene = Scene.objects.get(pk=self.kwargs["scene_pk"])
+        if scene.scene_author != self.request.user:
+            return JsonResponse(
+                status=status.HTTP_403_FORBIDDEN,
+                data={"message": "You are not the author of this scene."},
+            )
         serializer.save(scene=scene)
 
 
-class ActorDetail(generics.RetrieveUpdateDestroyAPIView):
+class OutfitDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, IsObjectOwner]
     queryset = Outfit.objects.all()
-    serializer_class = ActorSerializer
+    serializer_class = OutfitSerializer
 
 
 # class ActorDetailReadOnly(generics.RetrieveAPIView):
@@ -83,17 +89,13 @@ class ActorDetail(generics.RetrieveUpdateDestroyAPIView):
 #             user.added_users.add(discord_data)
 
 
-class PerformanceView(generics.RetrieveAPIView):
-    queryset = Performer.objects.all()
-    serializer_class = PerformerSerializer
-    lookup_field = "identifier"
-
-
-class CreatePerformer(generics.CreateAPIView):
+class PerformerList(generics.ListCreateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    queryset = Performer.objects.all()
     serializer_class = PerformerSerializer
+
+    def get_queryset(self):
+        return Performer.objects.filter(parent_user=self.request.user)
 
     def perform_create(self, serializer):
         if serializer.is_valid():
@@ -112,3 +114,37 @@ class CreatePerformer(generics.CreateAPIView):
             except Performer.DoesNotExist:
                 pass
             serializer.save(parent_user=self.request.user)
+
+
+class PerformerDetail(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsObjectOwner]
+    queryset = Performer.objects.all()
+    serializer_class = PerformerSerializer
+    lookup_field = "identifier"
+
+
+class PerformanceView(generics.RetrieveAPIView):
+    queryset = Performer.objects.all()
+    serializer_class = PerformanceSerializer
+    lookup_field = "identifier"
+
+
+class SetActiveScene(generics.CreateAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    queryset = Scene.objects.all()
+    serializer_class = SceneSerializer
+
+    def create(self, request, *args, **kwargs):
+        scene = self.get_object()
+        if scene.scene_author != self.request.user:
+            return Response(
+                status=status.HTTP_403_FORBIDDEN,
+                data={"message": "You are not the author of this scene."},
+            )
+        scene.set_active()
+        return Response(
+            status=status.HTTP_200_OK,
+            data={"message": "Active scene set."},
+        )
