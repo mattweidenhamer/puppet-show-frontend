@@ -23,7 +23,9 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("ps/", include("puppetshowapp.urls")),
     path("login/", authentication_views.login_redirect_discord),
-    path("callback/", authentication_views.discord_user_callback),
+    path(
+        "callback/", authentication_views.discord_user_callback, name="token-exchange"
+    ),
     path("logout/", authentication_views.discord_user_logout),
 ]
 if settings.DEBUG:
