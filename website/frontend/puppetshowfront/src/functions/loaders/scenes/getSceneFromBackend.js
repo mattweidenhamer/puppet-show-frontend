@@ -1,4 +1,4 @@
-import scene_test from "../../constants/scene_test.json";
+import scene_test from "../../../constants/scene_test.json";
 
 const getSceneFromBackend = async (params) => {
   const sceneID = params.sceneId;

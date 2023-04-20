@@ -45,12 +45,12 @@ const ActiveSceneView = (props) => {
 
         <Placard>
           <Typography variant="h5" sx={{ textAlign: "left" }}>
-            The active scene dictates what an actor will be "wearing" when you
-            load an actor's individual link.
+            The active scene dictates what outfit a performer will "wear" when
+            you load the performer's link.
           </Typography>
           <Typography variant="h6" sx={{ textAlign: "left" }}>
-            Think of it as a configuration of an actor's costume, all grouped
-            together for easy use!
+            Think of it like a collection of costumes that your performers will
+            pull from!
             <br />
             Add a scene with the "Add scene" button
             {props.numScenes === 0
@@ -64,17 +64,19 @@ const ActiveSceneView = (props) => {
       //</Paper>
     );
   }
-  let actorsPreview = "No actors currently configured for this scene!";
+  let actorsPreview = "No performers currently configured for this scene!";
 
   if (props.scene.actors != null) {
     if (props.scene.actors.length === 1) {
-      actorsPreview = `Includes actor ${props.scene.actors[0].actor_name}`;
+      actorsPreview = `Includes an outfit for ${props.scene.actors[0].actor_name}`;
     } else if (props.scene.actors.length === 2) {
-      actorsPreview = `Includes actors ${props.scene.actors[0].actor_name} and ${props.scene.actors[1].actor_name}!`;
+      actorsPreview = `Includes outfits for ${props.scene.actors[0].actor_name} and ${props.scene.actors[1].actor_name}!`;
     } else if (props.scene.actors.length > 2) {
-      actorsPreview = `Includes actors ${props.scene.actors[0].actor_name}, ${
-        props.scene.actors[1].actor_name
-      }, and ${props.scene.actors.length - 2} others!`;
+      actorsPreview = `Includes outfits for ${
+        props.scene.actors[0].actor_name
+      }, ${props.scene.actors[1].actor_name}, and ${
+        props.scene.actors.length - 2
+      } others!`;
     }
   }
 

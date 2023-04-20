@@ -1,7 +1,7 @@
 import React from "react";
-import MainLayout from "../components/Layout/MainLayout";
+import MainLayout from "../../components/Layout/MainLayout";
 import { Typography, Paper, Button } from "@mui/material";
-import NavigationBar from "../components/NavBar/NavigationBar";
+import NavigationBar from "../../components/NavBar/NavigationBar";
 
 const styles = {
   sceneDisplayPaper: {
@@ -11,6 +11,10 @@ const styles = {
 };
 
 const LandingPage = (props) => {
+  let redirectLink = "/dashboard";
+  if (localStorage.getItem("token") === null) {
+    redirectLink = "/connectDiscord";
+  }
   return (
     <MainLayout padding={2}>
       <NavigationBar />
@@ -20,7 +24,12 @@ const LandingPage = (props) => {
         <Typography variant="h6">
           Puppet Show is a web-based client for Discord PNGTubing
         </Typography>
-        <Button variant="contained" color="primary" sx={{ marginTop: 20 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ marginTop: 20 }}
+          href={redirectLink}
+        >
           Get Started
         </Button>
       </Paper>

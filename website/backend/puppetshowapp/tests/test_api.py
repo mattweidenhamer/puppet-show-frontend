@@ -6,6 +6,7 @@ from rest_framework.test import (
     APITestCase,
     force_authenticate,
 )
+from rest_framework.authtoken.models import Token
 from unittest.mock import MagicMock, Mock, patch
 import pytest
 from pytest_mock import mocker
@@ -47,6 +48,9 @@ class UserEndpointTestCase(APITestCase):
             discord_snowflake="112345689101122",
         )
 
+        self.token = Token.objects.create(user=normal_user_1)
+        self.token_2 = Token.objects.create(user=normal_user_2)
+
         Outfit.objects.create(
             performer=performer_1, outfit_name="test_actor", scene=scene_1
         )
@@ -59,13 +63,12 @@ class UserEndpointTestCase(APITestCase):
 
     # Test that the user can access their own user data.
     def test_user_get(self):
-        user = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
         client = APIClient()
-        client.force_authenticate(user=user)
+        client.force_authenticate(token=self.token)
         url = reverse("user-info")
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["uuid"], str(user.uuid))
+        self.assertEqual(response.data["uuid"], str(self.token.user.uuid))
         self.assertEqual(response.data["discord_snowflake"], "1234567890")
         self.assertEqual(response.data["discord_username"], "testuser")
         self.assertEqual(response.data["scenes"][0]["scene_name"], "test_scene")
@@ -73,9 +76,9 @@ class UserEndpointTestCase(APITestCase):
 
     # Test that the user can update their own user data.
     def test_user_update(self):
-        user = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+        user = self.token.user
         client = APIClient()
-        client.force_authenticate(user=user)
+        client.force_authenticate(token=self.token)
         url = reverse("user-info")
         response = client.patch(
             url,
@@ -99,10 +102,10 @@ class UserEndpointTestCase(APITestCase):
 
     # Test that user cannot update read-only fields.
     def test_user_update_readonly(self):
-        user = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+        user = self.token.user
         old_uuid = str(user.uuid)
         client = APIClient()
-        client.force_authenticate(user=user)
+        client.force_authenticate(token=self.token)
         url = reverse("user-info")
         response = client.patch(
             url,
@@ -122,11 +125,6 @@ class UserEndpointTestCase(APITestCase):
         self.assertEqual(updated_user.discord_username, "testuser_blehghghsgjhsg")
         self.assertEqual(updated_user.discord_snowflake, "1234567890")
         self.assertEqual(str(updated_user.uuid), old_uuid)
-
-
-class PerformerEndpointTestCase(APITestCase):
-    def setUp(self):
-        pass
 
 
 class SceneEndpointTestCase(APITestCase):
@@ -163,14 +161,18 @@ class SceneEndpointTestCase(APITestCase):
         Outfit.objects.create(
             performer=performer_1, outfit_name="test_actor_3", scene=scene_2
         )
+        token = Token.objects.create(user=normal_user_1)
+        token_2 = Token.objects.create(user=normal_user_2)
 
     # Test that users can create a scene, and that the scene has the correct properties.
     def test_create_scene(self):
+        token = Token.objects.get(user__discord_snowflake="09876543210")
         user_2 = DiscordPointingUser.objects.get(discord_snowflake="09876543210")
         url = reverse("scene-list")
         client = APIClient()
-        client.force_authenticate(user=user_2)
+        client.force_authenticate(token=token)
         data = {"scene_name": "test_scene_100"}
+
         response = client.post(url, data, format="json")
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Scene.objects.filter(scene_name="test_scene_100").count(), 1)
@@ -180,18 +182,20 @@ class SceneEndpointTestCase(APITestCase):
 
     # Make sure that a user can't access, edit, or delete another user's scene
     def test_get_scene_for_other_user(self):
+        token_2 = Token.objects.get(user__discord_snowflake="09876543210")
+        token = Token.objects.get(user__discord_snowflake="1234567890")
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
         user_2 = DiscordPointingUser.objects.get(discord_snowflake="09876543210")
         scene_1 = Scene.objects.filter(scene_author=user_1).first()
         url = reverse("scene-detail", args=[scene_1.id])
         client = APIClient()
-        client.force_authenticate(user=user_1)
+        client.force_authenticate(token=token)
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
-        client.force_authenticate(user=None)
+        client.force_authenticate(token=None)
         response = client.get(url)
         self.assertEqual(response.status_code, 401)
-        client.force_authenticate(user=user_2)
+        client.force_authenticate(token=token_2)
         response = client.get(url)
         self.assertEqual(response.status_code, 403)
         modified_data = {"scene_name": "test_scene_69"}
@@ -205,10 +209,11 @@ class SceneEndpointTestCase(APITestCase):
     # Make sure that a user can access, modify, and delete their own scene
     def test_view_scene_for_self(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+        token = Token.objects.get(user=user_1)
         scene_1 = Scene.objects.filter(scene_author=user_1).first()
         url = reverse("scene-detail", args=[scene_1.id])
         client = APIClient()
-        client.force_authenticate(user=user_1)
+        client.force_authenticate(token=token)
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.content)
@@ -232,9 +237,10 @@ class SceneEndpointTestCase(APITestCase):
     # Make sure that a user can access a list of all of their scenes
     def test_retrieve_scene_list(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+        token = Token.objects.get(user=user_1)
         url = reverse("scene-list")
         client = APIClient()
-        client.force_authenticate(user=user_1)
+        client.force_authenticate(token=token)
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.content)
@@ -243,7 +249,8 @@ class SceneEndpointTestCase(APITestCase):
         self.assertEqual(response_dict[0]["scene_name"], "test_scene")
         self.assertEqual(response_dict[1]["scene_name"], "test_scene_2")
         user_2 = DiscordPointingUser.objects.get(discord_snowflake="09876543210")
-        client.force_authenticate(user=user_2)
+        token_2 = Token.objects.get(user=user_2)
+        client.force_authenticate(token=token_2)
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.content)
@@ -280,14 +287,16 @@ class OutfitEndpointTestCase(APITestCase):
             discord_username="test_performer_2",
             discord_snowflake="112345689101122",
         )
+        token = Token.objects.create(user=normal_user_1)
 
     # Test that a user can create an outfit, and that the outfit has the correct properties.
     def test_create_outfit(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+        token = Token.objects.get(user=user_1)
         scene_1 = Scene.objects.filter(scene_author=user_1).first()
         url = reverse("outfit-list", args=[scene_1.pk])
         client = APIClient()
-        client.force_authenticate(user=user_1)
+        client.force_authenticate(token=token)
         outfit_data = {
             "outfit_name": "test_outfit",
             "performer_id": "6969420",
@@ -357,6 +366,7 @@ class OutfitEndpointTestCase(APITestCase):
     # Make sure that a user can access their own outfits
     def test_get_actor_for_self(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+        token_1 = Token.objects.get(user=user_1)
         performer_1 = Performer.objects.get(discord_snowflake="6969420")
         scene = Scene.objects.first()
         outfit_test = Outfit.objects.create(
@@ -366,7 +376,7 @@ class OutfitEndpointTestCase(APITestCase):
         url = reverse("outfit-detail", args=[scene.pk, outfit_test.pk])
         client = APIClient()
 
-        client.force_authenticate(user=user_1)
+        client.force_authenticate(token=token_1)
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.content)
@@ -376,6 +386,7 @@ class OutfitEndpointTestCase(APITestCase):
     # Make sure that a user can edit their actor
     def test_edit_actor(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+        token = Token.objects.get(user=user_1)
         performer_1 = Performer.objects.get(discord_snowflake="6969420")
         scene = Scene.objects.first()
         outfit_test = Outfit.objects.create(
@@ -383,7 +394,7 @@ class OutfitEndpointTestCase(APITestCase):
         )
         url = reverse("outfit-detail", args=[scene.pk, outfit_test.pk])
         client = APIClient()
-        client.force_authenticate(user=user_1)
+        client.force_authenticate(token=token)
         patch_data = {"outfit_name": "test_outfit_3"}
         response = client.patch(url, patch_data, format="json")
         self.assertEqual(response.status_code, 200)
@@ -394,35 +405,13 @@ class OutfitEndpointTestCase(APITestCase):
             Outfit.objects.get(pk=outfit_test.pk).outfit_name, "test_outfit_3"
         )
 
-    # Make sure that anyone can retrieve the actor's specific information via the ActorDetailReadOnly view
-    # NOTE: This is now a Performer function, not a test function.
-    # def test_actor_stage(self):
-    #     actor_user_data = DiscordData.objects.create(user_snowflake="6969420")
-    #     scene = Scene.objects.first()
-    #     outfit_test = Outfit.objects.create(
-    #         actor_name="test_actor_2", actor_base_user=actor_user_data, scene=scene
-    #     )
-    #     url = reverse("actor-stage", args=[outfit_test.identifier])
-    #     client = APIClient()
-    #     response = client.get(url)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertIsNotNone(response.content)
-    #     response_dict = response.json()
-    #     self.assertEqual(response_dict["actor_name"], "test_actor_2")
-    #     client.force_authenticate(user=DiscordPointingUser.objects.first())
-    #     response = client.get(url)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertIsNotNone(response.content)
-    #     response_dict = response.json()
-    #     self.assertEqual(response_dict["actor_name"], "test_actor_2")
-
     # Make sure that you can add animations to an actor, and access their urls.
     # TODO write after figuring out what to do with media.
     def test_actor_animation(self):
-        pass
+        raise NotImplementedError
 
 
-class PerformerEndpointTests(APITestCase):
+class PerformerEndpointTestCase(APITestCase):
     def setUp(self):
         self.user = DiscordPointingUser.objects.create(
             discord_snowflake="1234567890", discord_username="test_user"
@@ -458,12 +447,14 @@ class PerformerEndpointTests(APITestCase):
         self.outfit_4 = Outfit.objects.create(
             performer=self.performer_2, scene=self.scene_1, outfit_name="test_outfit_4"
         )
+        self.token_1 = Token.objects.create(user=self.user)
+        self.token_2 = Token.objects.create(user=self.user_2)
 
     # Make sure that a user can access their own performers
     def test_get_performer_for_self(self):
         url = reverse("performer-detail", args=[self.performer.pk])
         client = APIClient()
-        client.force_authenticate(user=self.user)
+        client.force_authenticate(token=self.token_1)
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.content)
@@ -474,7 +465,7 @@ class PerformerEndpointTests(APITestCase):
     def test_get_performer_for_other_user(self):
         url = reverse("performer-detail", args=[self.performer_2.pk])
         client = APIClient()
-        client.force_authenticate(user=self.user)
+        client.force_authenticate(token=self.token_1)
         response = client.get(url)
         self.assertEqual(response.status_code, 403)
         bad_put_data = {"discord_username": "hehehe get rekt"}
@@ -498,7 +489,7 @@ class PerformerEndpointTests(APITestCase):
     def test_add_performer_for_self(self):
         url = reverse("performer-list")
         client = APIClient()
-        client.force_authenticate(user=self.user)
+        client.force_authenticate(token=self.token_1)
         good_post_data = {
             "discord_snowflake": "6969422",
         }
@@ -640,12 +631,14 @@ class ChangeSceneEndpointTestCase(APITestCase):
             discord_username="test_performer_2",
             discord_snowflake="112345689101122",
         )
+        self.token_1 = Token.objects.create(user=self.normal_user_1)
+        self.token_2 = Token.objects.create(user=self.normal_user_2)
 
     # Make sure that a user can change their active scene.
     def test_change_scene(self):
         url = reverse("set-active-scene", args=[self.scene_1.pk])
         client = APIClient()
-        client.force_authenticate(user=self.normal_user_1)
+        client.force_authenticate(token=self.token_1)
         response = client.post(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -664,7 +657,7 @@ class ChangeSceneEndpointTestCase(APITestCase):
         self.assertEqual(Scene.objects.get(pk=self.scene_1.pk).is_active, False)
         self.assertEqual(Scene.objects.get(pk=self.scene_2.pk).is_active, True)
 
-        client.force_authenticate(user=self.normal_user_2)
+        client.force_authenticate(token=self.token_2)
         url = reverse("set-active-scene", args=[self.scene_2.pk])
         response = client.post(url)
         self.assertEqual(response.status_code, 403)

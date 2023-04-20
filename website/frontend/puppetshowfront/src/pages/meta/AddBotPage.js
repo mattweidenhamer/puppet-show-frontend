@@ -1,8 +1,8 @@
 import React from "react";
-import MainLayout from "../components/Layout/MainLayout";
+import MainLayout from "../../components/Layout/MainLayout";
 import { Typography, Paper, Button } from "@mui/material";
-import external_urls from "../external_urls";
-import NavigationBar from "../components/NavBar/NavigationBar";
+import external_urls from "../../external_urls";
+import NavigationBar from "../../components/NavBar/NavigationBar";
 
 const styles = {
   sceneDisplayPaper: {

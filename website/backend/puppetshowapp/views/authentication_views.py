@@ -2,7 +2,6 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login, logout
 from ..models.authentication_models import DiscordPointingUser
-from ..models.data_models import DiscordData
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 import requests
@@ -20,16 +19,18 @@ import secrets
 
 
 # This should be called to redirect the user to Discord's login page
+# For testing purposes. In production this should be called from the frontend.
 def login_redirect_discord(request):
     return redirect(DISCORD_OAUTH_URL)
 
 
 def discord_user_callback(request):
     user = exchange_code_for_token(request)
-    if user.isinstance(Exception):
-        return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
-    if user.isinstance(DiscordPointingUser):
-        token = Token.objects.create(user=user)
+    if isinstance(user, Exception):
+        return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+    if isinstance(user, DiscordPointingUser):
+        # TODO implement django-rest-knox for better tokening.
+        token, created = Token.objects.get_or_create(user=user)
         redirect_url = f"{FRONTEND_REDIRECT}?token={token.key}"
         return redirect(redirect_url)
     else:
@@ -54,7 +55,8 @@ def exchange_code_for_token(request):
         )
         token_exchange_response.raise_for_status()
     except requests.HTTPError as e:
-        return e
+        if e.response.status_code == 401:
+            return e
     token_data = token_exchange_response.json()
     access_token = token_data["access_token"]
     try:
@@ -68,20 +70,15 @@ def exchange_code_for_token(request):
     except (requests.exceptions.RequestException, ValueError, KeyError) as e:
         return e
     discord_id = user_data["id"]
-    try:
-        user = DiscordPointingUser.objects.get(discord_data__user_snowflake=discord_id)
-    except DiscordPointingUser.DoesNotExist:
-        try:
-            discord_data_obj = DiscordData.objects.get(user_snowflake=discord_id)
-        except DiscordData.DoesNotExist:
-            discord_data_obj = DiscordData.objects.create(
-                user_snowflake=discord_id,
-                user_username=user_data["username"],
-                user_discriminator=user_data["discriminator"],
-            )
-        user = DiscordPointingUser.objects.create(discord_data=discord_data_obj)
+    user, created = DiscordPointingUser.objects.get_or_create(
+        discord_snowflake=discord_id
+    )
     user.discord_auth_token = access_token
     user.discord_refresh_token = token_data["refresh_token"]
+    if created:
+        user.discord_username = user_data["username"]
+        user.login_username = user_data["username"]
+    user.save()
 
     return user
 

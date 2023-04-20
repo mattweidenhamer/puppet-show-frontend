@@ -76,7 +76,7 @@ const convertKeyToName = (key) => {
   return key.replace(/_/g, " ");
 };
 
-const SpecificActorPage = (props) => {
+const SpecificOutfitPage = (props) => {
   // This page consists of three items: A navigation bar, a left content area, and a right content area.
   // The left content area is for the actor's specific information and settings.
   // If no animations have yet been set, it will also contain a message prompting the user to set some.
@@ -87,11 +87,11 @@ const SpecificActorPage = (props) => {
   // Not sure yet if the user will be uploading to the server or hosting them offsite.
   // For now use offsite, but reconsider once the server is up and running.
   // The navigation bar is an imported element. The back button on it should bring it back to the previous page.
-  const [actor, setActor] = React.useState(scenes[1].actors[1]);
+  const [outfit, setOutfit] = React.useState(scenes[1].actors[1]);
   const [leftBoxState, setLeftBoxState] = React.useState("Options");
   const [viewedAnimation, setViewedAnimation] = React.useState();
 
-  const listOfKeys = Object.keys(actor.animations);
+  const listOfKeys = Object.keys(outfit.animations);
 
   const uploadNewAnimationHandler = (event) => {};
 
@@ -110,7 +110,7 @@ const SpecificActorPage = (props) => {
       <div style={styles.previewImageContainer}>
         <img
           style={styles.previewImage}
-          src={actor.animations[key] !== null ? actor.animations[key] : ""}
+          src={outfit.animations[key] !== null ? outfit.animations[key] : ""}
           alt={convertKeyToName(key)}
         />
       </div>
@@ -125,7 +125,7 @@ const SpecificActorPage = (props) => {
     </Card>
   ));
 
-  let leftBox = <ActorOptionsView actor={actor} />;
+  let leftBox = <ActorOptionsView actor={outfit} />;
   if (leftBoxState === "Change") {
     leftBox = <AddObjectCard />;
   }
@@ -166,4 +166,4 @@ const SpecificActorPage = (props) => {
   );
 };
 
-export default SpecificActorPage;
+export default SpecificOutfitPage;

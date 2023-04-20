@@ -22,7 +22,7 @@ const styles = {
 
 const socketURL = "ws://localhost:8080";
 
-const ActorStagePage = () => {
+const PerformerStagePage = () => {
   // Load the actor hash based on the URL
   // Connect a websocket to the bot
   // Listen for updates from the bot
@@ -79,4 +79,4 @@ const ActorStagePage = () => {
   );
 };
 
-export default ActorStagePage;
+export default PerformerStagePage;

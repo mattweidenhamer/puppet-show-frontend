@@ -8,6 +8,7 @@ import Avatar from "@mui/material/Avatar";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HomeIcon from "@mui/icons-material/Home";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@mui/material";
 
 const NavigationBar = (props) => {
   // This component should be a simple navigation bar that has a back arrow, a "Home" button, and an avatar in the upper right corner that redirects to the user's page.
@@ -19,13 +20,26 @@ const NavigationBar = (props) => {
     navigate(redirect);
   };
   const handleHomeButton = () => {
-    // TODO may need to be changed once routing is implemented.
     navigate("/");
   };
   const handleGoToUserPage = () => {
-    // TODO may need to be changed once routing is implemented.
-    props.history.push("/user");
+    navigate("/user");
   };
+  let avatar = (
+    <Button
+      href="/connectDiscord"
+      variant="contained"
+      sx={{ color: "secondary" }}
+      disableElevation
+    >
+      Connect your Discord!
+    </Button>
+  );
+  if (localStorage.getItem("user") !== null) {
+    avatar = (
+      <Avatar sx={{ bgcolor: "secondary.main" }} onClick={handleGoToUserPage} />
+    );
+  }
   let backArrow;
   if (props.backArrow) {
     backArrow = (
@@ -61,10 +75,7 @@ const NavigationBar = (props) => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Puppet Show
           </Typography>
-          <Avatar
-            sx={{ bgcolor: "secondary.main" }}
-            onClick={handleGoToUserPage}
-          />
+          {avatar}
         </Toolbar>
       </AppBar>
     </Box>

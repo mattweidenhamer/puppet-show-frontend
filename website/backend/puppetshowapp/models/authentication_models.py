@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 import uuid
-from .data_models import DiscordData
 import logging
 
 
@@ -91,6 +90,7 @@ class DiscordPointingUser(AbstractBaseUser):
 
     def has_perm(self, perm, obj=None):
         from .configuration_models import Outfit, Scene
+        from .new_models import Performer
 
         if self.is_superuser:
             return True
@@ -100,6 +100,15 @@ class DiscordPointingUser(AbstractBaseUser):
             return False
         elif isinstance(obj, Scene):
             if obj.scene_author.pk == self.pk:
+                return True
+            return False
+        elif isinstance(obj, DiscordPointingUser):
+            if obj.pk == self.pk:
+                return True
+        elif isinstance(obj, Performer):
+            if (obj.parent_user.pk == self.pk) or (
+                obj.scene.scene_author.pk == self.pk
+            ):
                 return True
             return False
         return False

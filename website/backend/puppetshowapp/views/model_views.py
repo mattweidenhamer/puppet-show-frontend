@@ -2,39 +2,43 @@ from ..models.authentication_models import DiscordPointingUser
 from ..models.data_models import DiscordData
 from ..models.configuration_models import Outfit, Scene
 from ..serializers import *
-from ..permissions import IsObjectOwner
+from ..permissions import IsObjectOwner, HasValidToken
 
 from django.http import JsonResponse, HttpResponse
 from rest_framework import viewsets, status, mixins, generics
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 
 
 class SceneList(generics.ListCreateAPIView):
     # Query all the scenes that the user has created.
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasValidToken]
     serializer_class = SceneSerializer
 
     def get_queryset(self):
-        user = self.request.user
+        token = self.request.auth
+        user = Token.objects.get(key=token).user
         return Scene.objects.filter(scene_author=user)
 
     def perform_create(self, serializer):
-        serializer.save(scene_author=self.request.user)
+        token = self.request.auth
+        user = Token.objects.get(key=token).user
+        serializer.save(scene_author=user)
 
 
 class SceneDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsObjectOwner]
+    permission_classes = [HasValidToken, IsObjectOwner]
     serializer_class = SceneSerializer
     queryset = Scene.objects.all()
 
 
 class OutfitList(generics.ListCreateAPIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasValidToken]
     serializer_class = OutfitSerializer
     # Query all the actors in the provided scene.
 
@@ -42,23 +46,25 @@ class OutfitList(generics.ListCreateAPIView):
         return Outfit.objects.filter(scene=self.kwargs["scene_pk"])
 
     def perform_create(self, serializer):
+        token = self.request.auth
+        user = Token.objects.get(key=token).user
         if not serializer.is_valid():
             return JsonResponse(
                 status=status.HTTP_400_BAD_REQUEST,
                 data={"message": f"Invalid data: {serializer.errors}"},
             )
         scene = Scene.objects.get(pk=self.kwargs["scene_pk"])
-        if scene.scene_author != self.request.user:
+        if scene.scene_author != user:
             return JsonResponse(
                 status=status.HTTP_403_FORBIDDEN,
-                data={"message": "You are not the author of this scene."},
+                data={"message": "You are not the author of this outfit."},
             )
         serializer.save(scene=scene)
 
 
 class OutfitDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsObjectOwner]
+    permission_classes = [HasValidToken, IsObjectOwner]
     queryset = Outfit.objects.all()
     serializer_class = OutfitSerializer
 
@@ -91,18 +97,22 @@ class OutfitDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class PerformerList(generics.ListCreateAPIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasValidToken]
     serializer_class = PerformerSerializer
 
     def get_queryset(self):
-        return Performer.objects.filter(parent_user=self.request.user)
+        token = self.request.auth
+        user = Token.objects.get(key=token).user
+        return Performer.objects.filter(parent_user=user)
 
     def perform_create(self, serializer):
+        token = self.request.auth
+        user = Token.objects.get(key=token).user
         if serializer.is_valid():
             try:
                 # See if there is already a performer by this user with the same snowflake.
                 performer = Performer.objects.get(
-                    parent_user__discord_snowflake=self.request.user.discord_snowflake,
+                    parent_user__discord_snowflake=user.discord_snowflake,
                     discord_snowflake=serializer.validated_data["discord_snowflake"],
                 )
                 return JsonResponse(
@@ -113,12 +123,12 @@ class PerformerList(generics.ListCreateAPIView):
                 )
             except Performer.DoesNotExist:
                 pass
-            serializer.save(parent_user=self.request.user)
+            serializer.save(parent_user=user)
 
 
 class PerformerDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsObjectOwner]
+    permission_classes = [HasValidToken, IsObjectOwner]
     queryset = Performer.objects.all()
     serializer_class = PerformerSerializer
     lookup_field = "identifier"
@@ -132,13 +142,15 @@ class PerformanceView(generics.RetrieveAPIView):
 
 class SetActiveScene(generics.CreateAPIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasValidToken]
     queryset = Scene.objects.all()
     serializer_class = SceneSerializer
 
     def create(self, request, *args, **kwargs):
+        token = self.request.auth
+        user = Token.objects.get(key=token).user
         scene = self.get_object()
-        if scene.scene_author != self.request.user:
+        if scene.scene_author != user:
             return Response(
                 status=status.HTTP_403_FORBIDDEN,
                 data={"message": "You are not the author of this scene."},
