@@ -160,3 +160,5 @@ CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 
 AUTH_USER_MODEL = "puppetshowapp.DiscordPointingUser"
 AUTH_USER_MODEL_MANAGER = "puppetshowapp.DiscordPointingUserManager"
+
+MAIN_WEBSITE_URL = "http://localhost:3000"
