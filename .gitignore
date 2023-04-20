@@ -272,5 +272,4 @@ dist
 .pnp.*
 
 secrets/
-settings.py
 practice/
