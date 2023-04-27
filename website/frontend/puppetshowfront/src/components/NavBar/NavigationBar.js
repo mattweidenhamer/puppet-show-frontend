@@ -25,11 +25,17 @@ const NavigationBar = (props) => {
   const handleGoToUserPage = () => {
     navigate("/user");
   };
+  const handleGoToDashboard = () => {
+    navigate("/dashboard");
+  };
+  const handleGoToHelp = () => {
+    navigate("/help");
+  };
   let avatar = (
     <Button
       href="/connectDiscord"
       variant="contained"
-      sx={{ color: "secondary" }}
+      sx={{ color: "secondary", alignSelf: "center" }}
       disableElevation
     >
       Connect your Discord!
@@ -37,7 +43,15 @@ const NavigationBar = (props) => {
   );
   if (localStorage.getItem("user") !== null) {
     avatar = (
-      <Avatar sx={{ bgcolor: "secondary.main" }} onClick={handleGoToUserPage} />
+      <Avatar
+        sx={{ bgcolor: "secondary.main", alignSelf: "center" }}
+        onClick={handleGoToUserPage}
+        src={`https://cdn.discordapp.com/avatars/${
+          JSON.parse(localStorage.getItem("user")).discord_snowflake
+        }/${
+          JSON.parse(localStorage.getItem("user")).discord_avatar
+        }.png?size=64`}
+      />
     );
   }
   let backArrow;
@@ -60,7 +74,7 @@ const NavigationBar = (props) => {
   return (
     <Box sx={{ flexGrow: 1, marginBottom: 5 }}>
       <AppBar position="static">
-        <Toolbar sx={{ alignContent: "left" }}>
+        <Toolbar>
           <IconButton
             size="large"
             edge="start"
@@ -71,11 +85,17 @@ const NavigationBar = (props) => {
           >
             <HomeIcon />
           </IconButton>
+          <Button color="inherit" onClick={handleGoToDashboard} sx={{ mr: 2 }}>
+            Dashboard
+          </Button>
+          <Button color="inherit" onClick={handleGoToHelp} sx={{ mr: 2 }}>
+            How to use
+          </Button>
           {backArrow}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          {/* <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Puppet Show
-          </Typography>
-          {avatar}
+          </Typography> */}
+          <div>{avatar}</div>
         </Toolbar>
       </AppBar>
     </Box>

@@ -1,18 +1,8 @@
 import debug_redirects from "../../../constants/debug_redirects.json";
+import baseLoaderFunction from "../baseLoaderFunction";
 
 const getUserFromBackend = async (token) => {
-  const response = await fetch(debug_redirects.BACKEND_USER, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Token ${token}`,
-    },
-  });
-  if (response.status === 401) {
-    console.log(response);
-    return null;
-  }
-  const user = await response.json();
+  const user = await baseLoaderFunction(token, debug_redirects.BACKEND_USER);
   return user;
 };
 

@@ -51,14 +51,44 @@ class OutfitTestCase(TestCase):
             parent_user=normal_user_2, discord_snowflake="72645372"
         )
 
-        Outfit.objects.create(
+        outfit_1 = Outfit.objects.create(
             performer=performer_1, outfit_name="test_actor", scene=scene_1
         )
-        Outfit.objects.create(
+        outfit_2 = Outfit.objects.create(
             performer=performer_2, outfit_name="test_actor_2", scene=scene_1
         )
-        Outfit.objects.create(
+        outfit_3 = Outfit.objects.create(
             performer=performer_2, outfit_name="test_actor_3", scene=scene_2
+        )
+        Animation.objects.create(
+            outfit=outfit_1,
+            animation_type="START_SPEAKING",
+            animation_path="https://www.google.com",
+        )
+        Animation.objects.create(
+            outfit=outfit_1,
+            animation_type="NOT_SPEAKING",
+            animation_path="https://www.aol.com",
+        )
+        Animation.objects.create(
+            outfit=outfit_2,
+            animation_type="START_SPEAKING",
+            animation_path="https://www.github.com",
+        )
+        Animation.objects.create(
+            outfit=outfit_2,
+            animation_type="NOT_SPEAKING",
+            animation_path="https://www.teardown.com",
+        )
+        Animation.objects.create(
+            outfit=outfit_3,
+            animation_type="START_SPEAKING",
+            animation_path="https://www.wowie.com",
+        )
+        Animation.objects.create(
+            outfit=outfit_3,
+            animation_type="NOT_SPEAKING",
+            animation_path="https://www.whatdeheck.com",
         )
 
     # Make sure that the Outfit objects are correctly linked to the Scene objects
@@ -71,41 +101,33 @@ class OutfitTestCase(TestCase):
         self.assertEqual(outfit_1.scene, scene_1)
         self.assertEqual(outfit_2.scene, scene_1)
 
-    # Make sure that the Performer objects can save and load their data correctly, in particular their image data
-    # In addition, make sure that overwritten data is successfully deleted
+    # Make sure that you can access the url of the outfit animation
     def test_image_data(self):
-        actor_1 = Outfit.objects.get(outfit_name="test_actor")
+        outfit_1 = Outfit.objects.get(outfit_name="test_actor")
+        outfit_2 = Outfit.objects.get(outfit_name="test_actor_2")
+        outfit_3 = Outfit.objects.get(outfit_name="test_actor_3")
 
-        test_image_1 = SimpleUploadedFile(
-            name="test_image_1.gif",
-            content=open(
-                os.path.join(
-                    TEST_FOLDER_LOCATION,
-                    "Tair_Speak.gif",
-                ),
-                "rb",
-            ).read(),
-            content_type="image/gif",
-        )
-        test_image_2 = SimpleUploadedFile(
-            name="test_image_2.gif",
-            content=open(
-                os.path.join(TEST_FOLDER_LOCATION, "Tair_Mute.gif"), "rb"
-            ).read(),
-            content_type="image/gif",
+        self.assertEqual(outfit_1.getImage("START_SPEAKING"), "https://www.google.com")
+        self.assertEqual(outfit_1.getImage("NOT_SPEAKING"), "https://www.aol.com")
+        self.assertEqual(outfit_2.getImage("START_SPEAKING"), "https://www.github.com")
+        self.assertEqual(outfit_2.getImage("NOT_SPEAKING"), "https://www.teardown.com")
+        self.assertEqual(outfit_3.getImage("START_SPEAKING"), "https://www.wowie.com")
+        self.assertEqual(
+            outfit_3.getImage("NOT_SPEAKING"), "https://www.whatdeheck.com"
         )
 
-        actor_1.setImage(Animation.Attributes.START_SPEAKING, test_image_1)
-        self.assertIsNotNone(actor_1.getImage(Animation.Attributes.START_SPEAKING))
-        actor_1.setImage(Animation.Attributes.NOT_SPEAKING, test_image_2)
-        # assert actor_1.getImage(Animation.Attributes.NOT_SPEAKING) is not None
-        actor_1.setImage(Animation.Attributes.NOT_SPEAKING, test_image_1)
-        # assert actor_1.getImage(Animation.Attributes.NOT_SPEAKING) is not None
-        actor_1.setImage(Animation.Attributes.START_SPEAKING, test_image_2)
-        # assert actor_1.getImage(Animation.Attributes.START_SPEAKING) is not None
-
-        # TODO Good enough for now, to check that things aren't crashing
-        # But will probably need to validate the images more
+        self.assertIn(
+            outfit_3.getFirstImage(),
+            ["https://www.wowie.com", "https://www.whatdeheck.com"],
+        )
+        self.assertIn(
+            outfit_1.getFirstImage(),
+            ["https://www.google.com", "https://www.aol.com"],
+        )
+        self.assertIn(
+            outfit_2.getFirstImage(),
+            ["https://www.github.com", "https://www.teardown.com"],
+        )
 
 
 class SceneTestCase(TestCase):

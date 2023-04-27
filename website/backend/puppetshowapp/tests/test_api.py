@@ -15,6 +15,7 @@ import requests
 from ..models.authentication_models import DiscordPointingUser
 from ..models.configuration_models import Scene, Outfit
 from ..models.new_models import Performer
+from ..models.data_models import Animation
 from ..constants import DEFAULT_SCENE_SETTINGS, DEFAULT_OUTFIT_SETTINGS
 
 
@@ -152,17 +153,37 @@ class SceneEndpointTestCase(APITestCase):
             discord_username="test_performer_2",
             discord_snowflake="112345689101122",
         )
-        Outfit.objects.create(
+        outfit_1 = Outfit.objects.create(
             performer=performer_1, outfit_name="test_actor", scene=scene_1
         )
-        Outfit.objects.create(
+        outfit_2 = Outfit.objects.create(
             performer=performer_2, outfit_name="test_actor_2", scene=scene_1
         )
-        Outfit.objects.create(
+        outfit_3 = Outfit.objects.create(
             performer=performer_1, outfit_name="test_actor_3", scene=scene_2
         )
         token = Token.objects.create(user=normal_user_1)
         token_2 = Token.objects.create(user=normal_user_2)
+        animation_1 = Animation.objects.create(
+            outfit=outfit_1,
+            animation_type=Animation.Attributes.START_SPEAKING,
+            animation_path=r"https://media.discordapp.net/attachments/807108520595554304/1063692340914573352/Burning_Release.gif",
+        )
+        animation_2 = Animation.objects.create(
+            outfit=outfit_1,
+            animation_type=Animation.Attributes.NOT_SPEAKING,
+            animation_path=r"https://media.discordapp.net/attachments/807108520595554304/1063692341283663872/Burning_Hold.gif",
+        )
+        animation_3 = Animation.objects.create(
+            outfit=outfit_2,
+            animation_type=Animation.Attributes.START_SPEAKING,
+            animation_path=r"https://cdn.discordapp.com/attachments/807108520595554304/1063692365275086859/Rex_Release.gif",
+        )
+        animation_4 = Animation.objects.create(
+            outfit=outfit_2,
+            animation_type=Animation.Attributes.NOT_SPEAKING,
+            animation_path=r"https://media.discordapp.net/attachments/807108520595554304/1063692364956307548/Rex_Hold.gif",
+        )
 
     # Test that users can create a scene, and that the scene has the correct properties.
     def test_create_scene(self):
@@ -278,7 +299,20 @@ class SceneEndpointTestCase(APITestCase):
 
     # Test that a scene returns a proper animation for its preview image.
     def test_get_scene_preview(self):
-        raise NotImplementedError
+        scene_1 = Scene.objects.get(scene_name="test_scene")
+        scene_1.set_active()
+        scene_1.save()
+        user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+        token = Token.objects.get(user=user_1)
+        url = reverse("scene-detail", args=[scene_1.id])
+        client = APIClient()
+        client.force_authenticate(token=token)
+        response = client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.content)
+        response_dict = response.json()
+        self.assertEqual(response_dict["scene_name"], "test_scene")
+        self.assertEqual(response_dict["preview_image"], scene_1.preview_image)
 
 
 # TODO rewrite, this should need a lot less code with the new functions.
@@ -336,24 +370,24 @@ class OutfitEndpointTestCase(APITestCase):
             Performer.objects.filter(discord_snowflake="6969420").count(), 1
         )
 
-    # Test that a a user can create an outfit based only on performer snowflake if the performer doesn't exist.
-    # NOT YET IMPLEMENTED
-    def test_create_outfit_with_performer_snowflake(self):
-        pass
-        # outfit_data = {
-        #     "actor_name": "test_actor_2",
-        #     "actor_base_user_id": "6969420",
-        # }
-        # response = client.post(url, outfit_data, format="json")
-        # self.assertEqual(response.status_code, 201)
-        # self.assertIsNotNone(response.content)
-        # response_dict = response.json()
-        # self.assertEqual(response_dict["actor_name"], "test_actor_2")
-        # self.assertEqual(response_dict["settings"], DEFAULT_OUTFIT_SETTINGS())
-        # self.assertIsNotNone(Outfit.objects.get(actor_name="test_actor_2"))
-        # self.assertIsNotNone(DiscordData.objects.get(user_snowflake="6969420"))
+    # # Test that a a user can create an outfit based only on performer snowflake if the performer doesn't exist.
+    # # NOT YET IMPLEMENTED
+    # def test_create_outfit_with_performer_snowflake(self):
+    #     client = APIClient()
+    #     outfit_data = {
+    #         "actor_name": "test_actor_2",
+    #         "actor_base_user_id": "6969420",
+    #     }
+    #     response = client.post(url, outfit_data, format="json")
+    #     # self.assertEqual(response.status_code, 201)
+    #     # self.assertIsNotNone(response.content)
+    #     # response_dict = response.json()
+    #     # self.assertEqual(response_dict["actor_name"], "test_actor_2")
+    #     # self.assertEqual(response_dict["settings"], DEFAULT_OUTFIT_SETTINGS())
+    #     # self.assertIsNotNone(Outfit.objects.get(actor_name="test_actor_2"))
+    #     # self.assertIsNotNone(DiscordData.objects.get(user_snowflake="6969420"))
 
-    # Make sure that a user can't access, edit, or delete another user's actor
+    # # Make sure that a user can't access, edit, or delete another user's actor
     def test_get_actor_for_other_user(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
         user_2 = DiscordPointingUser.objects.get(discord_snowflake="09876543210")
@@ -403,8 +437,8 @@ class OutfitEndpointTestCase(APITestCase):
         response_dict = response.json()
         self.assertEqual(response_dict["outfit_name"], "test_outfit_2")
 
-    # Make sure that a user can edit their actor
-    def test_edit_actor(self):
+    # Make sure that a user can edit their outfit
+    def test_edit_outfit(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
         token = Token.objects.get(user=user_1)
         performer_1 = Performer.objects.get(discord_snowflake="6969420")
@@ -426,9 +460,14 @@ class OutfitEndpointTestCase(APITestCase):
         )
 
     # Make sure that you can add animations to an actor, and access their urls.
-    # TODO write after figuring out what to do with media.
-    def test_actor_animation(self):
-        raise NotImplementedError
+    def test_outfit_animation(self):
+        user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+        token = Token.objects.get(user=user_1)
+        performer_1 = Performer.objects.get(discord_snowflake="6969420")
+        scene = Scene.objects.first()
+        outfit_test = Outfit.objects.create(
+            performer=performer_1, scene=scene, outfit_name="test_outfit_2"
+        )
 
 
 class PerformerEndpointTestCase(APITestCase):

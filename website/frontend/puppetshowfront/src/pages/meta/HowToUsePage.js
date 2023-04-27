@@ -10,7 +10,7 @@ const styles = {
   },
 };
 
-const getStartedPage = () => {
+const HowToUsePage = () => {
   return (
     <MainLayout padding={2}>
       <NavigationBar />
@@ -35,4 +35,4 @@ const getStartedPage = () => {
     </MainLayout>
   );
 };
-export default getStartedPage;
+export default HowToUsePage;

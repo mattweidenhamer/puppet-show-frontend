@@ -37,14 +37,9 @@ class Animation(models.Model):
         CONNECTION = "CONNECTION"
         DISCONNECT = "DISCONNECTION"
 
+    outfit = models.ForeignKey("Outfit", on_delete=models.CASCADE)
     animation_type = models.CharField(max_length=30, choices=Attributes.choices)
-    animation_image = models.ImageField(upload_to=user_outfit_path)
-
-    @property
-    def outfit(self):
-        from .configuration_models import Outfit
-
-        return Outfit.objects.filter(animations__in=[self]).first()
+    animation_path = models.URLField(max_length=200)
 
     def __str__(self) -> str:
         return str(f"{self.outfit}" + f"{self.animation_type}")

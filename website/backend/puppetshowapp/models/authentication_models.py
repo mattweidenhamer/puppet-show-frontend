@@ -56,8 +56,6 @@ class DiscordPointingUser(AbstractBaseUser):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     discord_snowflake = models.CharField(max_length=25, unique=True)
     discord_username = models.CharField(max_length=30)
-    # TODO change if we start storing avatars locally.
-    discord_avatar = models.URLField(max_length=200, null=True, blank=True)
 
     # discord_data = models.OneToOneField(
     #     DiscordData, on_delete=models.DO_NOTHING, related_name="user_discord_data"
@@ -72,9 +70,7 @@ class DiscordPointingUser(AbstractBaseUser):
 
     discord_auth_token = models.CharField(max_length=100)
     discord_refresh_token = models.CharField(max_length=100)
-
-    # Probably not needed
-    rest_auth_token = models.CharField(max_length=100)
+    discord_avatar = models.CharField(max_length=100)
 
     objects = DiscordPointingUserManager()
     USERNAME_FIELD = "login_username"
@@ -140,6 +136,12 @@ class DiscordPointingUser(AbstractBaseUser):
         from .new_models import Performer
 
         return Performer.objects.filter(parent_user=self)
+
+    @property
+    def added_performers_count(self):
+        from .new_models import Performer
+
+        return Performer.objects.filter(parent_user=self).count()
 
     def save(self, *args, **kwargs):
         if not self.login_username:

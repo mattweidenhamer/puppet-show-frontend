@@ -25,8 +25,10 @@ const customTheme = createTheme({
 
 const styles = {
   bigScreenBox: {
-    width: "calc(100% - 2in)",
-    height: "calc(100% - 3in)",
+    // width: "calc(100% - 2in)",
+    // height: "calc(100% - 3in)",
+    width: "95%",
+    height: "95%",
     margin: 2,
     padding: 1,
     display: "flex",

@@ -15,7 +15,7 @@ from .models.new_models import Performer
 class AnimationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Animation
-        fields = ("animation_type", "animation_image")
+        fields = ("animation_type", "animation_path")
         read_only_fields = ["animation_type"]
 
 
@@ -125,7 +125,7 @@ class SceneSerializer(serializers.ModelSerializer):
             "preview_image",
             "outfits",
         )
-        read_only_fields = ["scene_author", "is_active"]
+        read_only_fields = ["scene_author", "is_active", "preview_image"]
 
 
 class PerformerSerializer(serializers.ModelSerializer):
@@ -169,5 +169,6 @@ class UserSerializer(serializers.ModelSerializer):
             "active_scene",
             "performers",
             "discord_avatar",
+            "added_performers_count",
         ]
-        read_only_fields = ["uuid", "discord_snowflake"]
+        read_only_fields = ["uuid", "discord_snowflake", "added_performer_count"]

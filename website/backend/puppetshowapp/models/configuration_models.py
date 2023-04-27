@@ -41,6 +41,12 @@ class Scene(models.Model):
         self.is_active = True
         self.save()
 
+    @property
+    def preview_image(self):
+        if self.outfits.count() == 0:
+            return None
+        return self.outfits.first().getFirstImage()
+
 
 # An "Outfit" is a configuration of a performer's appearance.
 # It is bound to a scene and a performer.
@@ -54,53 +60,58 @@ class Outfit(models.Model):
     # A display name for the outfit
     outfit_name = models.CharField(max_length=30)
 
-    # All of their animations
-    animations = models.ManyToManyField(Animation, blank=True)
-
     # Any additional settings
     settings = models.JSONField(default=DEFAULT_OUTFIT_SETTINGS)
 
-    class Meta:
-        db_table = "charactor_actors"
+    @property
+    def animations(self):
+        return Animation.objects.filter(outfit=self)
+
+    def getImage(self, attribute):
+        for animation in self.animations.all():
+            if animation.animation_type == attribute:
+                return animation.animation_path
+        return None
+
+    def getFirstImage(self):
+        for animation in self.animations.all():
+            return animation.animation_path
+        return None
 
     @property
     def get_owner(self):
         return self.scene.scene_author
 
+    class Meta:
+        db_table = "charactor_actors"
+
     def __str__(self) -> str:
-        return f"{self.performer} {self.scene.scene_name}"
+        return f"{self.performer.discord_username}'s {self.scene.scene_name} outfit"
 
     def save(self, *args, **kwargs):
         if self.outfit_name is None or self.outfit_name == "":
             self.outfit_name = self.performer.discord_username
         super().save(*args, **kwargs)
 
-    def setImage(self, attribute, image):
-        def _deleteImage(image):
-            try:
-                if os.path.isfile(image.path):
-                    os.remove(image.path)
-            except ValueError:
-                pass
+    # def setImage(self, attribute, image):
+    #     def _deleteImage(image):
+    #         try:
+    #             if os.path.isfile(image.path):
+    #                 os.remove(image.path)
+    #         except ValueError:
+    #             pass
 
-        # If there's already an animation for it in the file, overwrite it.
-        for animation in self.animations.all():
-            if animation.animation_type == attribute:
-                _deleteImage(animation.animation_image)
-                animation.animation_image = image
-                animation.save()
-                return
+    #     # If there's already an animation for it in the file, overwrite it.
+    #     for animation in self.animations.all():
+    #         if animation.animation_type == attribute:
+    #             _deleteImage(animation.animation_image)
+    #             animation.animation_image = image
+    #             animation.save()
+    #             return
 
-        # Otherwise, create a new one and add it.
-        self.animations.create(animation_type=attribute, animation_image=image)
-        self.save()
-
-    # FIXME currently always returns none
-    def getImage(self, attribute):
-        for animation in self.animations.all():
-            if animation.animation_type == attribute.label:
-                return animation.animation_image
-        return None
+    #     # Otherwise, create a new one and add it.
+    #     self.animations.create(animation_type=attribute, animation_image=image)
+    #     self.save()
 
 
 # An "emotion" is an extra configuration of states.

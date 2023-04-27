@@ -75,6 +75,7 @@ def exchange_code_for_token(request):
     )
     user.discord_auth_token = access_token
     user.discord_refresh_token = token_data["refresh_token"]
+    user.discord_avatar = user_data["avatar"]
     if created:
         user.discord_username = user_data["username"]
         user.login_username = user_data["username"]

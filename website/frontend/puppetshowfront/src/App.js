@@ -6,7 +6,7 @@ import SpecificScenePage from "./pages/SpecificScenePage";
 import SpecificOutfitPage from "./pages/SpecificOutfitPage";
 import PerformerStagePage from "./pages/PerformerStagePage";
 import UserInfoPage from "./pages/UserInfoPage";
-import GetStartedPage from "./pages/meta/GetStartedPage";
+import HowToUsePage from "./pages/meta/HowToUsePage";
 import ListPerformerPage from "./pages/ListPerformerPage";
 import {
   createBrowserRouter,
@@ -50,10 +50,15 @@ const router = createBrowserRouter([
         return redirect("/connectDiscord");
       }
       const active_scene = await getActiveSceneFromBackend(token);
-      const user = await getUserFromBackend(token);
-      return { "active_scene": active_scene, "user": user };
-
-    }
+      if (checkUserInLocal()) {
+        console.log("Found user in local storage");
+        await updateUserFromBackend(token, false);
+      } else {
+        console.log("User not found in local storage");
+        await updateUserFromBackend(token, true);
+      }
+      return { active_scene: active_scene };
+    },
   },
   {
     path: "/scenes",
@@ -106,24 +111,25 @@ const router = createBrowserRouter([
         return redirect("/error");
       }
       localStorage.setItem("user", user);
-      return redirect("/gettingstarted");
+      return redirect("/dashboard");
     },
   },
   {
     path: "/user",
     element: <UserInfoPage />,
     loader: async () => {
-      //Retrieve user information from backend.
-      //If the user is not logged in, redirect to the login page.
+      //Update the stored user
+
       const token = localStorage.getItem("token");
       if (token === null) {
         return redirect("/connectDiscord");
       }
-      const getUser = await getUserFromBackend(token);
-      if (getUser === null) {
-        return redirect("/connectDiscord");
+      if (!checkUserInLocal()) {
+        updateUserFromBackend(token);
+        if (checkUserInLocal() === false) {
+          return redirect("/connectDiscord");
+        }
       }
-      return getUser;
     },
   },
   // {
@@ -138,14 +144,50 @@ const router = createBrowserRouter([
   //   },
   // },
   {
-    path: "/gettingstarted",
-    element: <GetStartedPage />,
+    path: "/howToUse",
+    element: <HowToUsePage />,
   },
   // TODO add this page
   {
     path: "/importantInformation",
   },
 ]);
+
+const checkUserInLocal = async () => {
+  if (localStorage.getItem("user") === null) {
+    return false;
+  }
+  return true;
+};
+
+const updateUserFromBackend = async (token, force) => {
+  if (force) {
+    const user = await getUserFromBackend(token);
+    if (user !== null) {
+      console.log("Updating user");
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("timeSinceLastUpdate", Date.now());
+    } else {
+      localStorage.removeItem("user");
+      console.log("Received null user");
+    }
+  } else {
+    if (
+      localStorage.getItem("timeSinceLastUpdate") === null ||
+      Date.now() - localStorage.getItem("timeSinceLastUpdate") >
+        1000 * 60 * 60 * 24
+    ) {
+      const user = await getUserFromBackend(token);
+      if (user !== null) {
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("timeSinceLastUpdate", Date.now());
+      } else {
+        localStorage.removeItem("user");
+        console.log("Received null user");
+      }
+    }
+  }
+};
 
 function App() {
   return (
