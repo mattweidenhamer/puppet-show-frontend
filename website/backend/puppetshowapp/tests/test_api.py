@@ -260,6 +260,26 @@ class SceneEndpointTestCase(APITestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 401)
 
+    # Make sure that you can get a user's active scene.
+    def test_get_active_scene(self):
+        scene_1 = Scene.objects.get(scene_name="test_scene")
+        scene_1.set_active()
+        scene_1.save()
+        user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+        token = Token.objects.get(user=user_1)
+        url = reverse("scene-active")
+        client = APIClient()
+        client.force_authenticate(token=token)
+        response = client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.content)
+        response_dict = response.json()
+        self.assertEqual(response_dict["scene_name"], "test_scene")
+
+    # Test that a scene returns a proper animation for its preview image.
+    def test_get_scene_preview(self):
+        raise NotImplementedError
+
 
 # TODO rewrite, this should need a lot less code with the new functions.
 class OutfitEndpointTestCase(APITestCase):

@@ -11,26 +11,28 @@ const styles = {
 };
 
 const getStartedPage = () => {
-  <MainLayout padding={2}>
-    <NavigationBar />
-    <Paper sx={styles.sceneDisplayPaper}>
-      <Typography variant="h2">Awesome!</Typography>
-      <Typography variant="h4">
-        You're all set! <br />
-        Scroll down to see how you can start PNGTubing with Puppetshow!
-      </Typography>
-      <Typography variant="h5">
-        Or, if you already know how to use puppetshow:
-      </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        sx={styles.button}
-        href="/dashboard"
-      >
-        Click here!
-      </Button>
-    </Paper>
-  </MainLayout>;
+  return (
+    <MainLayout padding={2}>
+      <NavigationBar />
+      <Paper sx={styles.sceneDisplayPaper}>
+        <Typography variant="h2">Awesome!</Typography>
+        <Typography variant="h4">
+          You're all set! <br />
+          Scroll down to see how you can start PNGTubing with Puppetshow!
+        </Typography>
+        <Typography variant="h5">
+          Or, if you already know how to use puppetshow:
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={styles.button}
+          href="/dashboard"
+        >
+          Click here!
+        </Button>
+      </Paper>
+    </MainLayout>
+  );
 };
 export default getStartedPage;

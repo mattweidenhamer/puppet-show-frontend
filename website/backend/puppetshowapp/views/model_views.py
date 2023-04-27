@@ -4,8 +4,8 @@ from ..models.configuration_models import Outfit, Scene
 from ..serializers import *
 from ..permissions import IsObjectOwner, HasValidToken
 
-from django.http import JsonResponse, HttpResponse
-from rest_framework import viewsets, status, mixins, generics
+from django.http import JsonResponse, HttpResponse, Http404
+from rest_framework import viewsets, status, mixins, generics, response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -34,6 +34,21 @@ class SceneDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [HasValidToken, IsObjectOwner]
     serializer_class = SceneSerializer
     queryset = Scene.objects.all()
+
+
+class ActiveScene(generics.RetrieveAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [HasValidToken]
+    serializer_class = SceneSerializer
+
+    def get_object(self):
+        token = self.request.auth
+        user = Token.objects.get(key=token).user
+        active_scene = user.active_scene
+        if active_scene is None:
+            raise Http404
+
+        return active_scene
 
 
 class OutfitList(generics.ListCreateAPIView):

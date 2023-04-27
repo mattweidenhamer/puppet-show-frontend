@@ -14,6 +14,7 @@ from .views import authentication_views, model_views, user_views
 urlpatterns = [
     path("user/", user_views.UserInfo.as_view(), name="user-info"),
     path("scenes/", model_views.SceneList.as_view(), name="scene-list"),
+    path("scenes/active/", model_views.ActiveScene.as_view(), name="scene-active"),
     path("scenes/<int:pk>/", model_views.SceneDetail.as_view(), name="scene-detail"),
     path(
         "scenes/<int:scene_pk>/outfits/",

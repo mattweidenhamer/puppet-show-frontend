@@ -122,6 +122,7 @@ class SceneSerializer(serializers.ModelSerializer):
             "scene_name",
             "scene_settings",
             "is_active",
+            "preview_image",
             "outfits",
         )
         read_only_fields = ["scene_author", "is_active"]

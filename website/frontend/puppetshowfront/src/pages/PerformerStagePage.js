@@ -27,7 +27,7 @@ const PerformerStagePage = () => {
   // Connect a websocket to the bot
   // Listen for updates from the bot
 
-  const [actor, setActor] = React.useState(useRouteLoaderData("actor"));
+  const [actor, setActor] = React.useState(useRouteLoaderData("performerStage"));
   const [actorState, setActorState] = React.useState(actorStates.GONE);
 
   const { sendJsonMessage, lastMessage, readyState } = useWebSocket(socketURL, {

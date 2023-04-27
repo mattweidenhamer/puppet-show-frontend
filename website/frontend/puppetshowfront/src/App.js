@@ -25,19 +25,36 @@ import getSceneFromBackend from "./functions/loaders/scenes/getSceneFromBackend"
 import getAllScenesFromBackend from "./functions/loaders/scenes/getAllScenesFromBackend";
 import getUserFromBackend from "./functions/loaders/users/getUserFromBackend";
 import ConnectDiscordPage from "./pages/meta/ConnectDiscordPage";
-
+import DashboardPage from "./pages/meta/DashboardPage";
+import getActiveSceneFromBackend from "./functions/loaders/scenes/getActiveSceneFromBackend";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <LandingPage />,
     children: [],
-    loader: async () => {
-      localStorage.clear();
-      return {};
-    },
+    // Debug
+    // loader: async () => {
+    //   localStorage.clear();
+    //   return {};
+    // },
   },
   { path: "/bot", element: <AddBotPage /> },
   { path: "/connectDiscord", element: <ConnectDiscordPage /> },
+  {
+    path: "/dashboard",
+    element: <DashboardPage />,
+    id: "dashboard",
+    loader: async () => {
+      const token = localStorage.getItem("token");
+      if (token === null) {
+        return redirect("/connectDiscord");
+      }
+      const active_scene = await getActiveSceneFromBackend(token);
+      const user = await getUserFromBackend(token);
+      return { "active_scene": active_scene, "user": user };
+
+    }
+  },
   {
     path: "/scenes",
     id: "allScenes",
@@ -69,6 +86,7 @@ const router = createBrowserRouter([
   {
     path: "/stage/:performerId",
     element: <PerformerStagePage />,
+    id: "performerStage",
     loader: async ({ params }) => {
       return getOutfitFromBackend(params);
     },
@@ -88,7 +106,7 @@ const router = createBrowserRouter([
         return redirect("/error");
       }
       localStorage.setItem("user", user);
-      return redirect("/gettingStarted");
+      return redirect("/gettingstarted");
     },
   },
   {
