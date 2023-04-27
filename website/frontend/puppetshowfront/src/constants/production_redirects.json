@@ -8,5 +8,6 @@
   "BACKEND_SCENE_OUTFITS_EXTENSION": "/outfits",
   "BACKEND_SCENE_SETACTIVESCENE_EXTENSION": "/setActive",
   "BACKEND_PERRFORMERS": "http://localhost:8000/ps/performers",
-  "BACKEND_STAGE": "http://localhost:8000/stage"
+  "BACKEND_STAGE": "http://localhost:8000/stage",
+  "BOT_INVITATION": "https://discord.com/api/oauth2/authorize?client_id=1075810140361592902&permissions=36703232&scope=bot"
 }

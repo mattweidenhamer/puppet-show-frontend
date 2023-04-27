@@ -10,6 +10,7 @@ import Placard from "../../components/Display/Placard";
 import { Button, Grid, Paper, Typography } from "@mui/material";
 import React from "react";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
+import debug_redirects from "../../constants/debug_redirects.json";
 
 const styles = {
   dashboardContainer: {
@@ -33,10 +34,7 @@ const DashboardPage = () => {
     //set the active scene icon to an animation from the scene.
   }
   const redirectToScenes = () => {
-    redirect("/scenes/");
-  };
-  const redirectToBot = () => {
-    redirect("/bot");
+    redirect("/scenes");
   };
   const redirectToUser = () => {
     redirect("/user");
@@ -62,11 +60,7 @@ const DashboardPage = () => {
                 style={{ height: "60%", width: "30%", margin: "2%" }}
               />
               <br />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={redirectToScenes}
-              >
+              <Button variant="contained" color="primary" href="/scenes">
                 Manage scenes
               </Button>
             </Paper>
@@ -81,11 +75,12 @@ const DashboardPage = () => {
                 <br />
                 Each performer has a unique link that leads to their "stage."
                 <br />
-                This link is what you should put into your OBS browser source.
+                This link is what you should put as a browser source into your
+                stream software.
                 <br />
               </Typography>
               <br />
-              <Button variant="contained" onClick={redirectToPerformers}>
+              <Button variant="contained" href="/performers">
                 Manage performers
               </Button>
             </Paper>
@@ -98,12 +93,15 @@ const DashboardPage = () => {
               <Typography variant="body1">
                 Invite the bot to your server so that you can start broadcasting
                 your shows!
+                <br />
+                The bot must be in the same voice call as you in order for your
+                performers to animate.
               </Typography>
               <br />
               <Button
                 variant="contained"
                 color="primary"
-                onClick={redirectToBot}
+                href={debug_redirects.INVITE_BOT}
               >
                 Invite bot
               </Button>
@@ -126,7 +124,7 @@ const DashboardPage = () => {
                 }}
               />
               <br />
-              <Button variant="contained" onClick={redirectToUser}>
+              <Button variant="contained" href="/user">
                 Go to user page
               </Button>
             </Paper>

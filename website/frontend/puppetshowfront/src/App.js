@@ -1,7 +1,6 @@
 import "./App.css";
 import LandingPage from "./pages/meta/LandingPage";
 import ListScenePage from "./pages/ListScenePage";
-import AddBotPage from "./pages/meta/AddBotPage";
 import SpecificScenePage from "./pages/SpecificScenePage";
 import SpecificOutfitPage from "./pages/SpecificOutfitPage";
 import PerformerStagePage from "./pages/PerformerStagePage";
@@ -38,7 +37,6 @@ const router = createBrowserRouter([
     //   return {};
     // },
   },
-  { path: "/bot", element: <AddBotPage /> },
   { path: "/connectDiscord", element: <ConnectDiscordPage /> },
   {
     path: "/dashboard",
@@ -64,7 +62,10 @@ const router = createBrowserRouter([
     path: "/scenes",
     id: "allScenes",
     element: <ListScenePage />,
-    loader: getAllScenesFromBackend,
+    loader: async ({ params }) => {
+      const token = localStorage.getItem("token");
+      return getAllScenesFromBackend(token);
+    },
   },
   {
     path: "/scenes/:sceneId",

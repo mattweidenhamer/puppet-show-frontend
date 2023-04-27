@@ -1,9 +1,8 @@
-import scene_test from "../../../constants/scene_test.json";
+import baseLoaderFunction from "../baseLoaderFunction";
+import debug_redirects from "../../../constants/debug_redirects.json";
 
-const getAllScenesFromBackend = async () => {
-  //In the future, this should connect to the django server and get all the scenes the user can see.
-  //For now, return test data.
-  return scene_test;
+const getAllScenesFromBackend = async (token) => {
+  return baseLoaderFunction(token, debug_redirects.BACKEND_SCENES);
 };
 
 export default getAllScenesFromBackend;

@@ -1,7 +1,6 @@
 import React from "react";
 import MainLayout from "../../components/Layout/MainLayout";
 import { Typography, Paper, Button } from "@mui/material";
-import external_urls from "../../external_urls";
 import NavigationBar from "../../components/NavBar/NavigationBar";
 
 const styles = {
@@ -36,12 +35,7 @@ const AddBotPage = (props) => {
           </Typography>
         </Typography>
         <Typography variant="h5">Next, add our bot to your server!</Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          sx={styles.button}
-          href={external_urls.bot_invitation}
-        >
+        <Button variant="contained" color="primary" sx={styles.button}>
           Invite the Puppetmaster!
         </Button>
       </Paper>
