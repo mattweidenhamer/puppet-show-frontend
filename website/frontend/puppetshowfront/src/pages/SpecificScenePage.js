@@ -87,9 +87,10 @@ const SpecificScenePage = (props) => {
 
   //Left box state should be one of three values, "Add" for adding new actors, "View" for viewing scene settings, and "Delete" for confirming delete of an actor.
   const [leftBoxState, setLeftBoxState] = React.useState("View");
-  //TODO in production, this should be gathered from the redirection.
-  const [scene, setScene] = React.useState(useRouteLoaderData("specificScene"));
-  const [selectedActor, selectActor] = React.useState(null);
+  const [scene, setScene] = React.useState(
+    useRouteLoaderData("specificScene").scene
+  );
+  const [selectedOutfit, selectOutfit] = React.useState(null);
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState("");
   const [severity, setSeverity] = React.useState("success");
@@ -107,24 +108,25 @@ const SpecificScenePage = (props) => {
     setOpenSnackbar(true);
   };
 
-  const editActorHandler = (event) => {
-    //TODO  navigate to actor's individual edit page
-    console.log(`Edit actor `);
+  const editOutfitHandler = (event) => {
+    navigate(`scene/${scene.identifier}/outfit/${event.currentTarget.id}`);
   };
-  const toggleDeleteActorHandler = (snowflake) => {
-    selectActor(
-      scene.actors.find((actor) => actor.user_snowflake === snowflake)
+  const toggleDeleteOutfitHandler = (snowflake) => {
+    selectOutfit(
+      scene.outfits.find(
+        (outfit) => outfit.performer.user_snowflake === snowflake
+      )
     );
     setLeftBoxState("Delete");
   };
-  const createActorHandler = () => {
+  const createOutfitHandler = () => {
     setLeftBoxState("Add");
   };
-  const handleDeleteActor = (actor) => {
-    console.log(`Delete actor ${actor.actor_name}`);
+  const handleDeleteOutfit = (outfit) => {
+    console.log(`Delete outfit ${outfit.outfit_name}`);
     //TODO delete actor from scene
     setSnackbarMessage(
-      `Deleted actor ${actor.actor_name} from scene ${scene.scene_name}`
+      `Deleted outfit ${outfit.outfit_name} from scene ${scene.scene_name}`
     );
     setSeverity("info");
     setOpenSnackbar(true);
@@ -132,8 +134,8 @@ const SpecificScenePage = (props) => {
   };
 
   //TODO move to its own file
-  const actorCards = scene.actors.map((actor) => (
-    <Card key={actor.actor_name} sx={styles.card}>
+  const outfitCards = scene.outfits.map((outfit) => (
+    <Card key={outfit.outfit_name} sx={styles.card}>
       <CardContent>
         <Typography
           variant="h5"
@@ -141,24 +143,27 @@ const SpecificScenePage = (props) => {
           gutterBottom
           sx={styles.topText}
         >
-          {actor.actor_name}
+          {outfit.outfit_name}
         </Typography>
       </CardContent>
       <div style={styles.previewImageContainer}>
         <img
           style={styles.previewImage}
-          src={getDefaultAnimationToDisplay(actor)}
-          alt={actor.name}
+          src={getDefaultAnimationToDisplay(outfit)}
+          alt={outfit.name}
         />
       </div>
       <CardActions sx={styles.buttonPadding}>
-        <IconButton onClick={editActorHandler} id={actor.actor_hash}>
+        <IconButton
+          onClick={editOutfitHandler}
+          id={outfit.performer.discord_snowflake}
+        >
           <EditIcon />
         </IconButton>
         <IconButton
-          onClick={() => toggleDeleteActorHandler(actor.user_snowflake)}
-          id={actor.name + " delete button"}
-          actor={actor}
+          onClick={() => toggleDeleteOutfitHandler(outfit.user_snowflake)}
+          id={outfit.name + " delete button"}
+          actor={outfit}
         >
           <DeleteIcon />
         </IconButton>
@@ -172,9 +177,9 @@ const SpecificScenePage = (props) => {
   } else if (leftBoxState === "Delete") {
     leftBox = (
       <DeleteActorView
-        actor={selectedActor}
+        actor={selectedOutfit}
         scene={scene}
-        onDeleteConfirm={handleDeleteActor}
+        onDeleteConfirm={handleDeleteOutfit}
       />
     );
   }
@@ -192,11 +197,11 @@ const SpecificScenePage = (props) => {
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={6} md={4}>
                   <AddObjectCard
-                    objName="Actor"
-                    onClickHandler={createActorHandler}
+                    objName="Outfit"
+                    onClickHandler={createOutfitHandler}
                   />
                 </Grid>
-                {actorCards.map((card) => (
+                {outfitCards.map((card) => (
                   <Grid item key={card.key} xs={12} sm={6} md={4}>
                     {card}
                   </Grid>

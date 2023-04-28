@@ -72,7 +72,10 @@ const router = createBrowserRouter([
     element: <SpecificScenePage />,
     id: "specificScene",
     loader: async ({ params }) => {
-      return getSceneFromBackend(params);
+      const token = localStorage.getItem("token");
+      const scene = await getSceneFromBackend(token, params);
+      const performers = await getAllPerformersFromBackend(token);
+      return { scene: scene, performers: performers };
     },
   },
   // {
@@ -133,17 +136,18 @@ const router = createBrowserRouter([
       }
     },
   },
-  // {
-  //   path: "/performers",
-  //   element: <ListPerformersPage />,
-  //   loader: async () => {
-  //     const token = localStorage.getItem("token");
-  //     if (token === null) {
-  //       return redirect("/login");
-  //     }
-  //     return getAllPerformersFromBackend(token);
-  //   },
-  // },
+  {
+    path: "/performers",
+    element: <ListPerformerPage />,
+    id: "allPerformers",
+    loader: async () => {
+      const token = localStorage.getItem("token");
+      if (token === null) {
+        return redirect("/login");
+      }
+      return getAllPerformersFromBackend(token);
+    },
+  },
   {
     path: "/howToUse",
     element: <HowToUsePage />,

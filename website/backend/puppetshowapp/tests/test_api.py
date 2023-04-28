@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import (
     APIRequestFactory,
@@ -8,8 +7,6 @@ from rest_framework.test import (
 )
 from rest_framework.authtoken.models import Token
 from unittest.mock import MagicMock, Mock, patch
-import pytest
-from pytest_mock import mocker
 import requests
 
 from ..models.authentication_models import DiscordPointingUser
@@ -137,10 +134,10 @@ class SceneEndpointTestCase(APITestCase):
             discord_snowflake="09876543210",
         )
 
-        scene_1 = Scene.objects.create(
+        self.scene_1 = Scene.objects.create(
             scene_author=normal_user_1, scene_name="test_scene"
         )
-        scene_2 = Scene.objects.create(
+        self.scene_2 = Scene.objects.create(
             scene_author=normal_user_1, scene_name="test_scene_2"
         )
         performer_1 = Performer.objects.create(
@@ -154,13 +151,13 @@ class SceneEndpointTestCase(APITestCase):
             discord_snowflake="112345689101122",
         )
         outfit_1 = Outfit.objects.create(
-            performer=performer_1, outfit_name="test_actor", scene=scene_1
+            performer=performer_1, outfit_name="test_actor", scene=self.scene_1
         )
         outfit_2 = Outfit.objects.create(
-            performer=performer_2, outfit_name="test_actor_2", scene=scene_1
+            performer=performer_2, outfit_name="test_actor_2", scene=self.scene_1
         )
         outfit_3 = Outfit.objects.create(
-            performer=performer_1, outfit_name="test_actor_3", scene=scene_2
+            performer=performer_1, outfit_name="test_actor_3", scene=self.scene_2
         )
         token = Token.objects.create(user=normal_user_1)
         token_2 = Token.objects.create(user=normal_user_2)
@@ -207,8 +204,8 @@ class SceneEndpointTestCase(APITestCase):
         token = Token.objects.get(user__discord_snowflake="1234567890")
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
         user_2 = DiscordPointingUser.objects.get(discord_snowflake="09876543210")
-        scene_1 = Scene.objects.filter(scene_author=user_1).first()
-        url = reverse("scene-detail", args=[scene_1.id])
+        scene_1 = self.scene_1
+        url = reverse("scene-detail", args=[scene_1.identifier])
         client = APIClient()
         client.force_authenticate(token=token)
         response = client.get(url)
@@ -231,8 +228,8 @@ class SceneEndpointTestCase(APITestCase):
     def test_view_scene_for_self(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
         token = Token.objects.get(user=user_1)
-        scene_1 = Scene.objects.filter(scene_author=user_1).first()
-        url = reverse("scene-detail", args=[scene_1.id])
+        scene_1 = self.scene_1
+        url = reverse("scene-detail", args=[scene_1.identifier])
         client = APIClient()
         client.force_authenticate(token=token)
         response = client.get(url)
@@ -304,7 +301,7 @@ class SceneEndpointTestCase(APITestCase):
         scene_1.save()
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
         token = Token.objects.get(user=user_1)
-        url = reverse("scene-detail", args=[scene_1.id])
+        url = reverse("scene-detail", args=[scene_1.identifier])
         client = APIClient()
         client.force_authenticate(token=token)
         response = client.get(url)
@@ -348,7 +345,7 @@ class OutfitEndpointTestCase(APITestCase):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
         token = Token.objects.get(user=user_1)
         scene_1 = Scene.objects.filter(scene_author=user_1).first()
-        url = reverse("outfit-list", args=[scene_1.pk])
+        url = reverse("outfit-list", args=[scene_1.identifier])
         client = APIClient()
         client.force_authenticate(token=token)
         outfit_data = {
@@ -695,7 +692,7 @@ class ChangeSceneEndpointTestCase(APITestCase):
 
     # Make sure that a user can change their active scene.
     def test_change_scene(self):
-        url = reverse("set-active-scene", args=[self.scene_1.pk])
+        url = reverse("set-active-scene", args=[self.scene_1.identifier])
         client = APIClient()
         client.force_authenticate(token=self.token_1)
         response = client.post(url)

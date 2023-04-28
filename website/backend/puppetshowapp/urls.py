@@ -15,14 +15,18 @@ urlpatterns = [
     path("user/", user_views.UserInfo.as_view(), name="user-info"),
     path("scenes/", model_views.SceneList.as_view(), name="scene-list"),
     path("scenes/active/", model_views.ActiveScene.as_view(), name="scene-active"),
-    path("scenes/<int:pk>/", model_views.SceneDetail.as_view(), name="scene-detail"),
     path(
-        "scenes/<int:scene_pk>/outfits/",
+        "scenes/<uuid:identifier>/",
+        model_views.SceneDetail.as_view(),
+        name="scene-detail",
+    ),
+    path(
+        "scenes/<uuid:identifier>/outfits/",
         model_views.OutfitList.as_view(),
         name="outfit-list",
     ),
     path(
-        "scenes/<int:scene_pk>/outfits/<int:pk>/",
+        "scenes/<uuid:identifier>/outfits/<int:pk>/",
         model_views.OutfitDetail.as_view(),
         name="outfit-detail",
     ),
@@ -38,7 +42,7 @@ urlpatterns = [
     ),
     # TODO not restful
     path(
-        "scenes/<int:pk>/setActive",
+        "scenes/<uuid:identifier>/setActive/",
         model_views.SetActiveScene.as_view(),
         name="set-active-scene",
     ),

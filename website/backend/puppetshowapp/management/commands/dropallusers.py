@@ -4,7 +4,7 @@ from puppetshowapp.models import DiscordPointingUser
 
 # TODO delete before live
 class Command(BaseCommand):
-    help = "View all users"
+    help = "Drop all users"
 
     def handle(self, *args, **options):
         accounts = DiscordPointingUser.objects.all()

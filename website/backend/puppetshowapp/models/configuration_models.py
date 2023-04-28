@@ -15,6 +15,7 @@ def user_outfit_path(instance, filename):
 # A "scene" is a configuration of the specific information of displayed users.
 # The active scene dictates how loaded users will be displayed.
 class Scene(models.Model):
+    identifier = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     scene_name = models.CharField(max_length=30)
     scene_author = models.ForeignKey(DiscordPointingUser, on_delete=models.CASCADE)
     scene_settings = models.JSONField(default=DEFAULT_SCENE_SETTINGS)

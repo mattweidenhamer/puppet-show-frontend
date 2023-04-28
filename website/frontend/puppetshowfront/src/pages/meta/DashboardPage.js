@@ -25,14 +25,20 @@ const DashboardPage = () => {
   const active_scene = useRouteLoaderData("dashboard")["active_scene"];
   const user = JSON.parse(localStorage.getItem("user"));
   let active_scene_name = "None";
-
+  console.log("active scene is ", active_scene);
   let active_scene_icon =
     "https://www.pikpng.com/pngl/m/202-2022667_red-cancel-delete-no-forbidden-prohibited-stop-sign.png";
   if (active_scene !== null) {
     active_scene_name = active_scene["scene_name"];
-    active_scene_icon = active_scene["preview_icon"];
+    if (
+      active_scene["preview_icon"] !== null &&
+      active_scene["preview_icon"] !== undefined
+    ) {
+      active_scene_icon = active_scene["preview_icon"];
+    }
     //set the active scene icon to an animation from the scene.
   }
+  console.log("active scene icon is ", active_scene_icon);
   const redirectToScenes = () => {
     redirect("/scenes");
   };

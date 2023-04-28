@@ -16,9 +16,6 @@ const NavigationBar = (props) => {
   // The "Home" button should be a button that redirects to the home page.
   // The icon for the avatar should be the icon of the currently logged in user.
   const navigate = useNavigate();
-  const handleBackButton = (redirect) => {
-    navigate(redirect);
-  };
   const handleHomeButton = () => {
     navigate("/");
   };
@@ -42,17 +39,18 @@ const NavigationBar = (props) => {
     </Button>
   );
   if (localStorage.getItem("user") !== null) {
-    avatar = (
-      <Avatar
-        sx={{ bgcolor: "secondary.main", alignSelf: "center" }}
-        onClick={handleGoToUserPage}
-        src={`https://cdn.discordapp.com/avatars/${
-          JSON.parse(localStorage.getItem("user")).discord_snowflake
-        }/${
-          JSON.parse(localStorage.getItem("user")).discord_avatar
-        }.png?size=64`}
-      />
-    );
+    try {
+      let user = JSON.parse(localStorage.getItem("user"));
+      avatar = (
+        <Avatar
+          sx={{ bgcolor: "secondary.main", alignSelf: "center" }}
+          onClick={handleGoToUserPage}
+          src={`https://cdn.discordapp.com/avatars/${user.discord_snowflake}/${user.discord_avatar}.png?size=64`}
+        />
+      );
+    } catch (e) {
+      console.log(e);
+    }
   }
   let backArrow;
   if (props.backArrow) {
@@ -63,7 +61,7 @@ const NavigationBar = (props) => {
         aria-label="menu"
         edge="start"
         onClick={() => {
-          handleBackButton(props.backArrow);
+          window.history.back();
         }}
       >
         <ArrowBackIcon />
@@ -91,10 +89,10 @@ const NavigationBar = (props) => {
           <Button color="inherit" onClick={handleGoToHelp} sx={{ mr: 2 }}>
             How to use
           </Button>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            {" "}
+          </Typography>
           {backArrow}
-          {/* <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Puppet Show
-          </Typography> */}
           <div>{avatar}</div>
         </Toolbar>
       </AppBar>

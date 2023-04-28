@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 import uuid
 import logging
+import requests
+from ..secrets.constants import DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET
+from rest_framework.authtoken.models import Token
 
 
 class DiscordPointingUserManager(BaseUserManager):
@@ -128,7 +131,11 @@ class DiscordPointingUser(AbstractBaseUser):
 
         sceneToReturn = Scene.objects.filter(scene_author=self, is_active=True).first()
         if sceneToReturn is None:
-            return Scene.objects.filter(scene_author=self).first()
+            firstScene = Scene.objects.filter(scene_author=self).first()
+            if firstScene is not None:
+                firstScene.is_active = True
+                firstScene.save()
+                return firstScene
         return sceneToReturn
 
     @property
@@ -142,6 +149,43 @@ class DiscordPointingUser(AbstractBaseUser):
         from .new_models import Performer
 
         return Performer.objects.filter(parent_user=self).count()
+
+    def refresh_token(self):
+        API_ENDPOINT = "https://discord.com/api/v10/oauth2/token"
+        data = {
+            "client_id": DISCORD_CLIENT_ID,
+            "client_secret": DISCORD_CLIENT_SECRET,
+            "grant_type": "refresh_token",
+            "refresh_token": self.discord_refresh_token,
+        }
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        r = requests.post(url=API_ENDPOINT, data=data, headers=headers)
+        try:
+            r.raise_for_status()
+            response = r.json()
+            self.discord_auth_token = response["access_token"]
+            self.discord_refresh_token = response["refresh_token"]
+            self.save()
+        except requests.exceptions.HTTPError as e:
+            logging.error(f"Error refreshing token for user {self.login_username}")
+            logging.error(e)
+            logging.error("Response text: " + r.text)
+            logging.error("Revoking token for user" + self.discord_username)
+            Token.objects.delete(user=self)
+
+    def make_user_get_request(self, url):
+        if self.discord_auth_token is None:
+            self.refresh_token()
+        headers = {
+            "Authorization": f"Bearer {self.discord_auth_token}",
+        }
+        print(headers)
+        r = requests.get(
+            url=url,
+            headers=headers,
+            timeout=4,
+        )
+        return r
 
     def save(self, *args, **kwargs):
         if not self.login_username:

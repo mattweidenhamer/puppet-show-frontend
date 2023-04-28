@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import MainLayout from "../components/Layout/MainLayout";
 import NavigationBar from "../components/NavBar/NavigationBar";
 import {
@@ -17,6 +17,8 @@ import ActiveSceneView from "../components/SpecificViews/ActiveSceneView";
 import AddObjectCard from "../components/Manipulation/AddObjectCard";
 import getDefaultAnimationToDisplay from "../functions/misc/getDefaultAnimationToDisplay";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
+import addNewScene from "../functions/setters/scenes/addNewScene";
+import setActiveScene from "../functions/setters/scenes/setActiveScene";
 
 const styles = {
   paper: {
@@ -81,10 +83,23 @@ const ListScenePage = (props) => {
   // The second one on the right should be a grid of smaller cards. The first card should be a button that says "Add Scene".
   // All other cards should be different scenes, which display the scene name, one of the scene's actor images, and below that, two buttons: one that says "create scene" and one that says "edit scene."
 
-  const [activeScene, setActiveScene] = React.useState(null);
   const [addSceneOn, setAddSceneOn] = React.useState(false);
   const [scenes, setScenes] = React.useState(useRouteLoaderData("allScenes"));
+  const setActiveSceneCall = async (sceneIdentifier) => {
+    await setActiveScene(localStorage.getItem("token"), sceneIdentifier);
+    setScenes((scenes) => {
+      let newScenes = { ...scenes };
+      for (let scene in newScenes) {
+        newScenes[scene].is_active = false;
+      }
+      newScenes[sceneIdentifier].is_active = true;
+      return newScenes;
+    });
+  };
   const navigate = useNavigate();
+  const addNewScene = (previousScenes, newScene) => {
+    return { ...previousScenes, [newScene.identifier]: newScene };
+  };
   const editSceneHandler = (identifier) => {
     navigate(`${identifier}`);
   };
@@ -93,9 +108,13 @@ const ListScenePage = (props) => {
   };
   const selectSceneHandler = (sceneIdentifier) => {
     setAddSceneOn(false);
-    setActiveScene(scenes[sceneIdentifier]);
+    setActiveSceneCall(sceneIdentifier);
   };
-  //TODO move to its own file
+  const changeToNewScene = (newScene) => {
+    navigate(`/scenes/${newScene.identifier}`);
+    // setScenes((prevScenes) => addNewScene(prevScenes, newScene));
+    // setAddSceneOn(false);
+  };
   let scenesList = [];
   for (let sceneId in scenes) {
     scenesList.push(scenes[sceneId]);
@@ -116,8 +135,8 @@ const ListScenePage = (props) => {
         <img
           style={styles.previewImage}
           src={
-            scene.actors.length > 0
-              ? getDefaultAnimationToDisplay(scene.actors[0])
+            scene.preview_image !== null
+              ? scene.preview_image
               : "https://www.pngfind.com/pngs/m/6-62867_x-mark-multiply-times-symbol-red-incorrect-wrong.png"
           }
           alt={scene.identifier}
@@ -133,11 +152,7 @@ const ListScenePage = (props) => {
           <EditIcon />
         </IconButton>
         <IconButton onClick={() => selectSceneHandler(scene.identifier)}>
-          {activeScene === scene ? (
-            <CheckBoxIcon />
-          ) : (
-            <CheckBoxOutlineBlankIcon />
-          )}
+          {scene.is_active ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
         </IconButton>
       </CardActions>
     </Card>
@@ -150,29 +165,32 @@ const ListScenePage = (props) => {
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={4}>
             {addSceneOn ? (
-              <AddSceneView />
+              <AddSceneView onSceneCreate={changeToNewScene} />
             ) : (
-              <ActiveSceneView scene={activeScene} sx={styles.bigCard} />
+              <ActiveSceneView
+                scene={scenes.find((element) => (element.is_active = true))}
+                sx={styles.bigCard}
+              />
             )}
           </Grid>
           <Grid item xs={12} sm={6} md={8}>
-            <div sx={styles.cardGrid}>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={6} md={4}>
-                  <AddObjectCard
-                    objName="Scene"
-                    onClickHandler={createSceneHandler}
-                    key="addScene"
-                    sx={styles.card}
-                  />
-                </Grid>
-                {sceneCards.map((card) => (
-                  <Grid item key={card.key} xs={12} sm={6} md={4}>
-                    {card}
-                  </Grid>
-                ))}
+            {/* <div sx={styles.cardGrid}> */}
+            <Grid container spacing={4}>
+              <Grid item xs={12} sm={6} md={4}>
+                <AddObjectCard
+                  objName="Scene"
+                  onClickHandler={createSceneHandler}
+                  key="addScene"
+                  sx={styles.card}
+                />
               </Grid>
-            </div>
+              {sceneCards.map((card) => (
+                <Grid item key={card.key} xs={12} sm={6} md={4}>
+                  {card}
+                </Grid>
+              ))}
+            </Grid>
+            {/* </div> */}
           </Grid>
         </Grid>
       </div>

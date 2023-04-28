@@ -17,6 +17,7 @@ class SceneList(generics.ListCreateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [HasValidToken]
     serializer_class = SceneSerializer
+    lookup_field = "identifier"
 
     def get_queryset(self):
         token = self.request.auth
@@ -34,12 +35,14 @@ class SceneDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [HasValidToken, IsObjectOwner]
     serializer_class = SceneSerializer
     queryset = Scene.objects.all()
+    lookup_field = "identifier"
 
 
 class ActiveScene(generics.RetrieveAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [HasValidToken]
     serializer_class = SceneSerializer
+    lookup_field = "identifier"
 
     def get_object(self):
         token = self.request.auth
@@ -58,7 +61,7 @@ class OutfitList(generics.ListCreateAPIView):
     # Query all the actors in the provided scene.
 
     def get_queryset(self):
-        return Outfit.objects.filter(scene=self.kwargs["scene_pk"])
+        return Outfit.objects.filter(scene__identifier=self.kwargs["identifier"])
 
     def perform_create(self, serializer):
         token = self.request.auth
@@ -68,7 +71,7 @@ class OutfitList(generics.ListCreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
                 data={"message": f"Invalid data: {serializer.errors}"},
             )
-        scene = Scene.objects.get(pk=self.kwargs["scene_pk"])
+        scene = Scene.objects.get(identifier=self.kwargs["identifier"])
         if scene.scene_author != user:
             return JsonResponse(
                 status=status.HTTP_403_FORBIDDEN,
@@ -160,6 +163,7 @@ class SetActiveScene(generics.CreateAPIView):
     permission_classes = [HasValidToken]
     queryset = Scene.objects.all()
     serializer_class = SceneSerializer
+    lookup_field = "identifier"
 
     def create(self, request, *args, **kwargs):
         token = self.request.auth

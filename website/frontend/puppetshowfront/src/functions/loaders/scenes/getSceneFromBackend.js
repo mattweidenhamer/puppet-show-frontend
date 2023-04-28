@@ -1,10 +1,14 @@
 import scene_test from "../../../constants/scene_test.json";
+import baseLoaderFunction from "../baseLoaderFunction";
+import debug_redirects from "../../../constants/debug_redirects.json";
 
-const getSceneFromBackend = async (params) => {
+const getSceneFromBackend = async (token, params) => {
   const sceneID = params.sceneId;
-  // In the future, this will be a call to the backend.
-  // For now, get the requested scene from the test scenes.
-  return scene_test[sceneID];
+  const scene = await baseLoaderFunction(
+    token,
+    debug_redirects.BACKEND_SCENES + sceneID
+  );
+  return scene;
 };
 
 export default getSceneFromBackend;

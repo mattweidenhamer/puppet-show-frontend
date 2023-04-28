@@ -64,19 +64,20 @@ const ActiveSceneView = (props) => {
       //</Paper>
     );
   }
-  let actorsPreview = "No performers currently configured for this scene!";
+  console.log(props.scene);
+  let actorsPreview = "No outfits currently configured for this scene!";
 
-  if (props.scene.actors != null) {
-    if (props.scene.actors.length === 1) {
-      actorsPreview = `Includes an outfit for ${props.scene.actors[0].actor_name}`;
-    } else if (props.scene.actors.length === 2) {
-      actorsPreview = `Includes outfits for ${props.scene.actors[0].actor_name} and ${props.scene.actors[1].actor_name}!`;
-    } else if (props.scene.actors.length > 2) {
-      actorsPreview = `Includes outfits for ${
-        props.scene.actors[0].actor_name
-      }, ${props.scene.actors[1].actor_name}, and ${
-        props.scene.actors.length - 2
-      } others!`;
+  if (props.scene.outfits != null) {
+    if (props.scene.outfits.length === 1) {
+      actorsPreview = `Includes outfits such as ${props.scene.outfits[0].outfit_name} for ${props.scene.outfits[0].performer.discord_username}!`;
+    } else if (props.scene.outfits.length === 2) {
+      actorsPreview = `Includes outfits such as ${props.scene.outfits[0].outfit_name} for ${props.scene.outfits[0].performer.discord_username} and Includes outfits such as ${props.scene.outfits[1].outfit_name} for ${props.scene.outfits[1].performer.discord_username}!`;
+    } else if (props.scene.outfits.length > 2) {
+      actorsPreview = `Includes outfits such as  Includes outfits such as ${
+        props.scene.outfits[0].outfit_name
+      } for ${props.scene.outfits[0].performer.discord_username}
+       and ${props.scene.outfits.length - 2}
+      others!`;
     }
   }
 
@@ -92,8 +93,8 @@ const ActiveSceneView = (props) => {
       <div style={styles.imageContainer}>
         <img
           src={
-            props.scene.actors.length > 0
-              ? getDefaultAnimationToDisplay(props.scene.actors[0])
+            props.scene.outfits.length > 0
+              ? getDefaultAnimationToDisplay(props.scene.outfits[0])
               : "https://www.pngfind.com/pngs/m/6-62867_x-mark-multiply-times-symbol-red-incorrect-wrong.png"
           }
           style={styles.image}
@@ -103,11 +104,7 @@ const ActiveSceneView = (props) => {
       <Paper sx={styles.placard}>
         <Typography variant="h6">{actorsPreview}</Typography>
       </Paper>
-      <Button
-        onClick={redirectToEditScene}
-        variant="contaioned"
-        color="primary"
-      >
+      <Button onClick={redirectToEditScene} variant="contained" color="primary">
         Edit details
       </Button>
     </BigLeftCard>

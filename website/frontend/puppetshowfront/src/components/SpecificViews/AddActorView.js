@@ -5,11 +5,14 @@ import {
   Alert,
   Button,
   IconButton,
+  InputLabel,
+  Select,
   Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { useRouteLoaderData } from "react-router-dom";
 
 const styles = {
   submitButton: {},
@@ -21,6 +24,9 @@ const styles = {
 const AddActorView = (props) => {
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState("");
+  const [performers, setPerformers] = React.useState(
+    useRouteLoaderData("specificScene").performers
+  );
 
   const closeSnackBar = (event, reason) => {
     setOpen(false);
@@ -37,7 +43,7 @@ const AddActorView = (props) => {
     </IconButton>
   );
 
-  const createActorHandler = (event) => {
+  const createOutfitHandler = (event) => {
     //Check to see if there is any text in the input box.
     //If there is none, toast an error message.
     const actorNameInput = document.getElementById("actorNameInput");
@@ -73,12 +79,14 @@ const AddActorView = (props) => {
           animations associated with them will animate when they speak!
         </Typography>
         <TextField
-          label="Actor Name"
+          label="Outfit Name"
           //VANITY: Have the placeholder text pull randomly from a preconfigured list.
           placeholder="e.g. Nill Winter Dress"
           id="actorNameInput"
           sx={styles.inputField}
         />
+        <InputLabel id="User ID select">Performer</InputLabel>
+        <Select labelId="User ID select">{}</Select>
         <TextField
           label="Actor Discord ID"
           placeholder="e.g. 1234567890"
@@ -88,7 +96,7 @@ const AddActorView = (props) => {
         <div />
         <Button
           variant="contained"
-          onClick={createActorHandler}
+          onClick={createOutfitHandler}
           sx={styles.submitButton}
         >
           Create new Actor

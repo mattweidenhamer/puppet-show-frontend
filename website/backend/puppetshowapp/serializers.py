@@ -124,6 +124,7 @@ class SceneSerializer(serializers.ModelSerializer):
             "is_active",
             "preview_image",
             "outfits",
+            "identifier",
         )
         read_only_fields = ["scene_author", "is_active", "preview_image"]
 
@@ -140,8 +141,15 @@ class PerformerSerializer(serializers.ModelSerializer):
             "discord_snowflake",
             "discord_username",
             "parent_user_snowflake",
+            "discord_avatar",
+            "settings",
         )
-        read_only_fields = ["identifier", "discord_username"]
+        read_only_fields = ["identifier", "discord_username", "discord_avatar"]
+
+    def create(self, validated_data):
+        new_performer = super().create(validated_data)
+        new_performer.request_update_user_info()
+        return new_performer
 
 
 class PerformanceSerializer(serializers.ModelSerializer):

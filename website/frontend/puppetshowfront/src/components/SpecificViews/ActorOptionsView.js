@@ -79,6 +79,9 @@ const ActorOptionsView = (props) => {
           {radioExample}
           {checkboxExample}
         </FormGroup>
+        <Button variant="contained" onClick={changeAffected}>
+          Save
+        </Button>
       </Placard>
     </BigLeftCard>
   );
