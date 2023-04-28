@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import React from "react";
-import updatePerformerSettings from "../../functions/patchers/performers/updatePerformerSettings";
+import updatePerformerSettings from "../../functions/patchers/performers/updatePerformer";
 
 const styles = {
   optionsPlacard: {
@@ -24,13 +24,19 @@ const PerformerOptionsView = (props) => {
   const [performer, setPerformer] = React.useState(props.performer);
 
   const changeAffected = async (event) => {
+    const newSnowflake = document.getElementById(
+      "discord-snowflake-input"
+    ).value;
     const newSettings = {
       pronouns: document.getElementById("pronouns-input").value,
     };
     const newPerformer = await updatePerformerSettings(
       localStorage.getItem("token"),
       performer.identifier,
-      newSettings
+      {
+        discord_snowflake: newSnowflake,
+        settings: newSettings,
+      }
     );
     setPerformer(newPerformer);
     props.onUpdatePerformer(newPerformer);

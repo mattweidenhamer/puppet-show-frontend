@@ -311,6 +311,10 @@ class SceneEndpointTestCase(APITestCase):
         self.assertEqual(response_dict["scene_name"], "test_scene")
         self.assertEqual(response_dict["preview_image"], scene_1.preview_image)
 
+    # Test that a scene's settings can be updated.
+    def test_update_scene_settings(self):
+        pass
+
 
 # TODO rewrite, this should need a lot less code with the new functions.
 class OutfitEndpointTestCase(APITestCase):
@@ -570,18 +574,11 @@ class PerformerEndpointTestCase(APITestCase):
         response = client.put(url, good_put_data, format="json")
         self.assertEqual(response.status_code, 200)
         response_dict = response.json()
-        self.assertEqual(self.performer.settings, {"test_setting": "test_value"})
         self.assertEqual(response_dict["settings"], {"test_setting": "test_value"})
-
-    # Make sure that a performer's outfits change when their base user's active scene changes.
-    # Is this needed?
-    # def test_performer_outfits_change_on_scene_change(self):
-    #     url = reverse("performer-detail", args=[self.performer.pk])
-    #     client = APIClient()
-    #     client.force_authenticate(user=self.user)
-    #     response = client.get(url)
-    #     self.assertEqual(response.status_code, 200)
-    #     outfit
+        self.assertEqual(
+            Performer.objects.get(identifier=self.performer.identifier).settings,
+            {"test_setting": "test_value"},
+        )
 
 
 class StageEndpointTestCase(APITestCase):
