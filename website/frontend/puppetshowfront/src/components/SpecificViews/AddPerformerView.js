@@ -78,9 +78,9 @@ const AddPerformerView = (props) => {
       </Placard>
       <Placard sx={{ maxWidth: 550 }}>
         <Typography variant="h6">
-          A performer is a person who will be playing a character in your show.
-          In order to create a performer, you must have their Discord ID. You
-          must also share a server with them.
+          A performer represents a discord user you would like to animate. In
+          order to create a performer, you must have their Discord ID. You must
+          also share a server with them.
         </Typography>
         <TextField
           placeholder="Performer ID"

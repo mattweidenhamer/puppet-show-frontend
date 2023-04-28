@@ -3,7 +3,7 @@ from .authentication_models import DiscordPointingUser
 import uuid
 from ..secrets.constants import API_ENDPOINT
 from django.dispatch import receiver
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_init
 import requests
 from ..secrets.constants import DISCORD_BOT_TOKEN
 from ..constants import DEFAULT_PERFORMER_SETTINGS
@@ -49,8 +49,3 @@ class Performer(models.Model):
             print(f"Failed to update user info for {self.discord_username}")
             print(f"Response code: {response.status_code}")
             print(f"Response json: {response.json()}")
-
-
-@receiver(pre_save, sender=Performer)
-def update_user_info(sender, instance, **kwargs):
-    instance.request_update_user_info(save=False)

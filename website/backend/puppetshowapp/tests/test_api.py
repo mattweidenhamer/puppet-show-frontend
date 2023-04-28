@@ -558,6 +558,21 @@ class PerformerEndpointTestCase(APITestCase):
         )
         self.assertEqual(response_dict["discord_snowflake"], "6969422")
 
+    # Make sure that a user can change the settings of their performer.
+    def test_change_performer_for_self(self):
+        url = reverse("performer-detail", args=[self.performer.identifier])
+        client = APIClient()
+        client.force_authenticate(token=self.token_1)
+        good_put_data = {
+            "discord_snowflake": self.performer.discord_snowflake,
+            "settings": {"test_setting": "test_value"},
+        }
+        response = client.put(url, good_put_data, format="json")
+        self.assertEqual(response.status_code, 200)
+        response_dict = response.json()
+        self.assertEqual(self.performer.settings, {"test_setting": "test_value"})
+        self.assertEqual(response_dict["settings"], {"test_setting": "test_value"})
+
     # Make sure that a performer's outfits change when their base user's active scene changes.
     # Is this needed?
     # def test_performer_outfits_change_on_scene_change(self):
