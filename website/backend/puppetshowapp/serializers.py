@@ -32,6 +32,7 @@ class OutfitSerializer(serializers.ModelSerializer):
             "scene",
             "settings",
             "performer_id",
+            "identifier",
         )
         read_only_fields = ["performer", "scene"]
 
@@ -50,7 +51,7 @@ class OutfitSerializer(serializers.ModelSerializer):
             )
         performer_id_clean = validated_data.pop("performer_id")
         try:
-            performer = Performer.objects.get(discord_snowflake=performer_id_clean)
+            performer = Performer.objects.get(identifier=performer_id_clean)
         except Performer.DoesNotExist:
             raise serializers.ValidationError(
                 f"performer_id {performer_id_clean} does not exist and needs to be added first."
@@ -157,8 +158,20 @@ class PerformanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Performer
-        fields = ("identifier", "discord_snowflake", "get_outfit")
-        read_only_fields = ["identifier", "discord_username", "get_outfit"]
+        fields = (
+            "identifier",
+            "discord_snowflake",
+            "discord_avatar",
+            "get_outfit",
+            "settings",
+        )
+        read_only_fields = [
+            "identifier",
+            "discord_username",
+            "discord_avatar",
+            "get_outfit",
+            "settings",
+        ]
 
 
 # TODO: Considier making this more succinct so tha the user's active scene isn't called twice.

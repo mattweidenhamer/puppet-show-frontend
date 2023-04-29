@@ -20,6 +20,9 @@ import AddActorView from "../components/SpecificViews/AddActorView";
 import DeleteActorView from "../components/SpecificViews/DeleteActorView";
 import getDefaultAnimationToDisplay from "../functions/misc/getDefaultAnimationToDisplay";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
+import addNewOutfit from "../functions/setters/outfits/addNewOutfit";
+import deleteOutfit from "../functions/deleters/outfit/deleteOutfit";
+import updateScene from "../functions/patchers/scene/updateScene";
 
 const styles = {
   paper: {
@@ -94,6 +97,9 @@ const SpecificScenePage = (props) => {
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState("");
   const [severity, setSeverity] = React.useState("success");
+  const [performers, setPerformers] = React.useState(
+    useRouteLoaderData("specificScene").performers
+  );
 
   const navigate = useNavigate();
 
@@ -101,8 +107,10 @@ const SpecificScenePage = (props) => {
     setOpenSnackbar(false);
   };
 
-  const saveChanges = (scene, settings) => {
+  const saveChanges = async (settings) => {
     //TODO save changes to scene and then put scene.
+    const token = localStorage.getItem("token");
+    const updatedScene = await updateScene(token, scene.identifier, settings);
     setSnackbarMessage(`Saved changes to scene ${scene.scene_name}`);
     setSeverity("success");
     setOpenSnackbar(true);
@@ -122,9 +130,19 @@ const SpecificScenePage = (props) => {
   const createOutfitHandler = () => {
     setLeftBoxState("Add");
   };
-  const handleDeleteOutfit = (outfit) => {
-    console.log(`Delete outfit ${outfit.outfit_name}`);
-    //TODO delete actor from scene
+
+  const getFailsafeAnimation = (performerId) => {
+    const performer = performers.find(
+      (performer) => performer.identifier === performerId
+    );
+    return "https://" + performer.discord_avatar;
+  };
+
+  const handleDeleteOutfit = async (outfit) => {
+    console.log(outfit);
+    const token = localStorage.getItem("token");
+    await deleteOutfit(token, scene.identifier, outfit.identifier);
+
     setSnackbarMessage(
       `Deleted outfit ${outfit.outfit_name} from scene ${scene.scene_name}`
     );
@@ -132,8 +150,18 @@ const SpecificScenePage = (props) => {
     setOpenSnackbar(true);
     setLeftBoxState("View");
   };
+  const handleCreateOutfit = async (performerId, outfitName) => {
+    const token = localStorage.getItem("token");
+    const newOutfit = await addNewOutfit(token, scene.identifier, {
+      outfit_name: outfitName,
+      performer_id: performerId,
+    });
+    setScene((prevState) => ({
+      ...prevState,
+      outfits: [...prevState.outfits, newOutfit],
+    }));
+  };
 
-  //TODO move to its own file
   const outfitCards = scene.outfits.map((outfit) => (
     <Card key={outfit.outfit_name} sx={styles.card}>
       <CardContent>
@@ -149,7 +177,11 @@ const SpecificScenePage = (props) => {
       <div style={styles.previewImageContainer}>
         <img
           style={styles.previewImage}
-          src={getDefaultAnimationToDisplay(outfit)}
+          src={
+            outfit.animations.length > 0
+              ? getDefaultAnimationToDisplay(outfit)
+              : getFailsafeAnimation(outfit.performer)
+          }
           alt={outfit.name}
         />
       </div>
@@ -173,7 +205,13 @@ const SpecificScenePage = (props) => {
 
   let leftBox = <SceneOptionsView scene={scene} saveChanges={saveChanges} />;
   if (leftBoxState === "Add") {
-    leftBox = <AddActorView scene={scene} />;
+    leftBox = (
+      <AddActorView
+        scene={scene}
+        performers={performers}
+        onCreateOutfit={handleCreateOutfit}
+      />
+    );
   } else if (leftBoxState === "Delete") {
     leftBox = (
       <DeleteActorView

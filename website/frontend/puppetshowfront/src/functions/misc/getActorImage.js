@@ -1,7 +1,13 @@
 import actorStates from "../../constants/actorStates";
+import React from "react";
 
 const getActorImage = (actor, actorState) => {
-  const animations = actor.animations;
+  let animations = actor.animations;
+  if (animations === null || animations === undefined) {
+    animations = {};
+    animations.speaking_animation = `https://${actor.discord_avatar}`;
+    animations.not_speaking_animation = `https://${actor.discord_avatar}`;
+  }
   if (actorState === null || actorState === undefined) {
     console.log("Received bad Actor State.");
     return null;

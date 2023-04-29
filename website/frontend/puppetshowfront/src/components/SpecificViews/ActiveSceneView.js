@@ -93,7 +93,8 @@ const ActiveSceneView = (props) => {
       <div style={styles.imageContainer}>
         <img
           src={
-            props.scene.outfits.length > 0
+            props.scene.outfits.length > 0 &&
+            props.scene.outfits[0].animations.length > 0
               ? getDefaultAnimationToDisplay(props.scene.outfits[0])
               : "https://www.pngfind.com/pngs/m/6-62867_x-mark-multiply-times-symbol-red-incorrect-wrong.png"
           }

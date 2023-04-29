@@ -15,3 +15,4 @@ class Command(BaseCommand):
             print(obj.discord_snowflake)
             print(obj.parent_user)
             print(obj.settings)
+            print(obj.identifier)

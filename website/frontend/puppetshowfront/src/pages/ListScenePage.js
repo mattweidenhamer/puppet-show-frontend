@@ -15,7 +15,6 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import EditIcon from "@mui/icons-material/Edit";
 import ActiveSceneView from "../components/SpecificViews/ActiveSceneView";
 import AddObjectCard from "../components/Manipulation/AddObjectCard";
-import getDefaultAnimationToDisplay from "../functions/misc/getDefaultAnimationToDisplay";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
 import addNewScene from "../functions/setters/scenes/addNewScene";
 import setActiveScene from "../functions/setters/scenes/setActiveScene";

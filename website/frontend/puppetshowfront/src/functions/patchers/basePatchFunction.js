@@ -1,6 +1,6 @@
 const basePatchFunction = async (token, url, object) => {
   const response = await fetch(url, {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Token ${token}`,

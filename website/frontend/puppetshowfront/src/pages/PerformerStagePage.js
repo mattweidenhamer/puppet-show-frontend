@@ -27,13 +27,15 @@ const PerformerStagePage = () => {
   // Connect a websocket to the bot
   // Listen for updates from the bot
 
-  const [actor, setActor] = React.useState(useRouteLoaderData("performerStage"));
+  const [performer, setPerformer] = React.useState(
+    useRouteLoaderData("performerStage")
+  );
   const [actorState, setActorState] = React.useState(actorStates.GONE);
 
   const { sendJsonMessage, lastMessage, readyState } = useWebSocket(socketURL, {
     onOpen: () => {
       console.log("Websocket connection established.");
-      sendJsonMessage({ type: "ACTOR", actorId: actor.user_snowflake });
+      sendJsonMessage({ type: "ACTOR", actorId: performer.discord_snowflake });
       console.log("Sent actor request.");
     },
   });
@@ -47,6 +49,7 @@ const PerformerStagePage = () => {
       }
     }
   }, [lastMessage, setActorState]);
+  console.log(performer);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: "Connecting",
@@ -56,16 +59,15 @@ const PerformerStagePage = () => {
     [ReadyState.UNINSTANTIATED]: "Uninstantiated",
   }[readyState];
 
-  //const actor_image = translateToImage(actor, actorState);
-
   let actorDisplay =
-    actorState === actorStates.GONE ? null : (
-      <img
-        src={getActorImage(actor, actorState)}
-        style={styles.actorImage}
-        alt=""
-      />
-    );
+    actorState === actorStates.GONE
+      ? null
+      : getActorImage(performer, actorState);
+        // <img
+        //   src={getActorImage(performer, actorState)}
+        //   style={styles.actorImage}
+        //   alt=""
+        // />
   return (
     <>
       {/* <div>

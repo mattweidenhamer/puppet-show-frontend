@@ -26,7 +26,7 @@ urlpatterns = [
         name="outfit-list",
     ),
     path(
-        "scenes/<uuid:identifier>/outfits/<int:pk>/",
+        "outfits/<uuid:identifier>/",
         model_views.OutfitDetail.as_view(),
         name="outfit-detail",
     ),

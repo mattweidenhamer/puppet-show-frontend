@@ -313,7 +313,7 @@ class SceneEndpointTestCase(APITestCase):
 
     # Test that a scene's settings can be updated.
     def test_update_scene_settings(self):
-        pass
+        raise NotImplementedError
 
 
 # TODO rewrite, this should need a lot less code with the new functions.
@@ -342,11 +342,13 @@ class OutfitEndpointTestCase(APITestCase):
             discord_username="test_performer_2",
             discord_snowflake="112345689101122",
         )
+
         token = Token.objects.create(user=normal_user_1)
 
     # Test that a user can create an outfit, and that the outfit has the correct properties.
     def test_create_outfit(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+        performer_1 = Performer.objects.get(parent_user=user_1)
         token = Token.objects.get(user=user_1)
         scene_1 = Scene.objects.filter(scene_author=user_1).first()
         url = reverse("outfit-list", args=[scene_1.identifier])
@@ -354,7 +356,7 @@ class OutfitEndpointTestCase(APITestCase):
         client.force_authenticate(token=token)
         outfit_data = {
             "outfit_name": "test_outfit",
-            "performer_id": "6969420",
+            "performer_id": performer_1.identifier,
         }
 
         response = client.post(url, outfit_data, format="json")
@@ -398,7 +400,7 @@ class OutfitEndpointTestCase(APITestCase):
             performer=performer_1, scene=scene, outfit_name="test_outfit_2"
         )
 
-        url = reverse("outfit-detail", args=[scene.pk, outfit_test.pk])
+        url = reverse("outfit-detail", args=[outfit_test.identifier])
         client = APIClient()
         client.force_authenticate(user=user_2)
         response = client.get(url)
@@ -428,7 +430,7 @@ class OutfitEndpointTestCase(APITestCase):
             performer=performer_1, scene=scene, outfit_name="test_outfit_2"
         )
 
-        url = reverse("outfit-detail", args=[scene.pk, outfit_test.pk])
+        url = reverse("outfit-detail", args=[outfit_test.identifier])
         client = APIClient()
 
         client.force_authenticate(token=token_1)
@@ -447,7 +449,7 @@ class OutfitEndpointTestCase(APITestCase):
         outfit_test = Outfit.objects.create(
             performer=performer_1, scene=scene, outfit_name="test_outfit_2"
         )
-        url = reverse("outfit-detail", args=[scene.pk, outfit_test.pk])
+        url = reverse("outfit-detail", args=[outfit_test.identifier])
         client = APIClient()
         client.force_authenticate(token=token)
         patch_data = {"outfit_name": "test_outfit_3"}
@@ -617,25 +619,28 @@ class StageEndpointTestCase(APITestCase):
         self.outfit_4 = Outfit.objects.create(
             performer=self.performer_2, scene=self.scene_1, outfit_name="test_outfit_4"
         )
+        self.token_1 = Token.objects.create(user=self.user)
+        self.token_2 = Token.objects.create(user=self.user_2)
 
     # Make sure that anyone, including anonymous users, can access a stage.
     def test_get_stage(self):
         url = reverse("stage-performance", args=[self.performer.identifier])
         client = APIClient()
+        client.force_authenticate(token=None)
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.content)
         response_dict = response.json()
         self.assertEqual(response_dict["discord_snowflake"], "6969420")
         self.assertEqual(response_dict["get_outfit"]["outfit_name"], "test_outfit_3")
-        client.force_authenticate(user=self.user)
+        client.force_authenticate(token=self.token_1)
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.content)
         response_dict = response.json()
         self.assertEqual(response_dict["discord_snowflake"], "6969420")
         self.assertEqual(response_dict["get_outfit"]["outfit_name"], "test_outfit_3")
-        client.force_authenticate(user=self.user_2)
+        client.force_authenticate(token=self.token_2)
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.content)

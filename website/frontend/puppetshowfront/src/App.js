@@ -26,6 +26,7 @@ import getUserFromBackend from "./functions/loaders/users/getUserFromBackend";
 import ConnectDiscordPage from "./pages/meta/ConnectDiscordPage";
 import DashboardPage from "./pages/meta/DashboardPage";
 import getActiveSceneFromBackend from "./functions/loaders/scenes/getActiveSceneFromBackend";
+import getStageFromBackend from "./functions/loaders/stage/getStageFromBackend";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -89,7 +90,13 @@ const router = createBrowserRouter([
     path: "/scenes/:sceneId/outfits/:outfitId",
     element: <SpecificOutfitPage />,
     loader: async ({ params }) => {
-      return getOutfitFromBackend(params);
+      const token = localStorage.getItem("token");
+      const outfit = await getOutfitFromBackend(
+        token,
+        params.sceneId,
+        params.outfitId
+      );
+      return outfit;
     },
   },
   {
@@ -97,7 +104,10 @@ const router = createBrowserRouter([
     element: <PerformerStagePage />,
     id: "performerStage",
     loader: async ({ params }) => {
-      return getOutfitFromBackend(params);
+      console.log(params);
+      console.log(params.performerId);
+      const stage = await getStageFromBackend(params.performerId);
+      return stage;
     },
   },
   {
@@ -107,7 +117,6 @@ const router = createBrowserRouter([
       const url = new URL(request.url);
 
       const token = url.searchParams.get("token");
-      console.log(token);
       localStorage.setItem("token", token);
       const user = await getUserFromBackend(token);
       if (user === null) {
@@ -180,7 +189,7 @@ const updateUserFromBackend = async (token, force) => {
     if (
       localStorage.getItem("timeSinceLastUpdate") === null ||
       Date.now() - localStorage.getItem("timeSinceLastUpdate") >
-        1000 * 60 * 60 * 24
+        1000 * 60 * 60 * 8
     ) {
       const user = await getUserFromBackend(token);
       if (user !== null) {

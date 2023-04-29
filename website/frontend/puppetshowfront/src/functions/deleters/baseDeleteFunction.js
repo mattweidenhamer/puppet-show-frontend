@@ -1,7 +1,7 @@
-const baseLoaderFunction = async (token, url) => {
+const baseDeleteFunction = async (token, url) => {
   // TODO consider adding callback functions to these for better error handling
   const response = await fetch(url, {
-    method: "GET",
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Token ${token}`,
@@ -13,8 +13,11 @@ const baseLoaderFunction = async (token, url) => {
     );
     return null;
   }
+  if (response.status === 204) {
+    return null;
+  }
   const responseData = response.json();
   return responseData;
 };
 
-export default baseLoaderFunction;
+export default baseDeleteFunction;

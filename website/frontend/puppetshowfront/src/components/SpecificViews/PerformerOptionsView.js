@@ -6,10 +6,11 @@ import {
   FormControl,
   Button,
   TextField,
+  Link,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import updatePerformerSettings from "../../functions/patchers/performers/updatePerformer";
-
+import debug_redirects from "../../constants/debug_redirects.json";
 const styles = {
   optionsPlacard: {
     marginTop: 2,
@@ -21,9 +22,15 @@ const styles = {
 };
 
 const PerformerOptionsView = (props) => {
-  const [performer, setPerformer] = React.useState(props.performer);
+  const performer = props.performer;
+  useEffect(() => {
+    document.getElementById("discord-snowflake-input").value =
+      performer.discord_snowflake;
+    document.getElementById("pronouns-input").value =
+      performer.settings.pronouns;
+  }, [performer]);
 
-  const changeAffected = async (event) => {
+  const changeAffected = async () => {
     const newSnowflake = document.getElementById(
       "discord-snowflake-input"
     ).value;
@@ -38,10 +45,13 @@ const PerformerOptionsView = (props) => {
         settings: newSettings,
       }
     );
-    setPerformer(newPerformer);
     props.onUpdatePerformer(newPerformer);
     //TODO change some part of the scene based on the toggle.
   };
+  const link =
+    debug_redirects.THIS_URL +
+    debug_redirects.THIS_STAGE_EXTENSION +
+    performer.identifier;
   const EditDiscordSnowflake = (
     <FormControl>
       <TextField
@@ -77,14 +87,22 @@ const PerformerOptionsView = (props) => {
         </Typography>
       </Placard>
       <Placard sx={styles.optionsPlacard}>
-        <Typography variant="h5">
+        <Typography variant="body1">Your performer's stage:</Typography>
+        <Link href={link}>{link}</Link>
+      </Placard>
+      <Placard sx={styles.optionsPlacard}>
+        <Typography variant="h6">
           These settings will apply across all outfits.
         </Typography>
         <FormGroup sx={styles.form}>
           {EditDiscordSnowflake}
           {EditPronouns}
         </FormGroup>
-        <Button variant="contained" onClick={changeAffected}>
+        <Button
+          variant="contained"
+          onClick={changeAffected}
+          sx={{ marginTop: 2 }}
+        >
           Save
         </Button>
       </Placard>

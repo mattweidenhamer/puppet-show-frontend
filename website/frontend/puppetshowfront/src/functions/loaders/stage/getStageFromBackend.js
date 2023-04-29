@@ -1,10 +1,12 @@
-const baseLoaderFunction = async (token, url) => {
-  // TODO consider adding callback functions to these for better error handling
+import baseLoaderFunction from "../baseLoaderFunction";
+import debug_redirects from "../../../constants/debug_redirects.json";
+
+const getStageFromBackend = async (identifier) => {
+  const url = debug_redirects.BACKEND_STAGE + identifier + "/";
   const response = await fetch(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Token ${token}`,
     },
   });
   if (response.ok === false) {
@@ -17,4 +19,4 @@ const baseLoaderFunction = async (token, url) => {
   return responseData;
 };
 
-export default baseLoaderFunction;
+export default getStageFromBackend;

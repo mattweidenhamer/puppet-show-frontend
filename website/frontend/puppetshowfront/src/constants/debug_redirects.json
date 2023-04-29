@@ -5,9 +5,11 @@
   "BACKEND_USER": "http://localhost:8000/ps/user/",
   "BACKEND_SCENES": "http://localhost:8000/ps/scenes/",
   "BACKEND_SCENE_ACTIVE_EXTENSION": "active/",
-  "BACKEND_SCENE_OUTFITS_EXTENSION": "outfits/",
+  "BACKEND_SCENE_OUTFITS_EXTENSION": "/outfits/",
   "BACKEND_SCENE_SET_ACTIVESCENE_EXTENSION": "setActive/",
   "BACKEND_PERFORMERS": "http://localhost:8000/ps/performers/",
-  "BACKEND_STAGE": "http://localhost:8000/stage/",
-  "BOT_INVITATION": "https://discord.com/api/oauth2/authorize?client_id=1075810140361592902&permissions=36703232&scope=bot"
+  "BACKEND_STAGE": "http://localhost:8000/ps/stage/",
+  "BOT_INVITATION": "https://discord.com/api/oauth2/authorize?client_id=1075810140361592902&permissions=36703232&scope=bot",
+  "THIS_URL": "http://localhost:3000/",
+  "THIS_STAGE_EXTENSION": "stage/"
 }

@@ -85,6 +85,7 @@ class OutfitDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [HasValidToken, IsObjectOwner]
     queryset = Outfit.objects.all()
     serializer_class = OutfitSerializer
+    lookup_field = "identifier"
 
 
 # class ActorDetailReadOnly(generics.RetrieveAPIView):

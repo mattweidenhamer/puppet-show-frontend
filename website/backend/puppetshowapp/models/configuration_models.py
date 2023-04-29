@@ -52,6 +52,9 @@ class Scene(models.Model):
 # An "Outfit" is a configuration of a performer's appearance.
 # It is bound to a scene and a performer.
 class Outfit(models.Model):
+    # The identifier
+    identifier = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+
     # The user actually being drawn
     performer = models.ForeignKey(Performer, on_delete=models.CASCADE)
 

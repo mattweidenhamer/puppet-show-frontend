@@ -6,7 +6,6 @@ const getAllPerformersFromBackend = async (token) => {
     token,
     debug_redirects.BACKEND_PERFORMERS
   );
-  console.log(performers);
   return performers;
 };
 

@@ -12,9 +12,11 @@ import {
   CardActions,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import AddPerformerView from "../components/SpecificViews/AddPerformerView";
-import EditPerformerView from "../components/SpecificViews/EditPerformerView";
 import PerformerOptionsView from "../components/SpecificViews/PerformerOptionsView";
+import DeletePerformerView from "../components/SpecificViews/DeletePerformerView";
+import deletePerformer from "../functions/deleters/performers/deletePerformer";
 const styles = {
   paper: {
     padding: 2,
@@ -81,14 +83,35 @@ const ListPerformerPage = () => {
   );
   // If viewed performer is null, the add performer view is shown.
   const [viewedPerformer, setViewedPerformer] = React.useState(null);
+  const [deletionToggle, setDeletionToggle] = React.useState(false);
   const editPerformerHandler = (performerId) => {
     setViewedPerformer(performerId);
+    setDeletionToggle(false);
+  };
+  const addPerformerHandler = () => {
+    setViewedPerformer(null);
   };
   const changeToNewPerformer = (performer) => {
     setPerformers((prevState) => [...prevState, performer]);
     setViewedPerformer(null);
   };
-  console.log(performers);
+  const toggleDeletePerformerHandler = (performerId) => {
+    setDeletionToggle(true);
+    setViewedPerformer(performerId);
+  };
+  const onDeletePerformer = async (performerId) => {
+    deletePerformer(localStorage.getItem("token"), performerId);
+    setPerformers((prevState) => {
+      let newPerformerList = [...prevState];
+      let index = newPerformerList.findIndex((element) => {
+        return element.identifier === performerId;
+      });
+      newPerformerList.splice(index, 1);
+      return newPerformerList;
+    });
+    setViewedPerformer(null);
+    setDeletionToggle(false);
+  };
   const onUpdatePerformer = async (performer) => {
     setPerformers((prevState) => {
       let newPerformerList = [...prevState];
@@ -96,11 +119,12 @@ const ListPerformerPage = () => {
         return element.identifier === performer.identifier;
       });
       newPerformerList[index] = performer;
+      return newPerformerList;
     });
     setViewedPerformer(null);
   };
   const performerCards = performers.map((performer) => (
-    <Card key={performer.scene_name} sx={styles.card}>
+    <Card key={performer.discord_username} sx={styles.card}>
       <CardContent>
         <Typography
           variant="h5"
@@ -131,15 +155,47 @@ const ListPerformerPage = () => {
         >
           <EditIcon />
         </IconButton>
+        <IconButton
+          onClick={() => {
+            toggleDeletePerformerHandler(performer.identifier);
+          }}
+          id={performer.identifier}
+        >
+          <DeleteForeverIcon />
+        </IconButton>
       </CardActions>
     </Card>
   ));
+
+  let leftCard = <AddPerformerView onPerformerCreate={changeToNewPerformer} />;
+  if (viewedPerformer !== null) {
+    if (deletionToggle) {
+      leftCard = (
+        <DeletePerformerView
+          performer={performers.find((element) => {
+            return element.identifier === viewedPerformer;
+          })}
+          onDeleteConfirm={onDeletePerformer}
+        />
+      );
+    } else {
+      leftCard = (
+        <PerformerOptionsView
+          performer={performers.find((element) => {
+            return element.identifier === viewedPerformer;
+          })}
+          onUpdatePerformer={onUpdatePerformer}
+        />
+      );
+    }
+  }
+
   return (
     <MainLayout padding={2}>
       <NavigationBar backArrow />
       <Grid container spacing={3}>
         <Grid item xs={12} sm={4}>
-          {viewedPerformer === null ? (
+          {/* {viewedPerformer === null ? (
             <AddPerformerView onPerformerCreate={changeToNewPerformer} />
           ) : (
             <PerformerOptionsView
@@ -148,14 +204,15 @@ const ListPerformerPage = () => {
               })}
               onUpdatePerformer={onUpdatePerformer}
             />
-          )}
+          )} */}
+          {leftCard}
         </Grid>
         <Grid item xs={12} sm={8}>
           <Grid container spacing={4}>
             <Grid item xs={12} sm={6} md={4}>
               <AddObjectCard
                 objName="performer"
-                // onClickHandler={createSceneHandler}
+                onClickHandler={addPerformerHandler}
                 key="addPerformer"
                 sx={styles.card}
               />
