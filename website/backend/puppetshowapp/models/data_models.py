@@ -1,5 +1,7 @@
 from django.db import models
 from enum import Enum
+import uuid
+from .configuration_models import Outfit
 
 
 def user_pfp_path(instance, filename):
@@ -37,9 +39,15 @@ class Animation(models.Model):
         CONNECTION = "CONNECTION"
         DISCONNECT = "DISCONNECTION"
 
-    outfit = models.ForeignKey("Outfit", on_delete=models.CASCADE)
+    identifier = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
+    outfit = models.ForeignKey(Outfit, on_delete=models.CASCADE)
     animation_type = models.CharField(max_length=30, choices=Attributes.choices)
     animation_path = models.URLField(max_length=200)
+
+    @property
+    def get_owner(self):
+        return self.outfit.get_owner
 
     def __str__(self) -> str:
         return str(f"{self.outfit}" + f"{self.animation_type}")

@@ -6,7 +6,6 @@
 
 import MainLayout from "../../components/Layout/MainLayout";
 import NavigationBar from "../../components/NavBar/NavigationBar";
-import Placard from "../../components/Display/Placard";
 import { Button, Grid, Paper, Typography } from "@mui/material";
 import React from "react";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";

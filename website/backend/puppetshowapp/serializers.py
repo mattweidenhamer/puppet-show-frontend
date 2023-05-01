@@ -13,14 +13,31 @@ from .models.new_models import Performer
 
 
 class AnimationSerializer(serializers.ModelSerializer):
+    outfit_identifier = serializers.CharField(write_only=True)
+
     class Meta:
         model = Animation
-        fields = ("animation_type", "animation_path")
-        read_only_fields = ["animation_type"]
+        fields = ("animation_type", "animation_path", "outfit_identifier", "identifier")
+
+    def create(self, validated_data):
+        if "outfit_identifier" not in validated_data:
+            raise serializers.ValidationError(
+                f"outfit_identifier is required to create an animation, provided data was {validated_data}"
+            )
+        outfit_id_clean = validated_data.pop("outfit_identifier")
+        try:
+            outfit = Outfit.objects.get(identifier=outfit_id_clean)
+        except Outfit.DoesNotExist:
+            raise serializers.ValidationError(
+                f"outfit_identifier {outfit_id_clean} does not exist and needs to be added first."
+            )
+        validated_data["outfit"] = outfit
+        animation = Animation.objects.create(**validated_data)
+        return animation
 
 
 class OutfitSerializer(serializers.ModelSerializer):
-    animations = AnimationSerializer(many=True, required=False)
+    animations = AnimationSerializer(many=True, required=False, read_only=True)
     performer_id = serializers.CharField(write_only=True)
 
     class Meta:
@@ -42,9 +59,6 @@ class OutfitSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        if "animations" not in validated_data:
-            validated_data["animations"] = []
-        animations = validated_data.pop("animations")
         if "performer_id" not in validated_data:
             raise serializers.ValidationError(
                 f"performer_id is required to create an outfit, provided data was {validated_data}"
@@ -58,8 +72,6 @@ class OutfitSerializer(serializers.ModelSerializer):
             )
         validated_data["performer"] = performer
         outfit = Outfit.objects.create(**validated_data)
-        for animation in animations:
-            outfit.animations.objects.create(**animation)
         return outfit
 
 
@@ -72,6 +84,7 @@ class OutfitSerializerNoScene(OutfitSerializer):
             "animations",
             "settings",
             "performer_id",
+            "identifier",
         )
         read_only_fields = ["performer"]
 
@@ -87,8 +100,9 @@ class OutfitSerializerForPerformer(serializers.ModelSerializer):
             "outfit_name",
             "animations",
             "settings",
+            "identifier",
         )
-        read_only_fields = ["outfit_name", "animations", "settings"]
+        read_only_fields = ["outfit_name", "animations", "settings", "identifier"]
 
 
 # class ActorSerializerStage(serializers.ModelSerializer):

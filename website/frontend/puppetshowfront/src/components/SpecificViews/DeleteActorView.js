@@ -22,22 +22,25 @@ const styles = {
     objectFit: "scale-down",
   },
 };
+const getFailsafeAnimation = (performer) => {
+  return "https://" + performer.discord_avatar;
+};
 
 const DeleteActorView = (props) => {
+  console.log(props.outfit);
   const [confirmDelete, setConfirmDelete] = React.useState(false);
-  const actor = props.actor;
-  const scene = props.scene;
   return (
     <BigLeftCard>
       <Placard>
         <Typography variant="h2" color="warning.main">
-          Really delete actor {actor.actor_name} from scene {scene.scene_name}?
+          Really delete actor {props.outfit.outfit_name} from scene{" "}
+          {props.scene.scene_name}?
         </Typography>
       </Placard>
       <div style={styles.previewImageContainer}>
         <img
           style={styles.previewImage}
-          src={getDefaultAnimationToDisplay(actor)}
+          src={props.image}
           alt="Preview of deleted object"
         />
       </div>
@@ -61,7 +64,7 @@ const DeleteActorView = (props) => {
           disabled={!confirmDelete}
           color="error"
           onClick={() => {
-            props.onDeleteConfirm(actor);
+            props.onDeleteConfirm(props.outfit);
           }}
         >
           Delete actor

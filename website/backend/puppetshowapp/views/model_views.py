@@ -6,8 +6,8 @@ from ..permissions import IsObjectOwner, HasValidToken
 
 from django.http import JsonResponse, HttpResponse, Http404
 from rest_framework import viewsets, status, mixins, generics, response
+from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
@@ -88,32 +88,6 @@ class OutfitDetail(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = "identifier"
 
 
-# class ActorDetailReadOnly(generics.RetrieveAPIView):
-#     queryset = Outfit.objects.all()
-#     serializer_class = ActorSerializerStage
-#     lookup_field = "identifier"
-
-
-# class AddDiscordDataToUsersAddedUsers(generics.CreateAPIView):
-#     authentication_classes = [TokenAuthentication]
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = DiscordDataSerializer
-
-#     def perform_create(self, serializer):
-#         if serializer.is_valid():
-#             user = DiscordPointingUser.objects.get(user=self.request.user)
-#             snowflake = serializer.validated_data["user_snowflake"]
-#             if user.added_users.filter(user_snowflake=snowflake).exists():
-#                 return JsonResponse(
-#                     status=status.HTTP_409_CONFLICT,
-#                     data={"message": "Discord Data already bound to user."},
-#                 )
-#             discord_data, created = DiscordData.objects.get_or_create(
-#                 user_snowflake=snowflake
-#             )
-#             user.added_users.add(discord_data)
-
-
 class PerformerList(generics.ListCreateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [HasValidToken]
@@ -180,3 +154,17 @@ class SetActiveScene(generics.CreateAPIView):
             status=status.HTTP_200_OK,
             data={"message": "Active scene set."},
         )
+
+
+class CreateAnimation(generics.CreateAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [HasValidToken]
+    serializer_class = AnimationSerializer
+
+
+class ModifyAnimation(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [HasValidToken, IsObjectOwner]
+    serializer_class = AnimationSerializer
+    queryset = Animation.objects.all()
+    lookup_field = "identifier"

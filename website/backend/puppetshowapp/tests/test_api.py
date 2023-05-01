@@ -161,26 +161,6 @@ class SceneEndpointTestCase(APITestCase):
         )
         token = Token.objects.create(user=normal_user_1)
         token_2 = Token.objects.create(user=normal_user_2)
-        animation_1 = Animation.objects.create(
-            outfit=outfit_1,
-            animation_type=Animation.Attributes.START_SPEAKING,
-            animation_path=r"https://media.discordapp.net/attachments/807108520595554304/1063692340914573352/Burning_Release.gif",
-        )
-        animation_2 = Animation.objects.create(
-            outfit=outfit_1,
-            animation_type=Animation.Attributes.NOT_SPEAKING,
-            animation_path=r"https://media.discordapp.net/attachments/807108520595554304/1063692341283663872/Burning_Hold.gif",
-        )
-        animation_3 = Animation.objects.create(
-            outfit=outfit_2,
-            animation_type=Animation.Attributes.START_SPEAKING,
-            animation_path=r"https://cdn.discordapp.com/attachments/807108520595554304/1063692365275086859/Rex_Release.gif",
-        )
-        animation_4 = Animation.objects.create(
-            outfit=outfit_2,
-            animation_type=Animation.Attributes.NOT_SPEAKING,
-            animation_path=r"https://media.discordapp.net/attachments/807108520595554304/1063692364956307548/Rex_Hold.gif",
-        )
 
     # Test that users can create a scene, and that the scene has the correct properties.
     def test_create_scene(self):
@@ -391,7 +371,7 @@ class OutfitEndpointTestCase(APITestCase):
     #     # self.assertIsNotNone(DiscordData.objects.get(user_snowflake="6969420"))
 
     # # Make sure that a user can't access, edit, or delete another user's actor
-    def test_get_actor_for_other_user(self):
+    def test_get_outfit_for_other_user(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
         user_2 = DiscordPointingUser.objects.get(discord_snowflake="09876543210")
         performer_1 = Performer.objects.get(discord_snowflake="6969420")
@@ -421,7 +401,7 @@ class OutfitEndpointTestCase(APITestCase):
         self.assertIsNotNone(Outfit.objects.get(pk=outfit_test.pk))
 
     # Make sure that a user can access their own outfits
-    def test_get_actor_for_self(self):
+    def test_get_outfit_for_self(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
         token_1 = Token.objects.get(user=user_1)
         performer_1 = Performer.objects.get(discord_snowflake="6969420")
@@ -462,8 +442,8 @@ class OutfitEndpointTestCase(APITestCase):
             Outfit.objects.get(pk=outfit_test.pk).outfit_name, "test_outfit_3"
         )
 
-    # Make sure that you can add animations to an actor, and access their urls.
-    def test_outfit_animation(self):
+    # Make sure that you can delete an outfit you own.
+    def test_delete_outfit(self):
         user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
         token = Token.objects.get(user=user_1)
         performer_1 = Performer.objects.get(discord_snowflake="6969420")
@@ -471,6 +451,12 @@ class OutfitEndpointTestCase(APITestCase):
         outfit_test = Outfit.objects.create(
             performer=performer_1, scene=scene, outfit_name="test_outfit_2"
         )
+        url = reverse("outfit-detail", args=[outfit_test.identifier])
+        client = APIClient()
+        client.force_authenticate(token=token)
+        response = client.delete(url)
+        self.assertEqual(response.status_code, 204)
+        self.assertRaises(Outfit.DoesNotExist, Outfit.objects.get, pk=outfit_test.pk)
 
 
 class PerformerEndpointTestCase(APITestCase):
@@ -824,3 +810,135 @@ class TokenExchangeTestCase(APITestCase):
             client = APIClient()
             response = client.get(url, {"code": "test_token"})
         self.assertEqual(response.status_code, 400)
+
+
+class AnimationTestCase(APITestCase):
+    def setUp(self):
+        self.user = DiscordPointingUser.objects.create(
+            discord_snowflake="1234567890", discord_username="test_user"
+        )
+        self.user_2 = DiscordPointingUser.objects.create(
+            discord_snowflake="09876543210", discord_username="test_user_2"
+        )
+        self.performer = Performer.objects.create(
+            discord_snowflake="6969420",
+            discord_username="test_performer",
+            parent_user=self.user,
+        )
+        self.performer_2 = Performer.objects.create(
+            discord_snowflake="6969421",
+            discord_username="test_performer_2",
+            parent_user=self.user_2,
+        )
+        self.scene_1 = Scene.objects.create(
+            scene_author=self.user, scene_name="test_scene_1"
+        )
+        self.scene_2 = Scene.objects.create(
+            scene_author=self.user, scene_name="test_scene"
+        )
+        self.outfit = Outfit.objects.create(
+            performer=self.performer, scene=self.scene_2, outfit_name="test_outfit"
+        )
+        self.outfit_2 = Outfit.objects.create(
+            performer=self.performer_2, scene=self.scene_2, outfit_name="test_outfit_2"
+        )
+        self.outfit_3 = Outfit.objects.create(
+            performer=self.performer, scene=self.scene_1, outfit_name="test_outfit_3"
+        )
+        self.outfit_4 = Outfit.objects.create(
+            performer=self.performer_2, scene=self.scene_1, outfit_name="test_outfit_4"
+        )
+        self.token_1 = Token.objects.create(user=self.user)
+        self.token_2 = Token.objects.create(user=self.user_2)
+
+    # Test that the outfit model returns a list of its animations
+    def test_outfit_animations(self):
+        url = reverse("outfit-detail", kwargs={"identifier": self.outfit.identifier})
+        client = APIClient()
+        client.force_authenticate(token=self.token_1)
+        response = client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()["animations"]), 0)
+        animation_1 = Animation.objects.create(
+            outfit=self.outfit,
+            animation_type="START_SPEAKING",
+            animation_path="https://media.discordapp.net/attachments/807108520595554304/1022846319825539072/Tair_Speak.gif",
+        )
+        animation_2 = Animation.objects.create(
+            outfit=self.outfit,
+            animation_type="STOP_SPEAKING",
+            animation_path="https://media.discordapp.net/attachments/807108520595554304/1022846320253353984/Tair_Mute.gif",
+        )
+        response = client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()["animations"]), 2)
+        self.assertEqual(
+            response.json()["animations"][0]["animation_type"], "START_SPEAKING"
+        )
+        self.assertEqual(
+            response.json()["animations"][1]["animation_type"], "STOP_SPEAKING"
+        )
+
+    # Test creating an animation based on the outfit's identifier.
+    def test_create_animation(self):
+        url = reverse("animations-create")
+        client = APIClient()
+        client.force_authenticate(token=self.token_1)
+        new_animation = {
+            "outfit_identifier": self.outfit.identifier,
+            "animation_type": "START_SPEAKING",
+            "animation_path": "https://media.discordapp.net/attachments/807108520595554304/1022846319825539072/Tair_Speak.gif",
+        }
+        new_animation_2 = {
+            "outfit_identifier": self.outfit.identifier,
+            "animation_type": "STOP_SPEAKING",
+            "animation_path": "https://media.discordapp.net/attachments/807108520595554304/1022846320253353984/Tair_Mute.gif",
+        }
+        response = client.post(url, new_animation)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(self.outfit.animations.count(), 1)
+        self.assertEqual(response.json()["animation_type"], "START_SPEAKING")
+        self.assertEqual(
+            response.json()["animation_path"], new_animation["animation_path"]
+        )
+        response = client.post(url, new_animation_2)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(self.outfit.animations.count(), 2)
+        self.assertEqual(response.json()["animation_type"], "STOP_SPEAKING")
+
+    # Test modifying an animation's path.
+    def test_modify_animation(self):
+        animation = Animation.objects.create(
+            outfit=self.outfit,
+            animation_type="START_SPEAKING",
+            animation_path="https://media.discordapp.net/attachments/807108520595554304/1022846319825539072/Tair_Speak.gif",
+        )
+        url = reverse("animations-modify", kwargs={"identifier": animation.identifier})
+        client = APIClient()
+        client.force_authenticate(token=self.token_1)
+        new_animation = {
+            "outfit_identifier": self.outfit.identifier,
+            "animation_type": "START_SPEAKING",
+            "animation_path": "https://media.discordapp.net/attachments/807108520595554304/1022846319825539072/Tair_Speak.gif",
+        }
+        response = client.patch(url, new_animation)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.outfit.animations.count(), 1)
+        self.assertEqual(response.json()["animation_type"], "START_SPEAKING")
+        self.assertEqual(
+            response.json()["animation_path"], new_animation["animation_path"]
+        )
+
+    # Test deleting an animation.
+    def test_delete_animation(self):
+        animation = Animation.objects.create(
+            outfit=self.outfit,
+            animation_type="START_SPEAKING",
+            animation_path="https://media.discordapp.net/attachments/807108520595554304/1022846319825539072/Tair_Speak.gif",
+        )
+        url = reverse("animations-modify", kwargs={"identifier": animation.identifier})
+        client = APIClient()
+        client.force_authenticate(token=self.token_1)
+        response = client.delete(url)
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(self.outfit.animations.count(), 0)

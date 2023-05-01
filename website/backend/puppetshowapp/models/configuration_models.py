@@ -1,5 +1,4 @@
 from django.db import models
-from .data_models import Animation, DiscordData
 from .authentication_models import DiscordPointingUser
 from .new_models import Performer
 from enum import Enum
@@ -69,6 +68,8 @@ class Outfit(models.Model):
 
     @property
     def animations(self):
+        from .data_models import Animation
+
         return Animation.objects.filter(outfit=self)
 
     def getImage(self, attribute):

@@ -111,19 +111,22 @@ const SpecificScenePage = (props) => {
     //TODO save changes to scene and then put scene.
     const token = localStorage.getItem("token");
     const updatedScene = await updateScene(token, scene.identifier, settings);
+    setScene(updatedScene);
     setSnackbarMessage(`Saved changes to scene ${scene.scene_name}`);
     setSeverity("success");
     setOpenSnackbar(true);
   };
-
-  const editOutfitHandler = (event) => {
-    navigate(`scene/${scene.identifier}/outfit/${event.currentTarget.id}`);
+  const getAnimationForOutfit = (outfit) => {
+    if (outfit.animations.length > 0) {
+      return outfit.animations[0].animation_url;
+    } else {
+      return getFailsafeAnimation(outfit.performer);
+    }
   };
-  const toggleDeleteOutfitHandler = (snowflake) => {
+
+  const toggleDeleteOutfitHandler = (identifier) => {
     selectOutfit(
-      scene.outfits.find(
-        (outfit) => outfit.performer.user_snowflake === snowflake
-      )
+      scene.outfits.find((outfit) => outfit.identifier === identifier)
     );
     setLeftBoxState("Delete");
   };
@@ -139,7 +142,6 @@ const SpecificScenePage = (props) => {
   };
 
   const handleDeleteOutfit = async (outfit) => {
-    console.log(outfit);
     const token = localStorage.getItem("token");
     await deleteOutfit(token, scene.identifier, outfit.identifier);
 
@@ -149,19 +151,31 @@ const SpecificScenePage = (props) => {
     setSeverity("info");
     setOpenSnackbar(true);
     setLeftBoxState("View");
+    setScene((prevState) => ({
+      ...prevState,
+      outfits: prevState.outfits.filter(
+        (outfitInScene) => outfitInScene.identifier !== outfit.identifier
+      ),
+    }));
   };
-  const handleCreateOutfit = async (performerId, outfitName) => {
+  const checkPerformerHasOutfit = (performerId) => {
+    return scene.outfits.some((outfit) => outfit.performer === performerId);
+  };
+
+  const handleCreateOutfit = async (performerId, outfitName, doRedirect) => {
     const token = localStorage.getItem("token");
     const newOutfit = await addNewOutfit(token, scene.identifier, {
       outfit_name: outfitName,
       performer_id: performerId,
     });
+    if (doRedirect) {
+      navigate(`/scenes/${scene.identifier}/outfit/${newOutfit.identifier}`);
+    }
     setScene((prevState) => ({
       ...prevState,
       outfits: [...prevState.outfits, newOutfit],
     }));
   };
-
   const outfitCards = scene.outfits.map((outfit) => (
     <Card key={outfit.outfit_name} sx={styles.card}>
       <CardContent>
@@ -177,25 +191,20 @@ const SpecificScenePage = (props) => {
       <div style={styles.previewImageContainer}>
         <img
           style={styles.previewImage}
-          src={
-            outfit.animations.length > 0
-              ? getDefaultAnimationToDisplay(outfit)
-              : getFailsafeAnimation(outfit.performer)
-          }
+          src={getAnimationForOutfit(outfit)}
           alt={outfit.name}
         />
       </div>
       <CardActions sx={styles.buttonPadding}>
         <IconButton
-          onClick={editOutfitHandler}
-          id={outfit.performer.discord_snowflake}
+          href={`/outfits/${outfit.identifier}`}
+          id={outfit.identifier}
         >
           <EditIcon />
         </IconButton>
         <IconButton
-          onClick={() => toggleDeleteOutfitHandler(outfit.user_snowflake)}
-          id={outfit.name + " delete button"}
-          actor={outfit}
+          onClick={() => toggleDeleteOutfitHandler(outfit.identifier)}
+          id={outfit.identifier}
         >
           <DeleteIcon />
         </IconButton>
@@ -210,14 +219,16 @@ const SpecificScenePage = (props) => {
         scene={scene}
         performers={performers}
         onCreateOutfit={handleCreateOutfit}
+        checkPerformerHasOutfit={checkPerformerHasOutfit}
       />
     );
   } else if (leftBoxState === "Delete") {
     leftBox = (
       <DeleteActorView
-        actor={selectedOutfit}
+        outfit={selectedOutfit}
         scene={scene}
         onDeleteConfirm={handleDeleteOutfit}
+        image={getAnimationForOutfit(selectedOutfit)}
       />
     );
   }

@@ -31,6 +31,16 @@ urlpatterns = [
         name="outfit-detail",
     ),
     path(
+        "animations/",
+        model_views.CreateAnimation.as_view(),
+        name="animations-create",
+    ),
+    path(
+        "animations/<uuid:identifier>/",
+        model_views.ModifyAnimation.as_view(),
+        name="animations-modify",
+    ),
+    path(
         "performers/",
         model_views.PerformerList.as_view(),
         name="performer-list",

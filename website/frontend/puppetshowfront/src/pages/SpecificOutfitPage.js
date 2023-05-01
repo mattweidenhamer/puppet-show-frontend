@@ -8,14 +8,20 @@ import {
   Grid,
   IconButton,
   CardActions,
+  Tooltip,
 } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import AddObjectCard from "../components/Manipulation/AddObjectCard";
-import scenes from "../constants/scene_test.json";
 import ActorOptionsView from "../components/SpecificViews/ActorOptionsView";
 import getDefaultAnimationToDisplay from "../functions/misc/getDefaultAnimationToDisplay";
+import { useRouteLoaderData } from "react-router-dom";
+import updateOutfit from "../functions/patchers/outfit/updateOutfit";
+import deleteAnimation from "../functions/deleters/animations/deleteAnimation";
+import UploadAnimationView from "../components/SpecificViews/UploadAnimationView";
+import addNewAnimation from "../functions/setters/animations/addNewAnimation";
 
 const styles = {
   paper: {
@@ -76,6 +82,28 @@ const convertKeyToName = (key) => {
   return key.replace(/_/g, " ");
 };
 
+const animationTypes = [
+  "START_SPEAKING",
+  "NOT_SPEAKING",
+  //"SLEEPING",
+  //"CONNECTION",
+  //"DISCONNECTION",
+];
+// const camelize = (str) => {
+//   return str
+//     .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
+//       return index === 0 ? word.toLowerCase() : word.toUpperCase();
+//     })
+//     .replace(/\s+/g, "");
+// };
+const READABLE_NAMES = {
+  START_SPEAKING: "Speaking",
+  NOT_SPEAKING: "Not Speaking",
+  SLEEPING: "Sleeping",
+  CONNECTION: "Connection",
+  DISCONNECTION: "Disconnection",
+};
+
 const SpecificOutfitPage = (props) => {
   // This page consists of three items: A navigation bar, a left content area, and a right content area.
   // The left content area is for the actor's specific information and settings.
@@ -87,16 +115,55 @@ const SpecificOutfitPage = (props) => {
   // Not sure yet if the user will be uploading to the server or hosting them offsite.
   // For now use offsite, but reconsider once the server is up and running.
   // The navigation bar is an imported element. The back button on it should bring it back to the previous page.
-  const [outfit, setOutfit] = React.useState(scenes[1].actors[1]);
+  const [outfit, setOutfit] = React.useState(
+    useRouteLoaderData("specificOutfit").outfit
+  );
+  const [performer, setPerformer] = React.useState(
+    useRouteLoaderData("specificOutfit").performer
+  );
+  console.log(outfit);
   const [leftBoxState, setLeftBoxState] = React.useState("Options");
-  const [viewedAnimation, setViewedAnimation] = React.useState();
+  const [viewedAnimation, setViewedAnimation] = React.useState(null);
 
-  const listOfKeys = Object.keys(outfit.animations);
+  const uploadNewAnimationHandler = (event) => {
+    setViewedAnimation(event.currentTarget.id);
+    setLeftBoxState("Upload");
+  };
+  const onUploadAnimation = async (newAnimation) => {
+    const result = await addNewAnimation(
+      localStorage.getItem("token"),
+      newAnimation
+    );
+    const newOutfit = { ...outfit };
+    newOutfit.animations.push(newAnimation);
+    setLeftBoxState("Options");
+  };
+  const deleteAnimationHandler = async (event) => {
+    const newOutfit = { ...outfit };
+    newOutfit.animations = newOutfit.animations.filter(
+      (animation) => animation.animation_type !== event.currentTarget.id
+    );
+    await deleteAnimation(
+      localStorage.getItem("token"),
+      event.currentTarget.id
+    );
+    setLeftBoxState("Options");
+  };
+  const onUpdateOutfit = async (newOutfit) => {
+    const result = await updateOutfit(
+      localStorage.getItem("token"),
+      outfit.identifier,
+      newOutfit
+    );
+    setOutfit(newOutfit);
+  };
+  const animationsObject = {};
+  for (const animation of outfit.animations) {
+    animationsObject[animation.animation_type] = animation.animation_path;
+  }
 
-  const uploadNewAnimationHandler = (event) => {};
-
-  const animationCards = listOfKeys.map((key) => (
-    <Card key={key} sx={styles.card}>
+  const animationCards = animationTypes.map((animationType) => (
+    <Card key={animationType} sx={styles.card}>
       <CardContent>
         <Typography
           variant="h5"
@@ -104,42 +171,66 @@ const SpecificOutfitPage = (props) => {
           gutterBottom
           sx={styles.topText}
         >
-          {convertKeyToName(key)}
+          {convertKeyToName(animationType)}
         </Typography>
       </CardContent>
       <div style={styles.previewImageContainer}>
         <img
           style={styles.previewImage}
-          src={outfit.animations[key] !== null ? outfit.animations[key] : ""}
-          alt={convertKeyToName(key)}
+          src={
+            animationsObject[animationType] !== null &&
+            animationsObject[animationType] !== undefined
+              ? animationsObject[animationType]
+              : "https://www.pikpng.com/pngl/m/202-2022667_red-cancel-delete-no-forbidden-prohibited-stop-sign.png"
+          }
+          alt={convertKeyToName(animationType)}
         />
       </div>
       <CardActions sx={styles.buttonPadding}>
-        <IconButton onClick={uploadNewAnimationHandler} id={key}>
-          <UploadFileIcon />
-        </IconButton>
-        <IconButton id={key + " button 2"}>
-          <DeleteIcon />
-        </IconButton>
+        <Tooltip title="Upload new animaton">
+          <IconButton onClick={uploadNewAnimationHandler} id={animationType}>
+            <UploadFileIcon />
+          </IconButton>
+        </Tooltip>
+        {animationsObject[animationType] !== null &&
+        animationsObject[animationType] !== undefined ? (
+          <Tooltip title="Remove animation">
+            <IconButton
+              onClick={deleteAnimationHandler}
+              id={animationsObject[animationType].identifier}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        ) : null}
+
+        <Tooltip title="Use current discord PFP">
+          <IconButton>
+            <AccountBoxIcon />
+          </IconButton>
+        </Tooltip>
       </CardActions>
     </Card>
   ));
 
-  let leftBox = <ActorOptionsView actor={outfit} />;
-  if (leftBoxState === "Change") {
-    leftBox = <AddObjectCard />;
+  let leftBox = (
+    <ActorOptionsView
+      outfit={outfit}
+      performer={performer}
+      updateOutfit={onUpdateOutfit}
+    />
+  );
+  if (leftBoxState === "Upload") {
+    leftBox = (
+      <UploadAnimationView
+        outfit={outfit}
+        animationType={viewedAnimation}
+        currentAnimation={animationsObject[viewedAnimation]}
+        performer={performer}
+        onUpload={onUploadAnimation}
+      />
+    );
   }
-  //   if (leftBoxState === "Add") {
-  //     leftBox = <AddActorView scene={scene} />;
-  //   } else if (leftBoxState === "Delete") {
-  //     leftBox = (
-  //       <DeleteActorView
-  //         actor={selectedActor}
-  //         scene={scene}
-  //         onDeleteConfirm={handleDeleteActor}
-  //       />
-  //     );
-  //   }
 
   return (
     <MainLayout padding={2}>

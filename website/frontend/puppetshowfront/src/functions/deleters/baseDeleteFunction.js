@@ -11,6 +11,7 @@ const baseDeleteFunction = async (token, url) => {
     console.log(
       `Response not okay, returned status ${response.status}: ${response.statusText}`
     );
+    console.log(`Request url was ${url}`);
     return null;
   }
   if (response.status === 204) {

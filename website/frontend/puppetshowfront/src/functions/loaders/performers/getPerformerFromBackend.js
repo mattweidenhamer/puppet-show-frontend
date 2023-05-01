@@ -5,7 +5,7 @@ import baseLoaderFunction from "../baseLoaderFunction";
 const getPerformerFromBackend = async (token, performerID) => {
   const performer = await baseLoaderFunction(
     token,
-    debug_redirects.BACKEND_PERFORMERS + `/${performerID}`
+    debug_redirects.BACKEND_PERFORMERS + `${performerID}`
   );
   return performer;
 };

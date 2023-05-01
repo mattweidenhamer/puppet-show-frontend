@@ -5,17 +5,18 @@ import {
   Alert,
   Button,
   FormControl,
+  FormControlLabel,
   IconButton,
   InputLabel,
   Menu,
   MenuItem,
   Select,
   Snackbar,
+  Switch,
   TextField,
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useRouteLoaderData } from "react-router-dom";
 
 const styles = {
   submitButton: {
@@ -55,6 +56,7 @@ const AddActorView = (props) => {
     //Check to see if there is any text in the input bo or the performer selector.
     //If there is none, toast an error message.
     const outfitNameInput = document.getElementById("outfitNameInput");
+    const doRedirect = document.getElementById("doRedirect").checked;
 
     if (outfitNameInput.value.trim() === "") {
       setMessage("Please enter an actor name before continuing!");
@@ -63,8 +65,17 @@ const AddActorView = (props) => {
       setMessage("Please select a performer before continuing!");
       setOpen(true);
     } else {
-      // Otherwise, call the function to create the outfit.
-      props.onCreateOutfit(performerId, outfitNameInput.value);
+      // Then, check to make sure that the performer doesn't already have an outfit for this scene.
+      // If they do, toast an error message.
+      // Otherwise, create the outfit
+      if (props.checkPerformerHasOutfit(performerId)) {
+        setMessage(
+          "This performer already has an outfit for this scene! Please select a different performer."
+        );
+        setOpen(true);
+      } else {
+        props.onCreateOutfit(performerId, outfitNameInput.value, doRedirect);
+      }
     }
 
     // Create the scene, then redirect to that scene's independant view page.
@@ -110,6 +121,19 @@ const AddActorView = (props) => {
               </MenuItem>
             ))}
           </Select>
+        </FormControl>
+        <br />
+        <FormControl>
+          <FormControlLabel
+            control={
+              <Switch
+                id="doRedirect"
+                defaultChecked
+                label="Edit outfit on creation"
+              />
+            }
+            label="View outfit now"
+          />
         </FormControl>
 
         {/* <TextField

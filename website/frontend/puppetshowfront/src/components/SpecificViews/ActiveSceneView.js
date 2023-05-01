@@ -69,15 +69,15 @@ const ActiveSceneView = (props) => {
 
   if (props.scene.outfits != null) {
     if (props.scene.outfits.length === 1) {
-      actorsPreview = `Includes outfits such as ${props.scene.outfits[0].outfit_name} for ${props.scene.outfits[0].performer.discord_username}!`;
+      actorsPreview = `Includes outfits such as ${props.scene.outfits[0].outfit_name}!`;
     } else if (props.scene.outfits.length === 2) {
-      actorsPreview = `Includes outfits such as ${props.scene.outfits[0].outfit_name} for ${props.scene.outfits[0].performer.discord_username} and Includes outfits such as ${props.scene.outfits[1].outfit_name} for ${props.scene.outfits[1].performer.discord_username}!`;
+      actorsPreview = `Includes outfits such as ${props.scene.outfits[0].outfit_name}and ${props.scene.outfits[1].outfit_name} !`;
     } else if (props.scene.outfits.length > 2) {
       actorsPreview = `Includes outfits such as  Includes outfits such as ${
         props.scene.outfits[0].outfit_name
-      } for ${props.scene.outfits[0].performer.discord_username}
+      }, ${props.scene.outfits[1].outfit_name}, 
        and ${props.scene.outfits.length - 2}
-      others!`;
+      other(s)!`;
     }
   }
 

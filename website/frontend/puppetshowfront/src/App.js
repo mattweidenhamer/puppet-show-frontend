@@ -74,7 +74,7 @@ const router = createBrowserRouter([
     id: "specificScene",
     loader: async ({ params }) => {
       const token = localStorage.getItem("token");
-      const scene = await getSceneFromBackend(token, params);
+      const scene = await getSceneFromBackend(token, params.sceneId);
       const performers = await getAllPerformersFromBackend(token);
       return { scene: scene, performers: performers };
     },
@@ -87,16 +87,16 @@ const router = createBrowserRouter([
   //   },
   // },
   {
-    path: "/scenes/:sceneId/outfits/:outfitId",
+    path: "/outfits/:outfitId",
     element: <SpecificOutfitPage />,
+    id: "specificOutfit",
     loader: async ({ params }) => {
       const token = localStorage.getItem("token");
-      const outfit = await getOutfitFromBackend(
-        token,
-        params.sceneId,
-        params.outfitId
-      );
-      return outfit;
+      const outfit = await getOutfitFromBackend(token, params.outfitId);
+      //TODO may not need Scene
+      const scene = await getSceneFromBackend(token, outfit.scene);
+      const performer = await getPerformerFromBackend(token, outfit.performer);
+      return { outfit: outfit, scene: scene, performer: performer };
     },
   },
   {
