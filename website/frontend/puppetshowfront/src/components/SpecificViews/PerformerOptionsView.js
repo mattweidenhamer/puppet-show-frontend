@@ -104,6 +104,7 @@ const PerformerOptionsView = (props) => {
           onClick={() => {
             navigator.clipboard.writeText(link);
           }}
+          sx={{ marginTop: 2 }}
         >
           Copy Link to Clipboard
         </Button>
