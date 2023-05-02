@@ -5,6 +5,7 @@ import BigLeftCard from "../Layout/BigLeftCard";
 import Placard from "../Display/Placard";
 import getDefaultAnimationToDisplay from "../../functions/misc/getDefaultAnimationToDisplay";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
+import getScenePreviewImage from "../../functions/misc/getScenePreviewImage";
 
 const styles = {
   imageContainer: {
@@ -73,7 +74,7 @@ const ActiveSceneView = (props) => {
     } else if (props.scene.outfits.length === 2) {
       actorsPreview = `Includes outfits such as ${props.scene.outfits[0].outfit_name}and ${props.scene.outfits[1].outfit_name} !`;
     } else if (props.scene.outfits.length > 2) {
-      actorsPreview = `Includes outfits such as  Includes outfits such as ${
+      actorsPreview = `Includes outfits such as ${
         props.scene.outfits[0].outfit_name
       }, ${props.scene.outfits[1].outfit_name}, 
        and ${props.scene.outfits.length - 2}
@@ -92,12 +93,7 @@ const ActiveSceneView = (props) => {
       </Placard>
       <div style={styles.imageContainer}>
         <img
-          src={
-            props.scene.outfits.length > 0 &&
-            props.scene.outfits[0].animations.length > 0
-              ? getDefaultAnimationToDisplay(props.scene.outfits[0])
-              : "https://www.pngfind.com/pngs/m/6-62867_x-mark-multiply-times-symbol-red-incorrect-wrong.png"
-          }
+          src={getScenePreviewImage(props.scene)}
           style={styles.image}
           alt={`Preview for scene "${props.scene.scene_name}"`}
         />

@@ -65,7 +65,8 @@ const router = createBrowserRouter([
     element: <ListScenePage />,
     loader: async ({ params }) => {
       const token = localStorage.getItem("token");
-      return getAllScenesFromBackend(token);
+      const scenes = await getAllScenesFromBackend(token);
+      return scenes;
     },
   },
   {

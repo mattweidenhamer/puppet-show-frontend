@@ -1,14 +1,17 @@
 import React from "react";
 import {
+  Alert,
   Button,
   Checkbox,
   FormControlLabel,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
 import BigLeftCard from "../Layout/BigLeftCard";
 import getDefaultAnimationToDisplay from "../../functions/misc/getDefaultAnimationToDisplay";
 import Placard from "../Display/Placard";
+import Toaster from "../Display/Toaster";
 
 const styles = {
   previewImageContainer: {
@@ -37,7 +40,34 @@ const READABLE_NAMES = {
 };
 
 const UploadAnimationView = (props) => {
-  const handleUpload = (event) => {};
+  const [open, setOpen] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const [type, setType] = React.useState("success");
+
+  const handleUpload = (event) => {
+    const animationUrl = document.getElementById("animation_url").value;
+    if (animationUrl.trim() === "") {
+      setMessage("Please enter a valid url!");
+      setType("error");
+      setOpen(true);
+      return;
+    }
+    const animationType = props.animationType;
+    const newAnimation = {
+      animation_type: animationType,
+      animation_path: animationUrl,
+      outfit_identifier: props.outfit.identifier,
+    };
+    props.uploadAnimation(newAnimation);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+  let alert = (
+    <Alert severity={type} onClose={handleClose}>
+      {message}
+    </Alert>
+  );
   return (
     <BigLeftCard>
       <Placard>
@@ -46,6 +76,9 @@ const UploadAnimationView = (props) => {
           {props.outfit.outfit_name}
         </Typography>
       </Placard>
+      <Typography variant="h5" sx={{ marginBottom: 2 }}>
+        Current animation:{" "}
+      </Typography>
       <div style={styles.previewImageContainer}>
         {props.currentAnimation !== null &&
         props.currentAnimation !== undefined ? (
@@ -76,6 +109,14 @@ const UploadAnimationView = (props) => {
           Update animation
         </Button>
       </Placard>
+      <Toaster
+        open={open}
+        message={message}
+        severity={type}
+        handleClose={handleClose}
+      >
+        {alert}
+      </Toaster>
     </BigLeftCard>
   );
 };

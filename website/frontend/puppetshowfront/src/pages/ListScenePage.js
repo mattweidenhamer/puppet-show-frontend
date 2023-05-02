@@ -18,6 +18,7 @@ import AddObjectCard from "../components/Manipulation/AddObjectCard";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
 import addNewScene from "../functions/setters/scenes/addNewScene";
 import setActiveScene from "../functions/setters/scenes/setActiveScene";
+import getScenePreviewImage from "../functions/misc/getScenePreviewImage";
 
 const styles = {
   paper: {
@@ -84,21 +85,25 @@ const ListScenePage = (props) => {
 
   const [addSceneOn, setAddSceneOn] = React.useState(false);
   const [scenes, setScenes] = React.useState(useRouteLoaderData("allScenes"));
+  console.log(scenes);
   const setActiveSceneCall = async (sceneIdentifier) => {
     await setActiveScene(localStorage.getItem("token"), sceneIdentifier);
     setScenes((scenes) => {
-      let newScenes = { ...scenes };
+      let newScenes = [...scenes];
       for (let scene in newScenes) {
         newScenes[scene].is_active = false;
       }
-      newScenes[sceneIdentifier].is_active = true;
+      //Find the scene with the identifier that matches the one we just set to active, and set it to active.
+      newScenes.find(
+        (element) => element.identifier === sceneIdentifier
+      ).is_active = true;
       return newScenes;
     });
   };
   const navigate = useNavigate();
-  const addNewScene = (previousScenes, newScene) => {
-    return { ...previousScenes, [newScene.identifier]: newScene };
-  };
+  // const addNewScene = (previousScenes, newScene) => {
+  //   return { ...previousScenes, [newScene.identifier]: newScene };
+  // };
   const editSceneHandler = (identifier) => {
     navigate(`${identifier}`);
   };
@@ -114,11 +119,7 @@ const ListScenePage = (props) => {
     // setScenes((prevScenes) => addNewScene(prevScenes, newScene));
     // setAddSceneOn(false);
   };
-  let scenesList = [];
-  for (let sceneId in scenes) {
-    scenesList.push(scenes[sceneId]);
-  }
-  const sceneCards = scenesList.map((scene) => (
+  const sceneCards = scenes.map((scene) => (
     <Card key={scene.scene_name} sx={styles.card}>
       <CardContent>
         <Typography
@@ -133,11 +134,7 @@ const ListScenePage = (props) => {
       <div style={styles.previewImageContainer}>
         <img
           style={styles.previewImage}
-          src={
-            scene.preview_image !== null
-              ? scene.preview_image
-              : "https://www.pngfind.com/pngs/m/6-62867_x-mark-multiply-times-symbol-red-incorrect-wrong.png"
-          }
+          src={getScenePreviewImage(scene)}
           alt={scene.identifier}
         />
       </div>

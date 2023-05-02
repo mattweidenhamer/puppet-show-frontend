@@ -8,39 +8,6 @@ from rest_framework.authtoken.models import Token
 
 
 class DiscordPointingUserManager(BaseUserManager):
-    # def create_user_from_snowflake(self, password, discord_snowflake):
-    #     if not discord_snowflake:
-    #         raise ValueError("Email and discord snowflake must be passed.")
-    #     discord, created = DiscordData.objects.get_or_create(
-    #         user_snowflake=discord_snowflake
-    #     )
-    #     if created:
-    #         logging.info("Created an empty discord user for account")
-    #         # TODO will need to also grab and sync discord information
-    #     user = self.model(discord_data=discord)
-    #     user.set_password(password)
-    #     user.save()
-    #     return user
-
-    # def create_superuser_from_snowflake(self, password, discord_snowflake):
-    #     user = self.create_user_from_snowflake(password, discord_snowflake)
-    #     user.is_superuser = True
-    #     user.save()
-    #     return user
-
-    # def create_user(self, password, discord_data):
-
-    #     user = self.model(discord_data=discord_data)
-    #     user.set_password(password)
-    #     user.save()
-    #     return user
-
-    # def create_superuser(self, password, discord_data):
-    #     user = self.create_user(password, discord_data)
-    #     user.is_superuser = True
-    #     user.save()
-    #     return user
-
     def create_user(self, *args, **kwargs):
         user = self.model(*args, **kwargs)
         user.save()
@@ -130,12 +97,12 @@ class DiscordPointingUser(AbstractBaseUser):
         from .configuration_models import Scene
 
         sceneToReturn = Scene.objects.filter(scene_author=self, is_active=True).first()
-        if sceneToReturn is None:
-            firstScene = Scene.objects.filter(scene_author=self).first()
-            if firstScene is not None:
-                firstScene.is_active = True
-                firstScene.save()
-                return firstScene
+        # if sceneToReturn is None:
+        #     firstScene = Scene.objects.filter(scene_author=self).first()
+        #     if firstScene is not None:
+        #         firstScene.is_active = True
+        #         firstScene.save()
+        #         return firstScene
         return sceneToReturn
 
     @property

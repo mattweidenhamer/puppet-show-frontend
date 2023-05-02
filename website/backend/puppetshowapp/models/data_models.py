@@ -34,7 +34,7 @@ class DiscordData(models.Model):
 class Animation(models.Model):
     class Attributes(models.TextChoices):
         START_SPEAKING = "START_SPEAKING"
-        NOT_SPEAKING = "STOP_SPEAKING"
+        STOP_SPEAKING = "NOT_SPEAKING"
         SLEEPING = "SLEEPING"
         CONNECTION = "CONNECTION"
         DISCONNECT = "DISCONNECTION"

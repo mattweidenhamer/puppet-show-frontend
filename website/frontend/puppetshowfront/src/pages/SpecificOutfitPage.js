@@ -11,12 +11,9 @@ import {
   Tooltip,
 } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
-import AddObjectCard from "../components/Manipulation/AddObjectCard";
 import ActorOptionsView from "../components/SpecificViews/ActorOptionsView";
-import getDefaultAnimationToDisplay from "../functions/misc/getDefaultAnimationToDisplay";
 import { useRouteLoaderData } from "react-router-dom";
 import updateOutfit from "../functions/patchers/outfit/updateOutfit";
 import deleteAnimation from "../functions/deleters/animations/deleteAnimation";
@@ -121,33 +118,61 @@ const SpecificOutfitPage = (props) => {
   const [performer, setPerformer] = React.useState(
     useRouteLoaderData("specificOutfit").performer
   );
-  console.log(outfit);
   const [leftBoxState, setLeftBoxState] = React.useState("Options");
   const [viewedAnimation, setViewedAnimation] = React.useState(null);
+
+  const updateAnimationsObject = () => {
+    let newAnimationsObject = {};
+    for (const animation of outfit.animations) {
+      newAnimationsObject[animation.animation_type] = animation;
+    }
+    return newAnimationsObject;
+  };
 
   const uploadNewAnimationHandler = (event) => {
     setViewedAnimation(event.currentTarget.id);
     setLeftBoxState("Upload");
   };
   const onUploadAnimation = async (newAnimation) => {
-    const result = await addNewAnimation(
-      localStorage.getItem("token"),
-      newAnimation
-    );
-    const newOutfit = { ...outfit };
-    newOutfit.animations.push(newAnimation);
-    setLeftBoxState("Options");
+    //If the animation already exists, delete old and add new
+    if (animationsObject[newAnimation.animation_type]) {
+      await deleteAnimation(
+        localStorage.getItem("token"),
+        animationsObject[newAnimation.animation_type].identifier
+      );
+      const result = await addNewAnimation(
+        localStorage.getItem("token"),
+        newAnimation
+      );
+      const newOutfit = { ...outfit };
+      newOutfit.animations = outfit.animations.filter(
+        (animation) => animation.animation_type !== newAnimation.animation_type
+      );
+      newOutfit.animations.push(result);
+      setLeftBoxState("Options");
+      setOutfit(newOutfit);
+    } else {
+      const result = await addNewAnimation(
+        localStorage.getItem("token"),
+        newAnimation
+      );
+      const newOutfit = { ...outfit };
+      newOutfit.animations.push(result);
+      setLeftBoxState("Options");
+      setOutfit(newOutfit);
+    }
   };
   const deleteAnimationHandler = async (event) => {
     const newOutfit = { ...outfit };
-    newOutfit.animations = newOutfit.animations.filter(
-      (animation) => animation.animation_type !== event.currentTarget.id
+    newOutfit.animations = outfit.animations.filter(
+      (animation) => animation.identifier !== event.currentTarget.id
     );
     await deleteAnimation(
       localStorage.getItem("token"),
       event.currentTarget.id
     );
     setLeftBoxState("Options");
+    setOutfit(newOutfit);
   };
   const onUpdateOutfit = async (newOutfit) => {
     const result = await updateOutfit(
@@ -157,12 +182,9 @@ const SpecificOutfitPage = (props) => {
     );
     setOutfit(newOutfit);
   };
-  const animationsObject = {};
-  for (const animation of outfit.animations) {
-    animationsObject[animation.animation_type] = animation.animation_path;
-  }
+  const animationsObject = updateAnimationsObject();
 
-  const animationCards = animationTypes.map((animationType) => (
+  let animationCards = animationTypes.map((animationType) => (
     <Card key={animationType} sx={styles.card}>
       <CardContent>
         <Typography
@@ -180,7 +202,7 @@ const SpecificOutfitPage = (props) => {
           src={
             animationsObject[animationType] !== null &&
             animationsObject[animationType] !== undefined
-              ? animationsObject[animationType]
+              ? animationsObject[animationType].animation_path
               : "https://www.pikpng.com/pngl/m/202-2022667_red-cancel-delete-no-forbidden-prohibited-stop-sign.png"
           }
           alt={convertKeyToName(animationType)}
@@ -227,7 +249,7 @@ const SpecificOutfitPage = (props) => {
         animationType={viewedAnimation}
         currentAnimation={animationsObject[viewedAnimation]}
         performer={performer}
-        onUpload={onUploadAnimation}
+        uploadAnimation={onUploadAnimation}
       />
     );
   }
