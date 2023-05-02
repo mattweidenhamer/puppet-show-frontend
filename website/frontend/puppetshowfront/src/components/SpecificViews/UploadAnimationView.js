@@ -12,6 +12,7 @@ import BigLeftCard from "../Layout/BigLeftCard";
 import getDefaultAnimationToDisplay from "../../functions/misc/getDefaultAnimationToDisplay";
 import Placard from "../Display/Placard";
 import Toaster from "../Display/Toaster";
+import NoAnimationSet from "../../images/NoAnimationsSet.png";
 
 const styles = {
   previewImageContainer: {
@@ -80,15 +81,16 @@ const UploadAnimationView = (props) => {
         Current animation:{" "}
       </Typography>
       <div style={styles.previewImageContainer}>
-        {props.currentAnimation !== null &&
-        props.currentAnimation !== undefined ? (
-          <img
-            style={styles.previewImage}
-            src={props.currentAnimation.animation_path}
-            alt=""
-          />
-        ) : // TODO find a replacement image
-        null}
+        <img
+          style={styles.previewImage}
+          src={
+            props.currentAnimation !== null &&
+            props.currentAnimation !== undefined
+              ? props.currentAnimation.animation_path
+              : NoAnimationSet
+          }
+          alt=""
+        />
       </div>
       <Placard sx={{ minWidth: 500 }}>
         <Typography variant="h5" sx={{ marginBottom: 2 }}>

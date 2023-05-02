@@ -10,6 +10,7 @@ import {
   Typography,
   IconButton,
   CardActions,
+  Paper,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -47,8 +48,8 @@ const styles = {
   previewImageContainer: {
     width: "150px",
     height: "150px",
-    //borderRadius: "50%", //Uncomment for rounded circle
-    border: `2px solid red`,
+    borderRadius: "50%", //Uncomment for rounded circle
+    border: `1px solid black`,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -58,13 +59,10 @@ const styles = {
   previewImage: {
     width: "100%",
     height: "100%",
-    objectFit: "scale-down",
+    // objectFit: "scale-down",
   },
   bigTextWithSpacing: {
     marginTop: 2,
-  },
-  buttonPadding: {
-    marginBottom: 2,
   },
   topText: {
     marginTop: 2,
@@ -126,14 +124,16 @@ const ListPerformerPage = () => {
   const performerCards = performers.map((performer) => (
     <Card key={performer.discord_username} sx={styles.card}>
       <CardContent>
-        <Typography
-          variant="h5"
-          component="div"
-          gutterBottom
-          sx={styles.topText}
-        >
-          {performer.discord_username}
-        </Typography>
+        <Paper>
+          <Typography
+            variant="h5"
+            component="div"
+            gutterBottom
+            sx={styles.topText}
+          >
+            {performer.discord_username}
+          </Typography>
+        </Paper>
       </CardContent>
       <div style={styles.previewImageContainer}>
         <img
@@ -146,24 +146,26 @@ const ListPerformerPage = () => {
           alt={performer.identifier}
         />
       </div>
-      <CardActions sx={styles.buttonPadding}>
-        <IconButton
-          onClick={() => {
-            editPerformerHandler(performer.identifier);
-          }}
-          id={performer.identifier}
-        >
-          <EditIcon />
-        </IconButton>
-        <IconButton
-          onClick={() => {
-            toggleDeletePerformerHandler(performer.identifier);
-          }}
-          id={performer.identifier}
-        >
-          <DeleteForeverIcon />
-        </IconButton>
-      </CardActions>
+      <Paper>
+        <CardActions sx={styles.buttonPadding}>
+          <IconButton
+            onClick={() => {
+              editPerformerHandler(performer.identifier);
+            }}
+            id={performer.identifier}
+          >
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              toggleDeletePerformerHandler(performer.identifier);
+            }}
+            id={performer.identifier}
+          >
+            <DeleteForeverIcon />
+          </IconButton>
+        </CardActions>
+      </Paper>
     </Card>
   ));
 
@@ -195,16 +197,6 @@ const ListPerformerPage = () => {
       <NavigationBar backArrow />
       <Grid container spacing={3}>
         <Grid item xs={12} sm={4}>
-          {/* {viewedPerformer === null ? (
-            <AddPerformerView onPerformerCreate={changeToNewPerformer} />
-          ) : (
-            <PerformerOptionsView
-              performer={performers.find((element) => {
-                return element.identifier === viewedPerformer;
-              })}
-              onUpdatePerformer={onUpdatePerformer}
-            />
-          )} */}
           {leftCard}
         </Grid>
         <Grid item xs={12} sm={8}>

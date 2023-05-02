@@ -48,6 +48,7 @@ const PerformerOptionsView = (props) => {
     props.onUpdatePerformer(newPerformer);
     //TODO change some part of the scene based on the toggle.
   };
+  const openStageInNewWindow = (link) => {};
   const link =
     debug_redirects.THIS_URL +
     debug_redirects.THIS_STAGE_EXTENSION +
@@ -88,7 +89,24 @@ const PerformerOptionsView = (props) => {
       </Placard>
       <Placard sx={styles.optionsPlacard}>
         <Typography variant="body1">Your performer's stage:</Typography>
-        <Link href={link}>{link}</Link>
+        <Link
+          //href={link}
+          underline="hover"
+          onClick={() => {
+            window.open(link, "_blank");
+          }}
+        >
+          {link}
+        </Link>
+        <br />
+        <Button
+          variant="contained"
+          onClick={() => {
+            navigator.clipboard.writeText(link);
+          }}
+        >
+          Copy Link to Clipboard
+        </Button>
       </Placard>
       <Placard sx={styles.optionsPlacard}>
         <Typography variant="h6">

@@ -18,7 +18,6 @@ import NavigationBar from "../components/NavBar/NavigationBar";
 import SceneOptionsView from "../components/SpecificViews/SceneOptionsView";
 import AddActorView from "../components/SpecificViews/AddActorView";
 import DeleteActorView from "../components/SpecificViews/DeleteActorView";
-import getDefaultAnimationToDisplay from "../functions/misc/getDefaultAnimationToDisplay";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
 import addNewOutfit from "../functions/setters/outfits/addNewOutfit";
 import deleteOutfit from "../functions/deleters/outfit/deleteOutfit";
@@ -118,7 +117,7 @@ const SpecificScenePage = (props) => {
   };
   const getAnimationForOutfit = (outfit) => {
     if (outfit.animations.length > 0) {
-      return outfit.animations[0].animation_url;
+      return outfit.animations[0].animation_path;
     } else {
       return getFailsafeAnimation(outfit.performer);
     }

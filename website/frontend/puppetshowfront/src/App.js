@@ -9,15 +9,10 @@ import HowToUsePage from "./pages/meta/HowToUsePage";
 import ListPerformerPage from "./pages/ListPerformerPage";
 import {
   createBrowserRouter,
-  BrowserRouter,
-  Routes,
-  Route,
   RouterProvider,
-  useLoaderData,
   redirect,
 } from "react-router-dom";
 import getOutfitFromBackend from "./functions/loaders/outfits/getOutfitFromBackend";
-import getAllOutfitsFromBackend from "./functions/loaders/outfits/getAllOutfitsFromBackend";
 import getPerformerFromBackend from "./functions/loaders/performers/getPerformerFromBackend";
 import getAllPerformersFromBackend from "./functions/loaders/performers/getAllPerformersFromBackend";
 import getSceneFromBackend from "./functions/loaders/scenes/getSceneFromBackend";
@@ -27,18 +22,54 @@ import ConnectDiscordPage from "./pages/meta/ConnectDiscordPage";
 import DashboardPage from "./pages/meta/DashboardPage";
 import getActiveSceneFromBackend from "./functions/loaders/scenes/getActiveSceneFromBackend";
 import getStageFromBackend from "./functions/loaders/stage/getStageFromBackend";
+
+const checkUserInLocal = async () => {
+  if (localStorage.getItem("user") === null) {
+    return false;
+  }
+  return true;
+};
+
+const updateUserFromBackend = async (token, force) => {
+  if (force) {
+    const user = await getUserFromBackend(token);
+    if (user !== null) {
+      console.log("Updating user");
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("timeSinceLastUpdate", Date.now());
+    } else {
+      localStorage.removeItem("user");
+      console.log("Received null user");
+    }
+  } else {
+    if (
+      localStorage.getItem("timeSinceLastUpdate") === null ||
+      Date.now() - localStorage.getItem("timeSinceLastUpdate") >
+        1000 * 60 * 60 * 8
+    ) {
+      const user = await getUserFromBackend(token);
+      if (user !== null) {
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("timeSinceLastUpdate", Date.now());
+      } else {
+        localStorage.removeItem("user");
+        console.log("Received null user");
+      }
+    }
+  }
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <LandingPage />,
     children: [],
-    // Debug
-    // loader: async () => {
-    //   localStorage.clear();
-    //   return {};
-    // },
   },
-  { path: "/connectDiscord", element: <ConnectDiscordPage /> },
+  {
+    path: "/connectDiscord",
+    element: <ConnectDiscordPage />,
+    id: "connectDiscord",
+  },
   {
     path: "/dashboard",
     element: <DashboardPage />,
@@ -145,6 +176,7 @@ const router = createBrowserRouter([
           return redirect("/connectDiscord");
         }
       }
+      return null;
     },
   },
   {
@@ -168,42 +200,6 @@ const router = createBrowserRouter([
     path: "/importantInformation",
   },
 ]);
-
-const checkUserInLocal = async () => {
-  if (localStorage.getItem("user") === null) {
-    return false;
-  }
-  return true;
-};
-
-const updateUserFromBackend = async (token, force) => {
-  if (force) {
-    const user = await getUserFromBackend(token);
-    if (user !== null) {
-      console.log("Updating user");
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("timeSinceLastUpdate", Date.now());
-    } else {
-      localStorage.removeItem("user");
-      console.log("Received null user");
-    }
-  } else {
-    if (
-      localStorage.getItem("timeSinceLastUpdate") === null ||
-      Date.now() - localStorage.getItem("timeSinceLastUpdate") >
-        1000 * 60 * 60 * 8
-    ) {
-      const user = await getUserFromBackend(token);
-      if (user !== null) {
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("timeSinceLastUpdate", Date.now());
-      } else {
-        localStorage.removeItem("user");
-        console.log("Received null user");
-      }
-    }
-  }
-};
 
 function App() {
   return (
