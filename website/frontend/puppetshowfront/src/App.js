@@ -136,6 +136,7 @@ const router = createBrowserRouter([
 
       const token = localStorage.getItem("token");
       if (token === null) {
+        localStorage.clear();
         return redirect("/connectDiscord");
       }
       if (!checkUserInLocal()) {
@@ -153,7 +154,7 @@ const router = createBrowserRouter([
     loader: async () => {
       const token = localStorage.getItem("token");
       if (token === null) {
-        return redirect("/login");
+        return redirect("/connectDiscord");
       }
       return getAllPerformersFromBackend(token);
     },

@@ -85,7 +85,7 @@ const ListScenePage = (props) => {
 
   const [addSceneOn, setAddSceneOn] = React.useState(false);
   const [scenes, setScenes] = React.useState(useRouteLoaderData("allScenes"));
-  console.log(scenes);
+  const activeScene = scenes.find((element) => element.is_active === true);
   const setActiveSceneCall = async (sceneIdentifier) => {
     await setActiveScene(localStorage.getItem("token"), sceneIdentifier);
     setScenes((scenes) => {
@@ -111,6 +111,11 @@ const ListScenePage = (props) => {
     setAddSceneOn(true);
   };
   const selectSceneHandler = (sceneIdentifier) => {
+    if (
+      scenes.find((element) => element.identifier === sceneIdentifier).is_active
+    ) {
+      return;
+    }
     setAddSceneOn(false);
     setActiveSceneCall(sceneIdentifier);
   };
@@ -163,10 +168,7 @@ const ListScenePage = (props) => {
             {addSceneOn ? (
               <AddSceneView onSceneCreate={changeToNewScene} />
             ) : (
-              <ActiveSceneView
-                scene={scenes.find((element) => (element.is_active = true))}
-                sx={styles.bigCard}
-              />
+              <ActiveSceneView scene={activeScene} sx={styles.bigCard} />
             )}
           </Grid>
           <Grid item xs={12} sm={6} md={8}>
