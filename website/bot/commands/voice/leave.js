@@ -11,6 +11,16 @@ module.exports = {
       return interaction.reply(
         ":x:: You can't use this command in DMs! Unless... do you not love me anymore? :pleading_face:"
       );
+    if (
+      !interaction.member.roles.cache.some(
+        (role) => role.name === "Puppeteer"
+      ) ||
+      !interaction.member.permissions.has("ADMINISTRATOR")
+    )
+      return interaction.reply(
+        ":x:: You need to have the Puppeteer role or be an administrator to use this command!"
+      );
+
     // If the bot is not in a voice channel in the same guild, return and send a message
     if (!interaction.guild.members.me.voice.channel)
       return interaction.reply(

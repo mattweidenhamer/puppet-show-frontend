@@ -78,7 +78,9 @@ const DashboardPage = () => {
       }
     }
   }
-  console.log("active scene icon is ", active_scene_icon);
+  const inviteBotHandler = () => {
+    window.open(debug_redirects.INVITE_BOT, "_blank");
+  };
   return (
     <MainLayout>
       <NavigationBar />
@@ -145,7 +147,7 @@ const DashboardPage = () => {
               <Button
                 variant="contained"
                 color="primary"
-                href={debug_redirects.INVITE_BOT}
+                onClick={inviteBotHandler}
                 sx={styles.button}
               >
                 Invite bot

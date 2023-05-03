@@ -14,6 +14,16 @@ module.exports = {
     //If this was called from DMs, return and send a message
     if (!interaction.guild)
       return interaction.reply(":x:: You can't use this command in DMs!");
+    // If the user does not have the Puppeteer role, return and send a message
+    if (
+      !interaction.member.roles.cache.some(
+        (role) => role.name === "Puppeteer"
+      ) ||
+      !interaction.member.permissions.has("ADMINISTRATOR")
+    )
+      return interaction.reply(
+        ":x:: You need to have the Puppeteer role or be an administrator to use this command!"
+      );
     // If the user is not in a voice channel, return and send a message
     if (!interaction.member.voice.channel)
       return interaction.reply(":x:: You need to join a voice channel first!");
@@ -23,21 +33,38 @@ module.exports = {
         ":x:: I'm already in a voice channel! /nIf you want me to leave, type /leave first."
       );
     // If the bot is not in a voice channel in the same guild, join it and add an event listener to the bot.
-    interaction.reply(
-      `:white_check_mark: Joining ${channelMention(
-        interaction.member.voice.channelId
-      )}`
-    );
+
     channel = interaction.member.voice.channel;
     console.log(channel.guild.voiceAdapterCreator);
     const connection = joinVoiceChannel({
       channelId: channel.id,
       guildId: channel.guild.id,
       adapterCreator: channel.guild.voiceAdapterCreator,
+      selfDeaf: false,
+      selfMute: true,
     })
       .on("debug", console.log)
       .on("error", console.error);
-    await entersState(connection, VoiceConnectionStatus.Ready, 30_000);
+    try {
+      await entersState(connection, VoiceConnectionStatus.Ready, 2_000);
+      interaction.reply(
+        `:white_check_mark: Joining ${channelMention(
+          interaction.member.voice.channelId
+        )}`
+      );
+    } catch (exception) {
+      // If the exception is an abort error, it means the connection failed.
+      // No need to log.
+      if (exception.code === "ABORT_ERR") {
+        return interaction.reply(
+          ":x: There was an error joining that voice channel! I may not have permission to join it, for example!"
+        );
+      } else {
+        console.error(exception);
+        return interaction.reply(":x: Major error: " + exception.code);
+      }
+    }
+
     connection.on(VoiceConnectionStatus.Ready, () => {
       console.log(
         `Successfully loaded voice state in channel ${interaction.member.voice.channel.name}`
@@ -48,7 +75,7 @@ module.exports = {
       if (interaction.client.actorWebSockets.has(userId)) {
         interaction.client.actorWebSockets
           .get(userId)
-          .send(JSON.stringify({ type: "ACTOR_STATE", data: "STOP_SPEAKING" }));
+          .send(JSON.stringify({ type: "ACTOR_STATE", data: "NOT_SPEAKING" }));
       }
     });
     connection.receiver.speaking.on("start", (userId) => {

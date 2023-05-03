@@ -9,7 +9,7 @@
   "BACKEND_SCENE_SET_ACTIVESCENE_EXTENSION": "setActive/",
   "BACKEND_PERFORMERS": "http://localhost:8000/ps/performers/",
   "BACKEND_STAGE": "http://localhost:8000/ps/stage/",
-  "BOT_INVITATION": "https://discord.com/api/oauth2/authorize?client_id=1075810140361592902&permissions=36703232&scope=bot",
+  "INVITE_BOT": "https://discord.com/api/oauth2/authorize?client_id=1075810140361592902&permissions=303038464&scope=bot",
   "THIS_URL": "http://localhost:3000/",
   "THIS_STAGE_EXTENSION": "stage/",
   "BACKEND_OUTFIT_MODIFY": "http://localhost:8000/ps/outfits/",

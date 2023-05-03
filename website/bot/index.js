@@ -37,6 +37,7 @@ for (const file of eventFiles) {
   } else {
     client.on(event.name, (...args) => event.execute(...args));
   }
+  console.log(`Loaded event for ${event.name} from ${filePath}`);
 }
 
 for (const folder of commandFolders) {
@@ -55,6 +56,7 @@ for (const folder of commandFolders) {
         `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
       );
     }
+    console.log(`Loaded command ${command.data.name} from ${filePath}`);
   }
 }
 

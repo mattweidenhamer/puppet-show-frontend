@@ -1,4 +1,4 @@
-import actorStates from "../../constants/actorStates";
+import actorStates from "../../constants/actorStates.json";
 import React from "react";
 
 const getActorImage = (actor, actorState) => {
@@ -7,8 +7,7 @@ const getActorImage = (actor, actorState) => {
     animations = {};
     animations.speaking_animation = `https://${actor.discord_avatar}`;
     animations.not_speaking_animation = `https://${actor.discord_avatar}`;
-  }
-  if (actorState === null || actorState === undefined) {
+  } else if (actorState === null || actorState === undefined) {
     console.log("Received bad Actor State.");
     return null;
   } else if (actorState === actorStates.START_SPEAKING) {
@@ -31,6 +30,7 @@ const getActorImage = (actor, actorState) => {
     return;
   }
   console.log("Received weird actor state that I couldn't define.");
+  console.log(actorState);
   return null;
 };
 

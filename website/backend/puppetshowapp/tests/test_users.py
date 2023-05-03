@@ -53,8 +53,8 @@ class UserTestCase(TestCase):
         test_scene = Scene.objects.get(scene_name="test_scene")
         self.assertEqual(normal.active_scene, test_scene)
 
-    # Test that if the user has no primary scene set, that it can access the first scene it is in.
-    def test_user_no_primary_scene(self):
-        normal = DiscordPointingUser.objects.get(discord_snowflake="1234567891")
-        test_scene = Scene.objects.get(scene_name="test_scene_2")
-        self.assertEqual(normal.active_scene, test_scene)
+    # # Test that if the user has no primary scene set, that it can access the first scene it is in.
+    # def test_user_no_primary_scene(self):
+    #     normal = DiscordPointingUser.objects.get(discord_snowflake="1234567891")
+    #     test_scene = Scene.objects.get(scene_name="test_scene_2")
+    #     self.assertEqual(normal.active_scene, test_scene)

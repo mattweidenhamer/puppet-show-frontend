@@ -129,7 +129,7 @@ class PerformerDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class PerformanceView(generics.RetrieveAPIView):
     queryset = Performer.objects.all()
-    serializer_class = PerformanceSerializer
+    serializer_class = StageSerializer
     lookup_field = "identifier"
 
 

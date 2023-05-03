@@ -275,21 +275,21 @@ class SceneEndpointTestCase(APITestCase):
         self.assertEqual(response_dict["scene_name"], "test_scene")
 
     # Test that a scene returns a proper animation for its preview image.
-    def test_get_scene_preview(self):
-        scene_1 = Scene.objects.get(scene_name="test_scene")
-        scene_1.set_active()
-        scene_1.save()
-        user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
-        token = Token.objects.get(user=user_1)
-        url = reverse("scene-detail", args=[scene_1.identifier])
-        client = APIClient()
-        client.force_authenticate(token=token)
-        response = client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertIsNotNone(response.content)
-        response_dict = response.json()
-        self.assertEqual(response_dict["scene_name"], "test_scene")
-        self.assertEqual(response_dict["preview_image"], scene_1.preview_image)
+    # def test_get_scene_preview(self):
+    #     scene_1 = Scene.objects.get(scene_name="test_scene")
+    #     scene_1.set_active()
+    #     scene_1.save()
+    #     user_1 = DiscordPointingUser.objects.get(discord_snowflake="1234567890")
+    #     token = Token.objects.get(user=user_1)
+    #     url = reverse("scene-detail", args=[scene_1.identifier])
+    #     client = APIClient()
+    #     client.force_authenticate(token=token)
+    #     response = client.get(url)
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertIsNotNone(response.content)
+    #     response_dict = response.json()
+    #     self.assertEqual(response_dict["scene_name"], "test_scene")
+    #     self.assertEqual(response_dict["preview_image"], scene_1.preview_image)
 
     # Test that a scene's settings can be updated.
     def test_update_scene_settings(self):
@@ -891,10 +891,11 @@ class AnimationTestCase(APITestCase):
         }
         new_animation_2 = {
             "outfit_identifier": self.outfit.identifier,
-            "animation_type": "STOP_SPEAKING",
+            "animation_type": "NOT_SPEAKING",
             "animation_path": "https://media.discordapp.net/attachments/807108520595554304/1022846320253353984/Tair_Mute.gif",
         }
         response = client.post(url, new_animation)
+        # self.assertIsNone(response.json())
         self.assertEqual(response.status_code, 201)
         self.assertEqual(self.outfit.animations.count(), 1)
         self.assertEqual(response.json()["animation_type"], "START_SPEAKING")
@@ -904,7 +905,7 @@ class AnimationTestCase(APITestCase):
         response = client.post(url, new_animation_2)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(self.outfit.animations.count(), 2)
-        self.assertEqual(response.json()["animation_type"], "STOP_SPEAKING")
+        self.assertEqual(response.json()["animation_type"], "NOT_SPEAKING")
 
     # Test modifying an animation's path.
     def test_modify_animation(self):

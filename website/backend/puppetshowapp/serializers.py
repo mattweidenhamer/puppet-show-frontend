@@ -94,6 +94,8 @@ class OutfitSerializerNoScene(OutfitSerializer):
 
 
 class OutfitSerializerForPerformer(serializers.ModelSerializer):
+    animations = AnimationSerializer(many=True, required=False, read_only=True)
+
     class Meta:
         model = Outfit
         fields = (
@@ -167,7 +169,7 @@ class PerformerSerializer(serializers.ModelSerializer):
         return new_performer
 
 
-class PerformanceSerializer(serializers.ModelSerializer):
+class StageSerializer(serializers.ModelSerializer):
     get_outfit = OutfitSerializerForPerformer(read_only=True)
 
     class Meta:
