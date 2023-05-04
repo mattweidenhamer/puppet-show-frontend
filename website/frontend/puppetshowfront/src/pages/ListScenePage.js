@@ -19,6 +19,7 @@ import { useNavigate, useRouteLoaderData } from "react-router-dom";
 import addNewScene from "../functions/setters/scenes/addNewScene";
 import setActiveScene from "../functions/setters/scenes/setActiveScene";
 import getScenePreviewImage from "../functions/misc/getScenePreviewImage";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const styles = {
   paper: {
@@ -124,6 +125,7 @@ const ListScenePage = (props) => {
     // setScenes((prevScenes) => addNewScene(prevScenes, newScene));
     // setAddSceneOn(false);
   };
+  //TODO add a delete scene option to buttons.
   const sceneCards = scenes.map((scene) => (
     <Card key={scene.scene_name} sx={styles.card}>
       <CardContent>
@@ -151,6 +153,9 @@ const ListScenePage = (props) => {
           id={scene.identifier}
         >
           <EditIcon />
+        </IconButton>
+        <IconButton onClick={() => {}}>
+          <DeleteIcon />
         </IconButton>
         <IconButton onClick={() => selectSceneHandler(scene.identifier)}>
           {scene.is_active ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}

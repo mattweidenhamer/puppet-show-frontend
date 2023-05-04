@@ -66,15 +66,19 @@ const DashboardPage = () => {
       active_scene["preview_icon"] !== undefined
     ) {
       active_scene_icon = active_scene["preview_icon"];
-    }
-    //set the active scene icon to an animation from the scene.
-    for (const outfit of active_scene["outfits"]) {
-      if (
-        outfit["preview_icon"] !== null &&
-        outfit["preview_icon"] !== undefined
-      ) {
-        active_scene_icon = outfit["preview_icon"];
-        break;
+      //set the active scene icon to an animation from the scene.
+      for (const outfit of active_scene["outfits"]) {
+        // if (
+        //   outfit["preview_icon"] !== null &&
+        //   outfit["preview_icon"] !== undefined
+        // ) {
+        //   active_scene_icon = outfit["preview_icon"];
+        //   break;
+        // }
+        if (outfit.animations.length > 0) {
+          active_scene_icon = outfit.animations[0].animation_path;
+          break;
+        }
       }
     }
   }
@@ -98,6 +102,7 @@ const DashboardPage = () => {
                   src={getScenePreviewImage(active_scene)}
                   style={styles.previewImage}
                   alt="scene preview"
+                  key={active_scene_icon}
                 />
               </div>
               <br />
