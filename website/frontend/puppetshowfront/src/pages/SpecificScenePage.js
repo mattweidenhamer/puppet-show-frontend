@@ -168,7 +168,7 @@ const SpecificScenePage = (props) => {
       performer_id: performerId,
     });
     if (doRedirect) {
-      navigate(`/scenes/${scene.identifier}/outfit/${newOutfit.identifier}`);
+      navigate(`/outfits/${newOutfit.identifier}`);
     }
     setScene((prevState) => ({
       ...prevState,

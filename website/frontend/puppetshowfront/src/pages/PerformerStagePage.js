@@ -145,20 +145,24 @@ const PerformerStagePage = () => {
   });
   useEffect(() => {
     if (lastMessage !== null) {
-      const parsedMessage = JSON.parse(lastMessage.data);
-      if (parsedMessage.type === "ACTOR_STATE") {
-        //Edge case, do not set the result to NOT_SPEAKING if the current state is DISCONNECTION,
-        //Otherwise, the actor will be stuck in NOT_SPEAKING
-        if (
-          voiceState === actorStates.DISCONNECTION &&
-          parsedMessage.data === actorStates.STOP_SPEAKING
-        ) {
-          return;
+      try {
+        const parsedMessage = JSON.parse(lastMessage.data);
+        if (parsedMessage.type === "ACTOR_STATE") {
+          //Edge case, do not set the result to NOT_SPEAKING if the current state is DISCONNECTION,
+          //Otherwise, the actor will be stuck in NOT_SPEAKING
+          if (
+            voiceState === actorStates.DISCONNECTION &&
+            parsedMessage.data === actorStates.STOP_SPEAKING
+          ) {
+            return;
+          }
+          // DEBUG
+          // console.log(parsedMessage.data);
+          setVoiceState(parsedMessage.data);
+          setReceivedUpdate(new Date());
         }
-        // DEBUG
-        // console.log(parsedMessage.data);
-        setVoiceState(parsedMessage.data);
-        setReceivedUpdate(new Date());
+      } catch (e) {
+        console.log(e);
       }
     }
   }, [lastMessage, setVoiceState, voiceState, setReceivedUpdate]);

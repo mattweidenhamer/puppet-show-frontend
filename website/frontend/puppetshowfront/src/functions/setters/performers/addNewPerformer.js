@@ -7,6 +7,7 @@ const addNewPerformer = async (token, performer) => {
     debug_redirects.BACKEND_PERFORMERS,
     performer
   );
+  console.log(newPerformer);
   return newPerformer;
 };
 
