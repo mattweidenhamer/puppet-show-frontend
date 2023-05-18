@@ -6,6 +6,7 @@ from ...secrets.constants import API_ENDPOINT
 
 class Command(BaseCommand):
     help = "Update all Discord tokens."
+    # TODO may not be required anymore
 
     def handle(self, *args, **options):
         count = 0
