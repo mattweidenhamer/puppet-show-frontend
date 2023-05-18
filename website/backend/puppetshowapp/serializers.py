@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models.configuration_models import Outfit, Scene
 from .models.authentication_models import DiscordPointingUser
-from .models.data_models import Animation
+from .models.data_models import Animation, LogFile
 from .models.new_models import Performer
 
 
@@ -209,3 +209,16 @@ class UserSerializer(serializers.ModelSerializer):
             "added_performers_count",
         ]
         read_only_fields = ["uuid", "discord_snowflake", "added_performer_count"]
+
+
+class LogReceiver(serializers.ModelSerializer):
+    class Meta:
+        model = LogFile
+        fields = ["log_type", "log_file"]
+
+    def save(self, *args, **kwargs):
+        log_file = self.validated_data["log_file"]
+        log_type = self.validated_data["log_type"]
+        new_log = LogFile(log_type=log_type, log_file=log_file)
+        new_log.save()
+        return new_log

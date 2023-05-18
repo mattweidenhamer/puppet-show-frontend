@@ -1,7 +1,9 @@
 from django.db import models
 from enum import Enum
 import uuid
+import os
 from .configuration_models import Outfit
+from django.utils import timezone
 
 
 def user_pfp_path(instance, filename):
@@ -54,3 +56,28 @@ class Animation(models.Model):
 
     class Meta:
         db_table = "animations"
+
+
+def default_log_location(instance, filename):
+    now = timezone.now()
+    base, extension = os.path.splitext(filename.lower())
+    milliseconds = now.microsecond // 1000
+    return f"logs/{now:%Y%m%d%H%M%S}{milliseconds}{extension}"
+
+
+# A file for handling and mapping the storage of logs.
+class LogFile(models.Model):
+    class LogType(models.TextChoices):
+        INFO = "INFO"
+        WARNING = "WARNING"
+        ERROR = "ERROR"
+        CRITICAL = "CRITICAL"
+
+    log_type = models.CharField(max_length=30, choices=LogType.choices)
+    log_file = models.FileField(upload_to=default_log_location)
+
+    def __str__(self) -> str:
+        return str(f"{self.log_type}" + f"{self.log_file}")
+
+    class Meta:
+        db_table = "log_files"

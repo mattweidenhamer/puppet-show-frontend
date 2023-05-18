@@ -11,6 +11,7 @@ import React from "react";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
 import debug_redirects from "../../constants/debug_redirects.json";
 import getScenePreviewImage from "../../functions/misc/getScenePreviewImage";
+import LogRocket from "logrocket";
 
 const styles = {
   dashboardContainer: {
@@ -55,6 +56,11 @@ const DashboardPage = () => {
   const redirect = useNavigate();
   const active_scene = useRouteLoaderData("dashboard")["active_scene"];
   const user = JSON.parse(localStorage.getItem("user"));
+  // Test LogRocket
+  const setLoggingHandler = () => {
+    console.log("Test logrocket type");
+    throw new Error("Test LogRocket");
+  };
   let active_scene_name = "None";
   console.log("active scene is ", active_scene);
   let active_scene_icon =
@@ -156,6 +162,14 @@ const DashboardPage = () => {
                 sx={styles.button}
               >
                 Invite bot
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={setLoggingHandler}
+                sx={styles.button}
+              >
+                Test Logrocket
               </Button>
             </Paper>
           </Grid>

@@ -1,6 +1,7 @@
 import React from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { Box, Paper } from "@mui/material";
+import LogRocket from "logrocket";
 
 const customTheme = createTheme({
   palette: {
@@ -36,6 +37,16 @@ const styles = {
 };
 
 const MainLayout = (props) => {
+  if (localStorage.getItem("user") !== null) {
+    LogRocket.identify(
+      localStorage.getItem("user").uuid
+      // {
+      //   username: localStorage.getItem("user").discord_username,
+      //   snowflake: localStorage.getItem("user").discord_snowflake,
+      // }
+    );
+  }
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box
