@@ -23,6 +23,8 @@ import ConnectDiscordPage from "./pages/meta/ConnectDiscordPage";
 import DashboardPage from "./pages/meta/DashboardPage";
 import getActiveSceneFromBackend from "./functions/loaders/scenes/getActiveSceneFromBackend";
 import getStageFromBackend from "./functions/loaders/stage/getStageFromBackend";
+import ErrorPage from "./pages/meta/ErrorPage";
+import ImportantInformationPage from "./pages/meta/ImportantInformationPage";
 
 const checkUserInLocal = async () => {
   if (localStorage.getItem("user") === null) {
@@ -64,16 +66,19 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <LandingPage />,
+    errorElement: <ErrorPage />,
     children: [],
   },
   {
     path: "/connectDiscord",
     element: <ConnectDiscordPage />,
+    errorElement: <ErrorPage />,
     id: "connectDiscord",
   },
   {
     path: "/dashboard",
     element: <DashboardPage />,
+    errorElement: <ErrorPage />,
     id: "dashboard",
     loader: async () => {
       const token = localStorage.getItem("token");
@@ -95,6 +100,7 @@ const router = createBrowserRouter([
     path: "/scenes",
     id: "allScenes",
     element: <ListScenePage />,
+    errorElement: <ErrorPage />,
     loader: async ({ params }) => {
       const token = localStorage.getItem("token");
       const scenes = await getAllScenesFromBackend(token);
@@ -104,6 +110,7 @@ const router = createBrowserRouter([
   {
     path: "/scenes/:sceneId",
     element: <SpecificScenePage />,
+    errorElement: <ErrorPage />,
     id: "specificScene",
     loader: async ({ params }) => {
       const token = localStorage.getItem("token");
@@ -122,6 +129,7 @@ const router = createBrowserRouter([
   {
     path: "/outfits/:outfitId",
     element: <SpecificOutfitPage />,
+    errorElement: <ErrorPage />,
     id: "specificOutfit",
     loader: async ({ params }) => {
       const token = localStorage.getItem("token");
@@ -135,6 +143,7 @@ const router = createBrowserRouter([
   {
     path: "/stage/:performerId",
     element: <PerformerStagePage />,
+    errorElement: <ErrorPage />,
     id: "performerStage",
     loader: async ({ params }) => {
       console.log(params);
@@ -145,6 +154,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/receive-token/",
+    errorElement: <ErrorPage />,
     loader: async ({ request }) => {
       //Set the received token in the localstorage
       const url = new URL(request.url);
@@ -163,6 +173,7 @@ const router = createBrowserRouter([
   {
     path: "/user",
     element: <UserInfoPage />,
+    errorElement: <ErrorPage />,
     loader: async () => {
       //Update the stored user
 
@@ -183,6 +194,7 @@ const router = createBrowserRouter([
   {
     path: "/performers",
     element: <ListPerformerPage />,
+    errorElement: <ErrorPage />,
     id: "allPerformers",
     loader: async () => {
       const token = localStorage.getItem("token");
@@ -195,10 +207,13 @@ const router = createBrowserRouter([
   {
     path: "/howToUse",
     element: <HowToUsePage />,
+    errorElement: <ErrorPage />,
   },
   // TODO add this page
   {
     path: "/importantInformation",
+    element: <ImportantInformationPage />,
+    errorElement: <ErrorPage />,
   },
 ]);
 
