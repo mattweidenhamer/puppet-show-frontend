@@ -1,16 +1,15 @@
 import baseDeleteFunction from "../baseDeleteFunction";
-import debug_redirects from "../../../constants/debug_redirects.json";
+
 import noSetCallback from "../../callbacks/noSetCallback";
+import getBackendUrl from "../../misc/getBackendUrl";
 
 const deletePerformer = async (
   token,
   performerId,
   callback = noSetCallback
 ) => {
-  const deleteResponse = await baseDeleteFunction(
-    token,
-    debug_redirects.BACKEND_PERFORMERS + performerId + "/"
-  );
+  const url = getBackendUrl + "ps/performers/" + performerId + "/";
+  const deleteResponse = await baseDeleteFunction(token, url);
   return callback(deleteResponse);
 };
 

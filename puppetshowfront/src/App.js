@@ -196,10 +196,9 @@ const router = createBrowserRouter([
     loader: async ({ request }) => {
       //Set the received token in the localstorage
       const url = new URL(request.url);
-
       const token = url.searchParams.get("token");
       localStorage.setItem("token", token);
-      const user = await getUserFromBackend(token, defaultAPICallbackGen(null));
+      const user = await getUserFromBackend(token);
       if (user === null) {
         //Redirect to error logging in page
         return redirect("/error");

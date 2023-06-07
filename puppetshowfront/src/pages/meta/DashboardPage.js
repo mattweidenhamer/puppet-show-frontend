@@ -9,7 +9,6 @@ import NavigationBar from "../../components/NavBar/NavigationBar";
 import { Button, Grid, Paper, Typography } from "@mui/material";
 import React from "react";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
-import debug_redirects from "../../constants/debug_redirects.json";
 import getScenePreviewImage from "../../functions/misc/getScenePreviewImage";
 import LogRocket from "logrocket";
 
@@ -52,7 +51,9 @@ const styles = {
     margin: 1,
   },
 };
+
 const DashboardPage = () => {
+  const debug = process.env.REACT_APP_DEBUG;
   const redirect = useNavigate();
   const active_scene = useRouteLoaderData("dashboard")["active_scene"];
   const user = JSON.parse(localStorage.getItem("user"));
@@ -89,8 +90,21 @@ const DashboardPage = () => {
     }
   }
   const inviteBotHandler = () => {
-    window.open(debug_redirects.INVITE_BOT, "_blank");
+    window.open(process.env.REACT_APP_BOT_INVITE_URL, "_blank");
   };
+  let crashButton = null;
+  if (debug) {
+    crashButton = (
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={setLoggingHandler}
+        sx={styles.button}
+      >
+        Test Logrocket
+      </Button>
+    );
+  }
   return (
     <MainLayout>
       <NavigationBar />
@@ -163,14 +177,7 @@ const DashboardPage = () => {
               >
                 Invite bot
               </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={setLoggingHandler}
-                sx={styles.button}
-              >
-                Test Logrocket
-              </Button>
+              {crashButton}
             </Paper>
           </Grid>
           <Grid item xs={12} md={6}>

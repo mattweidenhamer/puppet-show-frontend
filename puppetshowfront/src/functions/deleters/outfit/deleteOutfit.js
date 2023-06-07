@@ -1,6 +1,6 @@
 import baseDeleteFunction from "../baseDeleteFunction";
-import debug_redirects from "../../../constants/debug_redirects.json";
 import noSetCallback from "../../callbacks/noSetCallback";
+import getBackendUrl from "../../misc/getBackendUrl";
 
 const deleteOutfit = async (
   token,
@@ -8,7 +8,7 @@ const deleteOutfit = async (
   outfitId,
   callback = noSetCallback
 ) => {
-  const url = debug_redirects.BACKEND_OUTFIT_MODIFY + outfitId + "/";
+  const url = getBackendUrl() + "ps/outfits/" + outfitId + "/";
   const responseData = await baseDeleteFunction(token, url);
   return callback(responseData);
 };

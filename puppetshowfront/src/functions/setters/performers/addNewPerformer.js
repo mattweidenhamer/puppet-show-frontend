@@ -1,11 +1,11 @@
 import baseCreateFunction from "../baseCreateFunction";
-import debug_redirects from "../../../constants/debug_redirects.json";
 import noSetCallback from "../../callbacks/noSetCallback";
+import getBackendUrl from "../../misc/getBackendUrl";
 
 const addNewPerformer = async (token, performer, callback = noSetCallback) => {
   const newPerformer = await baseCreateFunction(
     token,
-    debug_redirects.BACKEND_PERFORMERS,
+    getBackendUrl() + "ps/performers/",
     performer
   );
   return callback(newPerformer);

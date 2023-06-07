@@ -1,6 +1,7 @@
 import basePatchFunction from "../basePatchFunction";
-import debug_redirects from "../../../constants/debug_redirects.json";
+
 import noSetCallback from "../../callbacks/noSetCallback";
+import getBackendUrl from "../../misc/getBackendUrl";
 
 const updatePerformerSettings = async (
   token,
@@ -8,7 +9,7 @@ const updatePerformerSettings = async (
   newPerformer,
   callback = noSetCallback
 ) => {
-  const url = debug_redirects.BACKEND_PERFORMERS + performerId + "/";
+  const url = getBackendUrl() + "ps/performers/" + performerId + "/";
   const result = await basePatchFunction(token, url, newPerformer);
   return callback(result);
 };

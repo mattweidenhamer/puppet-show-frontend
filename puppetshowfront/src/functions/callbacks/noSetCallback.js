@@ -1,4 +1,4 @@
-const noSetCallback = (response) => {
+const noSetCallback = async (response) => {
   console.warn(
     "No callback set for this function, consider writing a more in-depth one."
   );
@@ -11,11 +11,13 @@ const noSetCallback = (response) => {
     );
     return null;
   }
-  if (response.status === 204) {
-    console.log("Response was 204.");
+  try {
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    console.debug("Response had no body.");
     return null;
   }
-  return response.json();
 };
 
 export default noSetCallback;

@@ -1,6 +1,5 @@
-import debug_redirects from "../../../constants/debug_redirects.json";
-import production_redirects from "../../../constants/production_redirects.json";
 import noSetCallback from "../../callbacks/noSetCallback";
+import getBackendUrl from "../../misc/getBackendUrl";
 import baseLoaderFunction from "../baseLoaderFunction";
 
 const getStagePerformerFromBackend = async (
@@ -8,10 +7,8 @@ const getStagePerformerFromBackend = async (
   performerID,
   callback = noSetCallback
 ) => {
-  const stageperformer = await baseLoaderFunction(
-    token,
-    debug_redirects.BACKEND_STAGE + `/${performerID}`
-  );
+  const url = getBackendUrl() + "ps/stage/" + performerID + "/";
+  const stageperformer = await baseLoaderFunction(token, url);
   return callback(stageperformer);
 };
 

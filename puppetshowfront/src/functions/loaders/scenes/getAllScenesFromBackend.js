@@ -1,12 +1,11 @@
 import baseLoaderFunction from "../baseLoaderFunction";
-import debug_redirects from "../../../constants/debug_redirects.json";
+
 import noSetCallback from "../../callbacks/noSetCallback";
+import getBackendUrl from "../../misc/getBackendUrl";
 
 const getAllScenesFromBackend = async (token, callback = noSetCallback) => {
-  const scenes = await baseLoaderFunction(
-    token,
-    debug_redirects.BACKEND_SCENES
-  );
+  const url = getBackendUrl() + "ps/scenes/";
+  const scenes = await baseLoaderFunction(token, url);
   return callback(scenes);
 };
 

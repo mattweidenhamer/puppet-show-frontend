@@ -1,9 +1,9 @@
 import baseDeleteFunction from "../baseDeleteFunction";
-import debug_redirects from "../../../constants/debug_redirects";
 import noSetCallback from "../../callbacks/noSetCallback";
+import getBackendUrl from "../../misc/getBackendUrl";
 
 const deleteOutfit = async (token, sceneID, callback = noSetCallback) => {
-  const url = debug_redirects.BACKEND_SCENES + sceneID + "/";
+  const url = getBackendUrl() + "ps/scenes/" + sceneID + "/";
   const responseData = await baseDeleteFunction(token, url);
   return callback(responseData);
 };

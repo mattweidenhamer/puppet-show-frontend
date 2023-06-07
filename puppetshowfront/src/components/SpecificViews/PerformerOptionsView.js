@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import React, { useEffect } from "react";
 import updatePerformerSettings from "../../functions/patchers/performers/updatePerformer";
-import debug_redirects from "../../constants/debug_redirects.json";
 import defaultAPICallbackGen from "../../functions/callbacks/defaultAPICallbackGen";
 const styles = {
   optionsPlacard: {
@@ -50,11 +49,14 @@ const PerformerOptionsView = (props) => {
     props.onUpdatePerformer(newPerformer);
     //TODO change some part of the scene based on the toggle.
   };
-  const openStageInNewWindow = (link) => {};
-  const link =
-    debug_redirects.THIS_URL +
-    debug_redirects.THIS_STAGE_EXTENSION +
-    performer.identifier;
+  let link = "";
+  if (process.env.REACT_APP_DEBUG) {
+    link =
+      process.env.REACT_APP_FRONTEND_DEBUG + "stage/" + performer.identifier;
+  } else {
+    link =
+      process.env.REACT_APP_FRONTEND_PROD + "stage/" + performer.identifier;
+  }
   const EditDiscordSnowflake = (
     <FormControl>
       <TextField

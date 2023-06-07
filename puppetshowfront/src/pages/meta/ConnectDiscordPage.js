@@ -2,7 +2,6 @@ import React from "react";
 import NavigationBar from "../../components/NavBar/NavigationBar";
 import { Button, Link, Paper, Typography } from "@mui/material";
 import MainLayout from "../../components/Layout/MainLayout";
-import auth_urls from "../../constants/auth_urls";
 import Placard from "../../components/Display/Placard";
 const styles = {
   addDisplayPaper: {
@@ -24,7 +23,7 @@ const styles = {
 };
 
 const ConnectDiscordPage = () => {
-  console.log(auth_urls);
+  console.log(process.env.REACT_APP_DISCORD_OAUTH_URL);
   return (
     <MainLayout padding={2}>
       <NavigationBar />
@@ -43,7 +42,7 @@ const ConnectDiscordPage = () => {
         <Button
           variant="contained"
           color="primary"
-          href={auth_urls.DISCORD_OAUTH_URL}
+          href={process.env.REACT_APP_DISCORD_OAUTH_URL}
           sx={styles.button}
         >
           Connect Discord

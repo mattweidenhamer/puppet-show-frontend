@@ -1,9 +1,8 @@
-import baseLoaderFunction from "../baseLoaderFunction";
-import debug_redirects from "../../../constants/debug_redirects.json";
 import noSetCallback from "../../callbacks/noSetCallback";
+import getBackendUrl from "../../misc/getBackendUrl";
 
 const getStageFromBackend = async (identifier, callback = noSetCallback) => {
-  const url = debug_redirects.BACKEND_STAGE + identifier + "/";
+  const url = getBackendUrl() + "ps/stage/" + identifier + "/";
   const response = await fetch(url, {
     method: "GET",
     headers: {

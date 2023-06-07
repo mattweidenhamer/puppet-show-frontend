@@ -1,6 +1,6 @@
 import baseCreateFunction from "../baseCreateFunction";
-import debug_redirects from "../../../constants/debug_redirects.json";
 import noSetCallback from "../../callbacks/noSetCallback";
+import getBackendUrl from "../../misc/getBackendUrl";
 
 const addNewOutfit = async (
   token,
@@ -8,10 +8,7 @@ const addNewOutfit = async (
   outfit,
   callback = noSetCallback
 ) => {
-  const url =
-    debug_redirects.BACKEND_SCENES +
-    sceneIdentifier +
-    debug_redirects.BACKEND_SCENE_OUTFITS_EXTENSION;
+  const url = getBackendUrl() + "ps/scenes/" + sceneIdentifier + "/outfits/";
   const response = await baseCreateFunction(token, url, outfit);
   return callback(response);
 };

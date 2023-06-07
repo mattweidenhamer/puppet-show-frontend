@@ -1,6 +1,7 @@
 import basePatchFunction from "../basePatchFunction";
-import debug_redirects from "../../../constants/debug_redirects.json";
+
 import noSetCallback from "../../callbacks/noSetCallback";
+import getBackendUrl from "../../misc/getBackendUrl";
 
 const updateScene = async (
   token,
@@ -8,7 +9,7 @@ const updateScene = async (
   updatedScene,
   callback = noSetCallback
 ) => {
-  const url = debug_redirects.BACKEND_SCENES + sceneId + "/";
+  const url = getBackendUrl() + "ps/scenes/" + sceneId + "/";
   const result = await basePatchFunction(token, url, updatedScene);
   return callback(result);
 };

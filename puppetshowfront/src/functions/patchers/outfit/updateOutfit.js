@@ -1,6 +1,7 @@
 import basePatchFunction from "../basePatchFunction";
-import debug_redirects from "../../../constants/debug_redirects.json";
+
 import noSetCallback from "../../callbacks/noSetCallback";
+import getBackendUrl from "../../misc/getBackendUrl";
 
 const updateOutfit = async (
   token,
@@ -8,7 +9,7 @@ const updateOutfit = async (
   newOutfit,
   callback = noSetCallback
 ) => {
-  const url = debug_redirects.BACKEND_OUTFIT_MODIFY + outfitId + "/";
+  const url = getBackendUrl() + "ps/outfits/" + outfitId + "/";
   const result = await basePatchFunction(token, url, newOutfit);
   return callback(result);
 };
