@@ -4,6 +4,7 @@ import NavigationBar from "../components/NavBar/NavigationBar";
 import { useRouteLoaderData } from "react-router-dom";
 import AddObjectCard from "../components/Manipulation/AddObjectCard";
 import {
+  Alert,
   CardContent,
   Grid,
   Card,
@@ -18,6 +19,9 @@ import AddPerformerView from "../components/SpecificViews/AddPerformerView";
 import PerformerOptionsView from "../components/SpecificViews/PerformerOptionsView";
 import DeletePerformerView from "../components/SpecificViews/DeletePerformerView";
 import deletePerformer from "../functions/deleters/performers/deletePerformer";
+import Toaster from "../components/Display/Toaster";
+import defaultAPICallbackGen from "../functions/callbacks/defaultAPICallbackGen";
+
 const styles = {
   paper: {
     padding: 2,
@@ -71,34 +75,47 @@ const styles = {
 };
 
 const ListPerformerPage = () => {
-  // This page consists of two main content areas below a navigation bar.
-  // The first content area is single large card. This will be where performer settings are changed.
-  // The second content area is a grid of cards. Each card will list a performer.
-  // The first card should be a button that says "Add Performer".
-  // The other cards should display performer names and a preview of their avatar.
   const [performers, setPerformers] = React.useState(
     useRouteLoaderData("allPerformers")
   );
   // If viewed performer is null, the add performer view is shown.
   const [viewedPerformer, setViewedPerformer] = React.useState(null);
   const [deletionToggle, setDeletionToggle] = React.useState(false);
+  const [openToaster, setOpenToaster] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const [type, setType] = React.useState("success");
+  const toasterFunctions = {
+    open: setOpenToaster,
+    message: setMessage,
+    type: setType,
+  };
+
   const editPerformerHandler = (performerId) => {
     setViewedPerformer(performerId);
     setDeletionToggle(false);
   };
-  const addPerformerHandler = () => {
+
+  const toggleAddPerformer = () => {
     setViewedPerformer(null);
   };
+
   const changeToNewPerformer = (performer) => {
     setPerformers((prevState) => [...prevState, performer]);
     setViewedPerformer(null);
   };
-  const toggleDeletePerformerHandler = (performerId) => {
+
+  const toggleDeletePerformer = (performerId) => {
     setDeletionToggle(true);
     setViewedPerformer(performerId);
   };
+
   const onDeletePerformer = async (performerId) => {
-    deletePerformer(localStorage.getItem("token"), performerId);
+    await deletePerformer(
+      localStorage.getItem("token"),
+      performerId,
+      defaultAPICallbackGen(toasterFunctions)
+    );
+    console.log("Made it here.");
     setPerformers((prevState) => {
       let newPerformerList = [...prevState];
       let index = newPerformerList.findIndex((element) => {
@@ -107,9 +124,10 @@ const ListPerformerPage = () => {
       newPerformerList.splice(index, 1);
       return newPerformerList;
     });
-    setViewedPerformer(null);
     setDeletionToggle(false);
+    setViewedPerformer(null);
   };
+
   const onUpdatePerformer = async (performer) => {
     setPerformers((prevState) => {
       let newPerformerList = [...prevState];
@@ -121,6 +139,7 @@ const ListPerformerPage = () => {
     });
     setViewedPerformer(null);
   };
+
   const performerCards = performers.map((performer) => (
     <Card key={performer.discord_username} sx={styles.card}>
       <CardContent>
@@ -158,7 +177,7 @@ const ListPerformerPage = () => {
           </IconButton>
           <IconButton
             onClick={() => {
-              toggleDeletePerformerHandler(performer.identifier);
+              toggleDeletePerformer(performer.identifier);
             }}
             id={performer.identifier}
           >
@@ -169,7 +188,12 @@ const ListPerformerPage = () => {
     </Card>
   ));
 
-  let leftCard = <AddPerformerView onPerformerCreate={changeToNewPerformer} />;
+  let leftCard = (
+    <AddPerformerView
+      onPerformerCreate={changeToNewPerformer}
+      toaster={toasterFunctions}
+    />
+  );
   if (viewedPerformer !== null) {
     if (deletionToggle) {
       leftCard = (
@@ -187,10 +211,17 @@ const ListPerformerPage = () => {
             return element.identifier === viewedPerformer;
           })}
           onUpdatePerformer={onUpdatePerformer}
+          toaster={toasterFunctions}
         />
       );
     }
   }
+
+  let alert = (
+    <Alert severity={type} onClose={() => toasterFunctions.open(false)}>
+      {message}
+    </Alert>
+  );
 
   return (
     <MainLayout padding={2}>
@@ -204,7 +235,7 @@ const ListPerformerPage = () => {
             <Grid item xs={12} sm={6} md={4}>
               <AddObjectCard
                 objName="performer"
-                onClickHandler={addPerformerHandler}
+                onClickHandler={toggleAddPerformer}
                 key="addPerformer"
                 sx={styles.card}
               />
@@ -217,6 +248,15 @@ const ListPerformerPage = () => {
           </Grid>
         </Grid>
       </Grid>
+      <Toaster
+        open={openToaster}
+        message={message}
+        severity={type}
+        handleClose={() => setOpenToaster(false)}
+        id="toaster"
+      >
+        {alert}
+      </Toaster>
     </MainLayout>
   );
 };

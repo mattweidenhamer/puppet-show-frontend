@@ -7,14 +7,7 @@ const baseCreateFunction = async (token, url, object) => {
     },
     body: JSON.stringify(object),
   });
-  console.log(response);
-  if (response.ok === false) {
-    console.log(
-      `Response not okay, returned status ${response.status}: ${response.statusText}`
-    );
-    return null;
-  }
-  return response.json();
+  return response;
 };
 
 export default baseCreateFunction;

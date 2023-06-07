@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import MainLayout from "../components/Layout/MainLayout";
 import NavigationBar from "../components/NavBar/NavigationBar";
 import {
@@ -16,7 +16,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import ActiveSceneView from "../components/SpecificViews/ActiveSceneView";
 import AddObjectCard from "../components/Manipulation/AddObjectCard";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
-import addNewScene from "../functions/setters/scenes/addNewScene";
 import setActiveScene from "../functions/setters/scenes/setActiveScene";
 import getScenePreviewImage from "../functions/misc/getScenePreviewImage";
 import DeleteIcon from "@mui/icons-material/Delete";

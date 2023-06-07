@@ -6,7 +6,7 @@ const getScenePreviewImage = (scene) => {
       }
     }
   }
-
+  // TODO replace with image that I own
   return "https://www.pikpng.com/pngl/m/202-2022667_red-cancel-delete-no-forbidden-prohibited-stop-sign.png";
 };
 

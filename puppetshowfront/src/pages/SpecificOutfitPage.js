@@ -2,6 +2,7 @@ import React from "react";
 import MainLayout from "../components/Layout/MainLayout";
 import NavigationBar from "../components/NavBar/NavigationBar";
 import {
+  Alert,
   Card,
   CardContent,
   Typography,
@@ -19,6 +20,8 @@ import updateOutfit from "../functions/patchers/outfit/updateOutfit";
 import deleteAnimation from "../functions/deleters/animations/deleteAnimation";
 import UploadAnimationView from "../components/SpecificViews/UploadAnimationView";
 import addNewAnimation from "../functions/setters/animations/addNewAnimation";
+import Toaster from "../components/Display/Toaster";
+import defaultAPICallbackGen from "../functions/callbacks/defaultAPICallbackGen";
 
 const styles = {
   paper: {
@@ -120,6 +123,14 @@ const SpecificOutfitPage = (props) => {
   );
   const [leftBoxState, setLeftBoxState] = React.useState("Options");
   const [viewedAnimation, setViewedAnimation] = React.useState(null);
+  const [openToaster, setOpenToaster] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const [type, setType] = React.useState("success");
+  const toasterFunctions = {
+    open: setOpenToaster,
+    message: setMessage,
+    type: setType,
+  };
 
   const updateAnimationsObject = () => {
     let newAnimationsObject = {};
@@ -129,10 +140,11 @@ const SpecificOutfitPage = (props) => {
     return newAnimationsObject;
   };
 
-  const uploadNewAnimationHandler = (event) => {
+  const enableUploadAnimation = (event) => {
     setViewedAnimation(event.currentTarget.id);
     setLeftBoxState("Upload");
   };
+
   const onUploadAnimation = async (newAnimation) => {
     //If the animation already exists, delete old and add new
     if (animationsObject[newAnimation.animation_type]) {
@@ -162,27 +174,40 @@ const SpecificOutfitPage = (props) => {
       setOutfit(newOutfit);
     }
   };
+
   const deleteAnimationHandler = async (event) => {
-    const newOutfit = { ...outfit };
-    newOutfit.animations = outfit.animations.filter(
-      (animation) => animation.identifier !== event.currentTarget.id
-    );
-    await deleteAnimation(
+    const result = await deleteAnimation(
       localStorage.getItem("token"),
-      event.currentTarget.id
+      event.currentTarget.id,
+      defaultAPICallbackGen(toasterFunctions)
     );
-    setLeftBoxState("Options");
-    setOutfit(newOutfit);
+    if (result) {
+      const newOutfit = { ...outfit };
+      newOutfit.animations = outfit.animations.filter(
+        (animation) => animation.identifier !== event.currentTarget.id
+      );
+      setLeftBoxState("Options");
+      setOutfit(newOutfit);
+    }
   };
   const onUpdateOutfit = async (newOutfit) => {
     const result = await updateOutfit(
       localStorage.getItem("token"),
       outfit.identifier,
-      newOutfit
+      newOutfit,
+      defaultAPICallbackGen(toasterFunctions)
     );
-    setOutfit(newOutfit);
+    if (result) {
+      setOutfit(newOutfit);
+    }
   };
   const animationsObject = updateAnimationsObject();
+
+  let alert = (
+    <Alert severity={type} onClose={() => toasterFunctions.open(false)}>
+      {message}
+    </Alert>
+  );
 
   let animationCards = animationTypes.map((animationType) => (
     <Card key={animationType} sx={styles.card}>
@@ -210,7 +235,7 @@ const SpecificOutfitPage = (props) => {
       </div>
       <CardActions sx={styles.buttonPadding}>
         <Tooltip title="Upload new animaton">
-          <IconButton onClick={uploadNewAnimationHandler} id={animationType}>
+          <IconButton onClick={enableUploadAnimation} id={animationType}>
             <UploadFileIcon />
           </IconButton>
         </Tooltip>
@@ -249,6 +274,7 @@ const SpecificOutfitPage = (props) => {
         animationType={viewedAnimation}
         currentAnimation={animationsObject[viewedAnimation]}
         performer={performer}
+        toaster={toasterFunctions}
         uploadAnimation={onUploadAnimation}
       />
     );
@@ -275,6 +301,15 @@ const SpecificOutfitPage = (props) => {
           </Grid>
         </Grid>
       </div>
+      <Toaster
+        open={openToaster}
+        message={message}
+        severity={type}
+        handleClose={() => setOpenToaster(false)}
+        id="toaster"
+      >
+        {alert}
+      </Toaster>
     </MainLayout>
   );
 };

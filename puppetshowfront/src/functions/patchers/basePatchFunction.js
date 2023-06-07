@@ -14,7 +14,7 @@ const basePatchFunction = async (token, url, object) => {
     );
     return null;
   }
-  return response.json();
+  return response;
 };
 
 export default basePatchFunction;

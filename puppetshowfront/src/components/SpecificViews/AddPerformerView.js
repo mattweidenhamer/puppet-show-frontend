@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import addNewPerformer from "../../functions/setters/performers/addNewPerformer";
+import defaultAPICallbackGen from "../../functions/callbacks/defaultAPICallbackGen";
 
 const styles = {
   submitButton: {},
@@ -20,24 +21,7 @@ const styles = {
 };
 
 const AddPerformerView = (props) => {
-  const [open, setOpen] = React.useState(false);
-  const [message, setMessage] = React.useState("");
-  const [severity, setSeverity] = React.useState("success");
-
-  const closeSnackBar = (event, reason) => {
-    setOpen(false);
-  };
-
-  const action = (
-    <IconButton
-      size="small"
-      aria-label="close"
-      color="inherit"
-      onClick={closeSnackBar}
-    >
-      <CloseIcon fontSize="small" />
-    </IconButton>
-  );
+  const toaster = props.toaster;
 
   const createPerformerHandler = async (event) => {
     //Check to see if there is any text in the input box.
@@ -45,28 +29,37 @@ const AddPerformerView = (props) => {
     const input = document.getElementById("IDInput");
 
     if (input.value.trim() === "") {
-      setMessage("Please enter your performer's discord ID before continuing!");
-      setSeverity("error");
-      setOpen(true);
+      toaster.message(
+        "Please enter your performer's discord ID before continuing!"
+      );
+      toaster.type("error");
+      toaster.open(true);
     }
-    // If there is, send the call to create a new scene, then navigate to that scene's page.
+    // Check to make sure that the box contains a number.
+    else if (input.value.trim().match(/^[0-9]+$/) === null) {
+      toaster.message("Please enter a valid discord ID before continuing!");
+      toaster.type("error");
+      toaster.open(true);
+    }
+    // If there is, send the call to create a new performer.
     else {
       const newPerformer = await addNewPerformer(
         localStorage.getItem("token"),
         {
           discord_snowflake: input.value.trim(),
-        }
+        },
+        defaultAPICallbackGen(toaster)
       );
       if (newPerformer === null) {
-        setMessage("There was an error creating your performer!");
-        setSeverity("error");
-        setOpen(true);
+        toaster.message("There was an error creating your performer!");
+        toaster.type("error");
+        toaster.open(true);
       } else {
         console.log("Created new performer");
         console.log(newPerformer);
-        setMessage("Your performer was created successfully!");
-        setSeverity("success");
-        setOpen(true);
+        toaster.message("Your performer was created successfully!");
+        toaster.type("success");
+        toaster.open(true);
         props.onPerformerCreate(newPerformer);
       }
     }
@@ -96,14 +89,6 @@ const AddPerformerView = (props) => {
           Create my performer!
         </Button>
       </Placard>
-      <Snackbar
-        open={open}
-        autoHideDuration={6000}
-        onClose={closeSnackBar}
-        action={action}
-      >
-        <Alert severity={severity}>{message}</Alert>
-      </Snackbar>
     </BigLeftCard>
   );
 };

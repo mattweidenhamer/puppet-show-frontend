@@ -11,6 +11,7 @@ import {
 import React, { useEffect } from "react";
 import updatePerformerSettings from "../../functions/patchers/performers/updatePerformer";
 import debug_redirects from "../../constants/debug_redirects.json";
+import defaultAPICallbackGen from "../../functions/callbacks/defaultAPICallbackGen";
 const styles = {
   optionsPlacard: {
     marginTop: 2,
@@ -43,7 +44,8 @@ const PerformerOptionsView = (props) => {
       {
         discord_snowflake: newSnowflake,
         settings: newSettings,
-      }
+      },
+      defaultAPICallbackGen(props.toaster)
     );
     props.onUpdatePerformer(newPerformer);
     //TODO change some part of the scene based on the toggle.

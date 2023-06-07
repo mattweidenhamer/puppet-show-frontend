@@ -1,17 +1,7 @@
 import React from "react";
-import {
-  Alert,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Snackbar,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Alert, Button, TextField, Typography } from "@mui/material";
 import BigLeftCard from "../Layout/BigLeftCard";
-import getDefaultAnimationToDisplay from "../../functions/misc/getDefaultAnimationToDisplay";
 import Placard from "../Display/Placard";
-import Toaster from "../Display/Toaster";
 import NoAnimationSet from "../../images/NoAnimationsSet.png";
 
 const styles = {
@@ -48,9 +38,9 @@ const UploadAnimationView = (props) => {
   const handleUpload = (event) => {
     const animationUrl = document.getElementById("animation_url").value;
     if (animationUrl.trim() === "") {
-      setMessage("Please enter a valid url!");
-      setType("error");
-      setOpen(true);
+      props.toaster.message("Please enter a valid url!");
+      props.toaster.type("error");
+      props.toaster.open(true);
       return;
     }
     const animationType = props.animationType;
@@ -61,14 +51,11 @@ const UploadAnimationView = (props) => {
     };
     props.uploadAnimation(newAnimation);
   };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  let alert = (
-    <Alert severity={type} onClose={handleClose}>
-      {message}
-    </Alert>
-  );
+  // let alert = (
+  //   <Alert severity={type} onClose={() => props.toaster.open(false)}>
+  //     {message}
+  //   </Alert>
+  // );
   return (
     <BigLeftCard>
       <Placard>
@@ -111,14 +98,14 @@ const UploadAnimationView = (props) => {
           Update animation
         </Button>
       </Placard>
-      <Toaster
+      {/* <Toaster
         open={open}
         message={message}
         severity={type}
         handleClose={handleClose}
       >
         {alert}
-      </Toaster>
+      </Toaster> */}
     </BigLeftCard>
   );
 };

@@ -25,6 +25,8 @@ import getActiveSceneFromBackend from "./functions/loaders/scenes/getActiveScene
 import getStageFromBackend from "./functions/loaders/stage/getStageFromBackend";
 import ErrorPage from "./pages/meta/ErrorPage";
 import ImportantInformationPage from "./pages/meta/ImportantInformationPage";
+import defaultAPICallbackGen from "./functions/callbacks/defaultAPICallbackGen";
+import loadAllPerformersCallback from "./functions/callbacks/loadAllPerformersCallback";
 
 const checkUserInLocal = async () => {
   if (localStorage.getItem("user") === null) {
@@ -33,16 +35,21 @@ const checkUserInLocal = async () => {
   return true;
 };
 
-const updateUserFromBackend = async (token, force) => {
+const updateUserFromBackend = async (
+  token,
+  force,
+  callback = defaultAPICallbackGen(null)
+) => {
   if (force) {
-    const user = await getUserFromBackend(token);
+    const user = await getUserFromBackend(token, callback);
     if (user !== null) {
-      console.log("Updating user");
+      console.debug("Updating user");
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("timeSinceLastUpdate", Date.now());
     } else {
       localStorage.removeItem("user");
-      console.log("Received null user");
+      console.log("Received null user from callback");
+      throw new Error("Received null user");
     }
   } else {
     if (
@@ -50,14 +57,17 @@ const updateUserFromBackend = async (token, force) => {
       Date.now() - localStorage.getItem("timeSinceLastUpdate") >
         1000 * 60 * 60 * 8
     ) {
-      const user = await getUserFromBackend(token);
+      const user = await getUserFromBackend(token, callback);
       if (user !== null) {
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("timeSinceLastUpdate", Date.now());
       } else {
         localStorage.removeItem("user");
         console.log("Received null user");
+        throw new Error("Received null user");
       }
+    } else {
+      console.log("Update was recent, not updating user.");
     }
   }
 };
@@ -85,7 +95,10 @@ const router = createBrowserRouter([
       if (token === null) {
         return redirect("/connectDiscord");
       }
-      const active_scene = await getActiveSceneFromBackend(token);
+      const active_scene = await getActiveSceneFromBackend(
+        token,
+        defaultAPICallbackGen(null)
+      );
       if (checkUserInLocal()) {
         console.log("Found user in local storage");
         await updateUserFromBackend(token, false);
@@ -103,7 +116,10 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     loader: async ({ params }) => {
       const token = localStorage.getItem("token");
-      const scenes = await getAllScenesFromBackend(token);
+      const scenes = await getAllScenesFromBackend(
+        token,
+        defaultAPICallbackGen(null)
+      );
       return scenes;
     },
   },
@@ -114,8 +130,15 @@ const router = createBrowserRouter([
     id: "specificScene",
     loader: async ({ params }) => {
       const token = localStorage.getItem("token");
-      const scene = await getSceneFromBackend(token, params.sceneId);
-      const performers = await getAllPerformersFromBackend(token);
+      const scene = await getSceneFromBackend(
+        token,
+        params.sceneId,
+        defaultAPICallbackGen(null)
+      );
+      const performers = await getAllPerformersFromBackend(
+        token,
+        defaultAPICallbackGen(null)
+      );
       return { scene: scene, performers: performers };
     },
   },
@@ -133,10 +156,22 @@ const router = createBrowserRouter([
     id: "specificOutfit",
     loader: async ({ params }) => {
       const token = localStorage.getItem("token");
-      const outfit = await getOutfitFromBackend(token, params.outfitId);
+      const outfit = await getOutfitFromBackend(
+        token,
+        params.outfitId,
+        defaultAPICallbackGen(null)
+      );
       //TODO may not need Scene
-      const scene = await getSceneFromBackend(token, outfit.scene);
-      const performer = await getPerformerFromBackend(token, outfit.performer);
+      const scene = await getSceneFromBackend(
+        token,
+        outfit.scene,
+        defaultAPICallbackGen(null)
+      );
+      const performer = await getPerformerFromBackend(
+        token,
+        outfit.performer,
+        defaultAPICallbackGen(null)
+      );
       return { outfit: outfit, scene: scene, performer: performer };
     },
   },
@@ -148,7 +183,10 @@ const router = createBrowserRouter([
     loader: async ({ params }) => {
       console.log(params);
       console.log(params.performerId);
-      const stage = await getStageFromBackend(params.performerId);
+      const stage = await getStageFromBackend(
+        params.performerId,
+        defaultAPICallbackGen(null)
+      );
       return stage;
     },
   },
@@ -161,7 +199,7 @@ const router = createBrowserRouter([
 
       const token = url.searchParams.get("token");
       localStorage.setItem("token", token);
-      const user = await getUserFromBackend(token);
+      const user = await getUserFromBackend(token, defaultAPICallbackGen(null));
       if (user === null) {
         //Redirect to error logging in page
         return redirect("/error");
@@ -201,7 +239,7 @@ const router = createBrowserRouter([
       if (token === null) {
         return redirect("/connectDiscord");
       }
-      return getAllPerformersFromBackend(token);
+      return getAllPerformersFromBackend(token, loadAllPerformersCallback);
     },
   },
   {

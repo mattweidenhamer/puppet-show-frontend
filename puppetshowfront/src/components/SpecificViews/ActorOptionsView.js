@@ -1,20 +1,7 @@
 import BigLeftCard from "../Layout/BigLeftCard";
 import Placard from "../Display/Placard";
-import {
-  FormControlLabel,
-  FormGroup,
-  Switch,
-  Typography,
-  RadioGroup,
-  FormLabel,
-  FormControl,
-  Radio,
-  Checkbox,
-  Button,
-  TextField,
-} from "@mui/material";
+import { FormGroup, Typography, Button, TextField } from "@mui/material";
 import React, { useState } from "react";
-import PerformerOptionsView from "./PerformerOptionsView";
 
 const styles = {
   optionsPlacard: {

@@ -13,8 +13,7 @@ const baseLoaderFunction = async (token, url) => {
     );
     return null;
   }
-  const responseData = response.json();
-  return responseData;
+  return response;
 };
 
 export default baseLoaderFunction;
