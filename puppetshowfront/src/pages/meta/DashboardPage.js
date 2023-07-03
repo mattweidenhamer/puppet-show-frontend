@@ -10,7 +10,6 @@ import { Button, Grid, Paper, Typography } from "@mui/material";
 import React from "react";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
 import getScenePreviewImage from "../../functions/misc/getScenePreviewImage";
-import LogRocket from "logrocket";
 
 const styles = {
   dashboardContainer: {
@@ -57,11 +56,6 @@ const DashboardPage = () => {
   const redirect = useNavigate();
   const active_scene = useRouteLoaderData("dashboard")["active_scene"];
   const user = JSON.parse(localStorage.getItem("user"));
-  // Test LogRocket
-  const setLoggingHandler = () => {
-    console.log("Test logrocket type");
-    throw new Error("Test LogRocket");
-  };
   let active_scene_name = "None";
   console.log("active scene is ", active_scene);
   let active_scene_icon =
@@ -93,18 +87,6 @@ const DashboardPage = () => {
     window.open(process.env.REACT_APP_BOT_INVITE_URL, "_blank");
   };
   let crashButton = null;
-  if (debug) {
-    crashButton = (
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={setLoggingHandler}
-        sx={styles.button}
-      >
-        Test Logrocket
-      </Button>
-    );
-  }
   return (
     <MainLayout>
       <NavigationBar />

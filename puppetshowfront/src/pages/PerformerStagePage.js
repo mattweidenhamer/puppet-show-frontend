@@ -168,9 +168,9 @@ const PerformerStagePage = () => {
   }, [lastMessage, setVoiceState, voiceState, setReceivedUpdate]);
 
   return (
-    <>
+    <div>
       <div style={styles.stageContainer}>{animationImages[voiceState]}</div>
-    </>
+    </div>
   );
 };
 

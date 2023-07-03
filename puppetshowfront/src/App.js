@@ -1,4 +1,3 @@
-// import "./functions/misc/logRocketSetup";
 import "./App.css";
 import LandingPage from "./pages/meta/LandingPage";
 import ListScenePage from "./pages/ListScenePage";
