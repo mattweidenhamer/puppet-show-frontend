@@ -3,6 +3,7 @@ import NavigationBar from "../../components/NavBar/NavigationBar";
 import { Button, Link, Paper, Typography } from "@mui/material";
 import MainLayout from "../../components/Layout/MainLayout";
 import Placard from "../../components/Display/Placard";
+import getOauthURL from "../../functions/misc/getOauthURL";
 const styles = {
   addDisplayPaper: {
     minHeight: "75vh",
@@ -23,7 +24,7 @@ const styles = {
 };
 
 const ConnectDiscordPage = () => {
-  console.log(process.env.REACT_APP_DISCORD_OAUTH_URL);
+  console.log(getOauthURL());
   return (
     <MainLayout padding={2}>
       <NavigationBar />
@@ -42,7 +43,7 @@ const ConnectDiscordPage = () => {
         <Button
           variant="contained"
           color="primary"
-          href={process.env.REACT_APP_DISCORD_OAUTH_URL}
+          href={getOauthURL()}
           sx={styles.button}
         >
           Connect Discord

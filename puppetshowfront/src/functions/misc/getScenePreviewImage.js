@@ -1,5 +1,5 @@
 const getScenePreviewImage = (scene) => {
-  if (scene !== null && scene !== undefined) {
+  if (scene !== null && scene !== undefined && scene["outfits"] !== undefined) {
     for (const outfit of scene["outfits"]) {
       if (outfit.animations.length > 0) {
         return outfit.animations[0].animation_path;

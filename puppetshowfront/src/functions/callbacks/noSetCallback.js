@@ -6,6 +6,7 @@ const noSetCallback = async (response) => {
     console.log("Response was null.");
     return null;
   } else if (response.ok === false) {
+    // TODO start raising errors so that they can be handled.
     console.log(
       `Response not okay, returned status ${response.status}: ${response.statusText}.`
     );

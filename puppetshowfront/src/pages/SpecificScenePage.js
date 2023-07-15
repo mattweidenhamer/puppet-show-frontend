@@ -17,7 +17,7 @@ import MainLayout from "../components/Layout/MainLayout";
 import NavigationBar from "../components/NavBar/NavigationBar";
 import SceneOptionsView from "../components/SpecificViews/SceneOptionsView";
 import AddActorView from "../components/SpecificViews/AddActorView";
-import DeleteActorView from "../components/SpecificViews/DeleteActorView";
+import DeleteOutfitView from "../components/SpecificViews/DeleteOutfitView";
 import { useNavigate, useRouteLoaderData } from "react-router-dom";
 import addNewOutfit from "../functions/setters/outfits/addNewOutfit";
 import deleteOutfit from "../functions/deleters/outfit/deleteOutfit";
@@ -223,7 +223,7 @@ const SpecificScenePage = (props) => {
     );
   } else if (leftBoxState === "Delete") {
     leftBox = (
-      <DeleteActorView
+      <DeleteOutfitView
         outfit={selectedOutfit}
         scene={scene}
         onDeleteConfirm={handleDeleteOutfit}

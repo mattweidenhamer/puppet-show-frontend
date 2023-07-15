@@ -89,13 +89,6 @@ const animationTypes = [
   //"CONNECTION",
   //"DISCONNECTION",
 ];
-// const camelize = (str) => {
-//   return str
-//     .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
-//       return index === 0 ? word.toLowerCase() : word.toUpperCase();
-//     })
-//     .replace(/\s+/g, "");
-// };
 const READABLE_NAMES = {
   START_SPEAKING: "Speaking",
   NOT_SPEAKING: "Not Speaking",

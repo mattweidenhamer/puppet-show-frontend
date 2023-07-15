@@ -19,6 +19,8 @@ import { useNavigate, useRouteLoaderData } from "react-router-dom";
 import setActiveScene from "../functions/setters/scenes/setActiveScene";
 import getScenePreviewImage from "../functions/misc/getScenePreviewImage";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteSceneView from "../components/SpecificViews/DeleteSceneView";
+import deleteScene from "../functions/deleters/scenes/deleteScene";
 
 const styles = {
   paper: {
@@ -83,8 +85,10 @@ const ListScenePage = (props) => {
   // The second one on the right should be a grid of smaller cards. The first card should be a button that says "Add Scene".
   // All other cards should be different scenes, which display the scene name, one of the scene's actor images, and below that, two buttons: one that says "create scene" and one that says "edit scene."
 
-  const [addSceneOn, setAddSceneOn] = React.useState(false);
+  // States for leftbox: ActiveScene, AddScene, DeleteScene
+  const [leftBoxState, setLeftBoxState] = React.useState("ActiveScene");
   const [scenes, setScenes] = React.useState(useRouteLoaderData("allScenes"));
+  const [selectedScene, selectScene] = React.useState(null);
   const activeScene = scenes.find((element) => element.is_active === true);
   const setActiveSceneCall = async (sceneIdentifier) => {
     await setActiveScene(localStorage.getItem("token"), sceneIdentifier);
@@ -101,14 +105,11 @@ const ListScenePage = (props) => {
     });
   };
   const navigate = useNavigate();
-  // const addNewScene = (previousScenes, newScene) => {
-  //   return { ...previousScenes, [newScene.identifier]: newScene };
-  // };
   const editSceneHandler = (identifier) => {
     navigate(`${identifier}`);
   };
   const createSceneHandler = () => {
-    setAddSceneOn(true);
+    setLeftBoxState("AddScene");
   };
   const selectSceneHandler = (sceneIdentifier) => {
     if (
@@ -116,15 +117,33 @@ const ListScenePage = (props) => {
     ) {
       return;
     }
-    setAddSceneOn(false);
+    setLeftBoxState("ActiveScene");
     setActiveSceneCall(sceneIdentifier);
+  };
+  const enableDeleteScene = (sceneIdentifier) => {
+    setLeftBoxState("DeleteScene");
+    selectScene(sceneIdentifier);
+  };
+  const deleteSceneHandler = async (sceneIdentifier) => {
+    const result = await deleteScene(
+      localStorage.getItem("token"),
+      sceneIdentifier
+    );
+    setScenes((scenes) => {
+      let newScenes = [...scenes];
+      newScenes = newScenes.filter(
+        (element) => element.identifier !== sceneIdentifier
+      );
+      return newScenes;
+    });
+    setLeftBoxState("ActiveScene");
+    selectScene(null);
   };
   const changeToNewScene = (newScene) => {
     navigate(`/scenes/${newScene.identifier}`);
     // setScenes((prevScenes) => addNewScene(prevScenes, newScene));
     // setAddSceneOn(false);
   };
-  //TODO add a delete scene option to buttons.
   const sceneCards = scenes.map((scene) => (
     <Card key={scene.scene_name} sx={styles.card}>
       <CardContent>
@@ -153,7 +172,11 @@ const ListScenePage = (props) => {
         >
           <EditIcon />
         </IconButton>
-        <IconButton onClick={() => {}}>
+        <IconButton
+          onClick={() => {
+            enableDeleteScene(scene.identifier);
+          }}
+        >
           <DeleteIcon />
         </IconButton>
         <IconButton onClick={() => selectSceneHandler(scene.identifier)}>
@@ -169,10 +192,17 @@ const ListScenePage = (props) => {
       <div>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={4}>
-            {addSceneOn ? (
+            {leftBoxState === "AddScene" ? (
               <AddSceneView onSceneCreate={changeToNewScene} />
-            ) : (
+            ) : leftBoxState === "ActiveScene" ? (
               <ActiveSceneView scene={activeScene} sx={styles.bigCard} />
+            ) : (
+              <DeleteSceneView
+                scene={scenes.find(
+                  (element) => element.identifier === selectedScene
+                )}
+                onDeleteConfirm={deleteSceneHandler}
+              />
             )}
           </Grid>
           <Grid item xs={12} sm={6} md={8}>
