@@ -26,14 +26,14 @@ const getFailsafeAnimation = (performer) => {
   return "https://" + performer.discord_avatar;
 };
 
-const DeleteActorView = (props) => {
+const DeleteOutfitView = (props) => {
   console.log(props.outfit);
   const [confirmDelete, setConfirmDelete] = React.useState(false);
   return (
     <BigLeftCard>
       <Placard>
         <Typography variant="h2" color="warning.main">
-          Really delete actor {props.outfit.outfit_name} from scene{" "}
+          Really delete outfit {props.outfit.outfit_name} from scene{" "}
           {props.scene.scene_name}?
         </Typography>
       </Placard>
@@ -46,7 +46,7 @@ const DeleteActorView = (props) => {
       </div>
       <Placard>
         <Typography variant="h5">
-          Users without actors in scenes will not render, even if they're
+          Users without outfits in scenes will not render, even if they're
           configured in your linked users.
         </Typography>
         <FormControlLabel
@@ -74,4 +74,4 @@ const DeleteActorView = (props) => {
   );
 };
 
-export default DeleteActorView;
+export default DeleteOutfitView;
