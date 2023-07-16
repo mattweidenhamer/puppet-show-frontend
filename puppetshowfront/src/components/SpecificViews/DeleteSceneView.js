@@ -1,7 +1,6 @@
 import React from "react";
 import { Button, Checkbox, FormControlLabel, Typography } from "@mui/material";
 import BigLeftCard from "../Layout/BigLeftCard";
-import getDefaultAnimationToDisplay from "../../functions/misc/getDefaultAnimationToDisplay";
 import Placard from "../Display/Placard";
 import getScenePreviewImage from "../../functions/misc/getScenePreviewImage";
 
@@ -25,7 +24,6 @@ const styles = {
 };
 
 const DeleteSceneView = (props) => {
-  console.log(props.scene);
   const [confirmDelete, setConfirmDelete] = React.useState(false);
   return (
     <BigLeftCard>

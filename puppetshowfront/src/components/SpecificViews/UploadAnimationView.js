@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, Button, TextField, Typography } from "@mui/material";
+import { Button, TextField, Typography } from "@mui/material";
 import BigLeftCard from "../Layout/BigLeftCard";
 import Placard from "../Display/Placard";
 import NoAnimationSet from "../../images/NoAnimationsSet.png";
@@ -31,10 +31,6 @@ const READABLE_NAMES = {
 };
 
 const UploadAnimationView = (props) => {
-  const [open, setOpen] = React.useState(false);
-  const [message, setMessage] = React.useState("");
-  const [type, setType] = React.useState("success");
-
   const handleUpload = (event) => {
     const animationUrl = document.getElementById("animation_url").value;
     if (animationUrl.trim() === "") {
