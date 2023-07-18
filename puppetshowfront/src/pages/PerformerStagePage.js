@@ -4,6 +4,7 @@ import { useRouteLoaderData } from "react-router-dom";
 import actorStates from "../constants/actorStates.json";
 import getActorImage from "../functions/misc/getActorImage";
 import PerformanceAnimation from "../components/Display/PerformanceAnimation";
+import getBotUrl from "../functions/misc/getBotUrl";
 
 const styles = {
   stageContainer: {
@@ -35,7 +36,7 @@ const connection_states = {
   [ReadyState.UNINSTANTIATED]: "Uninstantiated",
 };
 
-const socketURL = "ws://localhost:8080";
+const socketURL = getBotUrl();
 
 // const PerformerStagePage = () => {
 //   // Load the actor hash based on the URL

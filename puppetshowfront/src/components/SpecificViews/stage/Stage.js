@@ -21,7 +21,6 @@ const styles = {
 const Stage = (props) => {
   //Handle selection of the animation and how it is displayed here.
   const performer = props.performer;
-  const performerDisplay = null;
   let converted_settings = {};
   if (performer.animations === null || performer.animations === undefined) {
     performer.animations = {};
@@ -36,7 +35,7 @@ const Stage = (props) => {
       converted_settings["filter"] = "grayscale(100%)";
     }
   }
-  performerDisplay = (
+  const performerDisplay = (
     <img
       src={getActorImage(performer, props.actorState)}
       alt={performer.name}
