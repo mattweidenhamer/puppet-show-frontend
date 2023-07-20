@@ -11,6 +11,7 @@ import {
 import React, { useEffect } from "react";
 import updatePerformerSettings from "../../functions/patchers/performers/updatePerformer";
 import defaultAPICallbackGen from "../../functions/callbacks/defaultAPICallbackGen";
+import getFrontendUrl from "../../functions/misc/getFrontendUrl";
 const styles = {
   optionsPlacard: {
     marginTop: 2,
@@ -49,14 +50,7 @@ const PerformerOptionsView = (props) => {
     props.onUpdatePerformer(newPerformer);
     //TODO change some part of the scene based on the toggle.
   };
-  let link = "";
-  if (process.env.REACT_APP_DEBUG) {
-    link =
-      process.env.REACT_APP_FRONTEND_DEBUG + "stage/" + performer.identifier;
-  } else {
-    link =
-      process.env.REACT_APP_FRONTEND_PROD + "stage/" + performer.identifier;
-  }
+  const link = getFrontendUrl() + "stage/" + performer.identifier;
   const EditDiscordSnowflake = (
     <FormControl>
       <TextField
