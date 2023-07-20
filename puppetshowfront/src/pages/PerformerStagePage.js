@@ -102,27 +102,36 @@ const PerformerStagePage = () => {
     useRouteLoaderData("performerStage")
   );
   const [voiceState, setVoiceState] = React.useState(actorStates.GONE);
+  const [doNotRender, setDoNotRender] = React.useState(false); // This is used to prevent the actor from rendering if they have no outfit for the scene.
   const [receivedLastUpdate, setReceivedUpdate] = React.useState(new Date());
   const [animationImages, setAnimationImages] = React.useState(() => {
-    let animation_obj = {};
-    for (const animation of performer.get_outfit.animations) {
-      animation_obj[animation.animation_type] = (
-        <img
-          src={animation.animation_path}
-          key={animation.animation_type}
-          alt={animation.animation_type}
-        />
-      );
-      // Set the default connection animation to the not talking animation if it is undefined.
-      if (
-        animation.animation_type === actorStates.STOP_SPEAKING &&
-        animation_obj[actorStates.CONNECTION] === undefined
-      ) {
-        animation_obj[actorStates.CONNECTION] =
-          animation_obj[animation.animation_type];
+    try {
+      let animation_obj = {};
+      for (const animation of performer.get_outfit.animations) {
+        animation_obj[animation.animation_type] = (
+          <img
+            src={animation.animation_path}
+            key={animation.animation_type}
+            alt={animation.animation_type}
+          />
+        );
+        // Set the default connection animation to the not talking animation if it is undefined.
+        if (
+          animation.animation_type === actorStates.STOP_SPEAKING &&
+          animation_obj[actorStates.CONNECTION] === undefined
+        ) {
+          animation_obj[actorStates.CONNECTION] =
+            animation_obj[animation.animation_type];
+        }
       }
+      return animation_obj;
+    } catch (error) {
+      console.log(error);
+      console.log(
+        "This error likely means that the performer has no outfit for this scene. As such, it will not render."
+      );
+      setDoNotRender(true);
     }
-    return animation_obj;
   });
   //FOR THE FUTURE, use for setting up inverval-based animations such as sleeping, connection, and disconnection.
   // useEffect(() => {
@@ -168,9 +177,22 @@ const PerformerStagePage = () => {
     }
   }, [lastMessage, setVoiceState, voiceState, setReceivedUpdate]);
 
+  let animationDisplay = null;
+  if (!doNotRender) {
+    try {
+      animationDisplay = animationImages[voiceState];
+    } catch (error) {
+      console.error(error);
+      console.log(
+        "This error likely means that the performer has no outfit for this scene. As such, it will not render."
+      );
+      setDoNotRender(true);
+    }
+  }
+
   return (
     <div>
-      <div style={styles.stageContainer}>{animationImages[voiceState]}</div>
+      <div style={styles.stageContainer}>{animationDisplay}</div>
     </div>
   );
 };
