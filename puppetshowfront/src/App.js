@@ -6,7 +6,11 @@ import SpecificOutfitPage from "./pages/SpecificOutfitPage";
 import PerformerStagePage from "./pages/PerformerStagePage";
 import UserInfoPage from "./pages/UserInfoPage";
 import HowToUsePage from "./pages/meta/HowToUsePage";
+import ConnectDiscordPage from "./pages/meta/ConnectDiscordPage";
+import DashboardPage from "./pages/meta/DashboardPage";
+import ErrorPage from "./pages/meta/ErrorPage";
 import ListPerformerPage from "./pages/ListPerformerPage";
+import ImportantInformationPage from "./pages/meta/ImportantInformationPage";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -18,14 +22,12 @@ import getAllPerformersFromBackend from "./functions/loaders/performers/getAllPe
 import getSceneFromBackend from "./functions/loaders/scenes/getSceneFromBackend";
 import getAllScenesFromBackend from "./functions/loaders/scenes/getAllScenesFromBackend";
 import getUserFromBackend from "./functions/loaders/users/getUserFromBackend";
-import ConnectDiscordPage from "./pages/meta/ConnectDiscordPage";
-import DashboardPage from "./pages/meta/DashboardPage";
 import getActiveSceneFromBackend from "./functions/loaders/scenes/getActiveSceneFromBackend";
 import getStageFromBackend from "./functions/loaders/stage/getStageFromBackend";
-import ErrorPage from "./pages/meta/ErrorPage";
-import ImportantInformationPage from "./pages/meta/ImportantInformationPage";
+
 import defaultAPICallbackGen from "./functions/callbacks/defaultAPICallbackGen";
 import loadAllPerformersCallback from "./functions/callbacks/loadAllPerformersCallback";
+import getStageCustomOutfitFromBackend from "./functions/loaders/stage/getStageCustomOutfitFromBackend";
 
 const checkUserInLocal = async () => {
   if (localStorage.getItem("user") === null) {
@@ -160,30 +162,33 @@ const router = createBrowserRouter([
         params.outfitId,
         defaultAPICallbackGen(null)
       );
-      //TODO may not need Scene
-      const scene = await getSceneFromBackend(
-        token,
-        outfit.scene,
-        defaultAPICallbackGen(null)
-      );
       const performer = await getPerformerFromBackend(
         token,
         outfit.performer,
         defaultAPICallbackGen(null)
       );
-      return { outfit: outfit, scene: scene, performer: performer };
+      return { outfit: outfit, performer: performer };
     },
   },
   {
-    path: "/stage/:performerId",
+    path: "/stage/:performerId/:outfitId?",
     element: <PerformerStagePage />,
     errorElement: <ErrorPage />,
     id: "performerStage",
     loader: async ({ params }) => {
-      console.log(params);
-      console.log(params.performerId);
-      const stage = await getStageFromBackend(
+      let stage = null;
+      if (params.outfitId === undefined) {
+        console.log("Using default stage puller.");
+        stage = await getStageFromBackend(
+          params.performerId,
+          defaultAPICallbackGen(null)
+        );
+        return stage;
+      }
+      console.log("Using specific outfit stage puller.");
+      stage = await getStageCustomOutfitFromBackend(
         params.performerId,
+        params.outfitId,
         defaultAPICallbackGen(null)
       );
       return stage;

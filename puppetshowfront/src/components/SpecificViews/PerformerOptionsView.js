@@ -12,6 +12,7 @@ import React, { useEffect } from "react";
 import updatePerformerSettings from "../../functions/patchers/performers/updatePerformer";
 import defaultAPICallbackGen from "../../functions/callbacks/defaultAPICallbackGen";
 import getFrontendUrl from "../../functions/misc/getFrontendUrl";
+import getPerformerUrl from "../../functions/misc/getPerformerUrl";
 const styles = {
   optionsPlacard: {
     marginTop: 2,
@@ -50,7 +51,7 @@ const PerformerOptionsView = (props) => {
     props.onUpdatePerformer(newPerformer);
     //TODO change some part of the scene based on the toggle.
   };
-  const link = getFrontendUrl() + "stage/" + performer.identifier;
+  const link = getPerformerUrl(performer);
   const EditDiscordSnowflake = (
     <FormControl>
       <TextField

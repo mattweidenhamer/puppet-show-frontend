@@ -115,7 +115,6 @@ const ListPerformerPage = () => {
       performerId,
       defaultAPICallbackGen(toasterFunctions)
     );
-    console.log("Made it here.");
     setPerformers((prevState) => {
       let newPerformerList = [...prevState];
       let index = newPerformerList.findIndex((element) => {
